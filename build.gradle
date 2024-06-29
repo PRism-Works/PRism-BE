@@ -23,6 +23,21 @@ repositories {
 	mavenCentral()
 }
 
+// 빌드 시 tomcat 미포함
+task buildZip(type: Zip) {
+	from compileJava
+	from processResources
+	into('lib') {
+		from(configurations.compileClasspath) {
+			exclude 'tomcat-embed-*'
+		}
+	}
+}
+// 빌드 시 tomcat 미포함
+build {
+	dependsOn buildZip
+}
+
 dependencies {
 //	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -34,6 +49,13 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
+
+	implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot3:2.0.2'
+	implementation 'io.github.crac.com.amazonaws:aws-lambda-java-runtime-interface-client:2.4.1.CRAC.0'
+
+	implementation 'javax.servlet:javax.servlet-api:4.0.1'
 }
 
 tasks.named('test') {
