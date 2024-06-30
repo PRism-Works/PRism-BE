@@ -9,6 +9,11 @@
 #    properties:
 #      hibernate:
 #        format_sql: true
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
 springdoc:
   api-docs:
     path: /api-docs
@@ -18,4 +23,3 @@ springdoc:
     operations-sorter: alpha
     tags-sorter: alpha
     path: /swagger-ui.html
-    disable-swagger-default-url: true
