@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.index;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +15,7 @@ public class IndexController {
         return "hello world!";
     }
 
+    @Hidden
     @GetMapping(value = "/healthcheck")
     public String healthcheck() {
         return "healthy";
