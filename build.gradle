@@ -59,10 +59,17 @@ dependencies {
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
 	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
+	//Aws Lambda 사용 위한 모듈
 	implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot3:2.0.2'
 	implementation 'io.github.crac.com.amazonaws:aws-lambda-java-runtime-interface-client:2.4.1.CRAC.0'
-
 	implementation 'javax.servlet:javax.servlet-api:4.0.1'
+	//Aws Lambda 사용 위한 모듈
+
+	//Exception 등 파라미터 검증 모듈
+	implementation('com.google.apis:google-api-services-youtube:v3-rev183-1.22.0') {
+		exclude group: 'com.google.guava', module: 'guava-jdk5'
+	}
+	//Exception 등 파라미터 검증 모듈
 }
 
 tasks.named('test') {
