@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.search.exception;
+package com.prismworks.prism.domain.search.comn.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

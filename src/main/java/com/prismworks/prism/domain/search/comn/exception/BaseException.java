@@ -1,14 +1,12 @@
-package com.prismworks.prism.domain.search.exception;
+package com.prismworks.prism.domain.search.comn.exception;
 
 import com.google.api.client.util.Preconditions;
 import lombok.Getter;
-import org.springframework.validation.BindingResult;
 
+@Getter
 public class BaseException extends RuntimeException{
 
-    @Getter
     ErrorCodes code;
-    BindingResult bindingResult;
 
     public BaseException(ErrorCodes code, String message) {
         this(code, message, null);

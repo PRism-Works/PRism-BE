@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.search.exception;
+package com.prismworks.prism.domain.search.comn.exception;
 
 public enum GlobalErrorCodes implements ErrorCodes {
 
@@ -19,8 +19,4 @@ public enum GlobalErrorCodes implements ErrorCodes {
         this.errorCode = errorCode;
     }
 
-    @Override
-    public String getCode() {
-        return errorCode;
-    }
 }
