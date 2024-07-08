@@ -25,16 +25,6 @@ public class GlobalExceptionHandler {
                 .body(new ApiErrorResponse(errorInfo));
     }
 
-    @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<String> handleMalformedJwtException() {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("올바르지 않은 토큰입니다.");
-    }
-
-    @ExceptionHandler(AuthException.class)
-    public void handleAuthException(AuthException e) {
-        log.error("AuthException", e);
-    }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleException(Exception e) {
         log.error("Exception", e);
