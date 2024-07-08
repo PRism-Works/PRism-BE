@@ -12,7 +12,7 @@ public class UserDto {
     public static class Create {
         private String username;
         private String email;
-        private String password;
+        private String encodedPassword;
     }
 
     @AllArgsConstructor

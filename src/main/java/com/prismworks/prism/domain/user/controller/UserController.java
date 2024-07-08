@@ -2,7 +2,7 @@ package com.prismworks.prism.domain.user.controller;
 
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.user.dto.UserDto;
-import com.prismworks.prism.domain.user.model.User;
+import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +19,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ApiSuccessResponse getUser(@PathVariable String userId) {
-        User user = userService.findById(userId);
+        Users user = userService.findById(userId);
         UserDto.GetUserResponse response = new UserDto.GetUserResponse(user.getUsername(), user.getEmail());
         return ApiSuccessResponse.defaultOk(response);
     }

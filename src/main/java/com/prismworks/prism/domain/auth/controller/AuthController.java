@@ -38,4 +38,15 @@ public class AuthController {
         AuthDto.SignupResponse response = authService.signup(request);
         return new ApiSuccessResponse(HttpStatus.CREATED.value(), response);
     }
+
+    @PostMapping("/login")
+    public ApiSuccessResponse login(@RequestBody @Valid AuthDto.LoginRequest request) {
+        AuthDto.LoginResponse response = authService.login(request);
+        return ApiSuccessResponse.defaultOk(response);
+    }
+
+    @PostMapping("/refresh-token")
+    public void reissueToken(@RequestBody @Valid AuthDto.RefreshTokenRequest request) {
+
+    }
 }

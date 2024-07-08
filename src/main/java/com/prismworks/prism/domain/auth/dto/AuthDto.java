@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 public class AuthDto {
 
@@ -71,5 +72,53 @@ public class AuthDto {
         private String userId;
         private String username;
         private String email;
+    }
+
+    @Getter
+    public static class LoginRequest {
+        @Email
+        private final String email;
+
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*[0-9])|(?=.*[A-Za-z])(?=.*[!@#$%^&*])|(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,20}$")
+        private final String password;
+
+        @JsonIgnore
+        private final Date requestAt;
+
+        public LoginRequest(String email, String password) {
+            this.email = email;
+            this.password = password;
+            this.requestAt = new Date();
+        }
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @Getter
+    public static class LoginResponse {
+        private String accessToken;
+        private String refreshToken;
+    }
+
+    @Getter
+    public static class RefreshTokenRequest {
+        @NotEmpty
+        private final String refreshToken;
+
+        @JsonIgnore
+        private final Date requestedAt;
+
+        public RefreshTokenRequest(String refreshToken) {
+            this.refreshToken = refreshToken;
+            this.requestedAt = new Date();
+        }
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @Getter
+    public static class RefreshTokenResponse {
+        private String accessToken;
+        private String refreshToken;
     }
 }

@@ -3,7 +3,9 @@ package com.prismworks.prism.common.response;
 import com.prismworks.prism.common.dto.ApiErrorInfo;
         import com.prismworks.prism.common.exception.ApplicationErrorCode;
         import com.prismworks.prism.common.exception.ApplicationException;
-        import lombok.extern.slf4j.Slf4j;
+import com.prismworks.prism.domain.auth.exception.AuthException;
+import io.jsonwebtoken.MalformedJwtException;
+import lombok.extern.slf4j.Slf4j;
         import org.springframework.http.HttpStatus;
         import org.springframework.http.ResponseEntity;
         import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,6 +23,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(errorInfo.getStatus())
                 .body(new ApiErrorResponse(errorInfo));
+    }
+
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<String> handleMalformedJwtException() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("올바르지 않은 토큰입니다.");
+    }
+
+    @ExceptionHandler(AuthException.class)
+    public void handleAuthException(AuthException e) {
+        log.error("AuthException", e);
     }
 
     @ExceptionHandler(Exception.class)
