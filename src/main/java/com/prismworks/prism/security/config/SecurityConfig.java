@@ -1,10 +1,8 @@
 package com.prismworks.prism.security.config;
 
-import com.prismworks.prism.security.exception.JwtAuthenticationEntryPoint;
 import com.prismworks.prism.security.filter.JwtAuthenticationFilter;
-import com.prismworks.prism.security.provider.JwtTokenProvider;
+import com.prismworks.prism.domain.auth.provider.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,7 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.util.List;
 

@@ -1,13 +1,12 @@
 package com.prismworks.prism.domain.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.prismworks.prism.domain.email.model.AuthType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -24,6 +23,7 @@ public class AuthDto {
         @JsonIgnore
         private final LocalDateTime requestAt;
 
+        @JsonCreator
         public SendCodeRequest(String email, AuthType authType) {
             this.email = email;
             this.authType = authType;
@@ -44,6 +44,7 @@ public class AuthDto {
         @JsonIgnore
         private final LocalDateTime requestAt;
 
+        @JsonCreator
         public VerifyCodeRequest(String email, String authCode, AuthType authType) {
             this.email = email;
             this.authCode = authCode;
@@ -85,19 +86,12 @@ public class AuthDto {
         @JsonIgnore
         private final Date requestAt;
 
+        @JsonCreator
         public LoginRequest(String email, String password) {
             this.email = email;
             this.password = password;
             this.requestAt = new Date();
         }
-    }
-
-    @Builder
-    @AllArgsConstructor
-    @Getter
-    public static class LoginResponse {
-        private String accessToken;
-        private String refreshToken;
     }
 
     @Getter
@@ -106,18 +100,19 @@ public class AuthDto {
         private final String refreshToken;
 
         @JsonIgnore
-        private final Date requestedAt;
+        private final LocalDateTime requestAt;
 
+        @JsonCreator
         public RefreshTokenRequest(String refreshToken) {
             this.refreshToken = refreshToken;
-            this.requestedAt = new Date();
+            this.requestAt = LocalDateTime.now();
         }
     }
 
     @Builder
     @AllArgsConstructor
     @Getter
-    public static class RefreshTokenResponse {
+    public static class TokenResponse {
         private String accessToken;
         private String refreshToken;
     }

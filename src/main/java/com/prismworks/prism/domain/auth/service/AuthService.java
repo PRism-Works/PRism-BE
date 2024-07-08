@@ -10,8 +10,9 @@ import com.prismworks.prism.domain.email.service.EmailSendService;
 import com.prismworks.prism.domain.user.dto.UserDto;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.service.UserService;
-import com.prismworks.prism.security.dto.JwtTokenDto;
-import com.prismworks.prism.security.provider.JwtTokenProvider;
+import com.prismworks.prism.domain.auth.dto.JwtTokenDto;
+import com.prismworks.prism.domain.auth.model.RefreshToken;
+import com.prismworks.prism.domain.auth.provider.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Map;
 
 import static com.prismworks.prism.domain.auth.dto.AuthDto.*;
@@ -91,7 +94,7 @@ public class AuthService {
                 .build();
     }
 
-    public LoginResponse login(LoginRequest dto) {
+    public TokenResponse login(LoginRequest dto) {
         Users user = userService.findByEmail(dto.getEmail());
         boolean matches = passwordEncoder.matches(dto.getPassword(), user.getPassword());
         if(!matches) {
@@ -100,7 +103,24 @@ public class AuthService {
 
         JwtTokenDto jwtTokenDto = jwtTokenProvider.generateToken(user.getUserId(), dto.getRequestAt());
 
-        return LoginResponse.builder()
+        return TokenResponse.builder()
+                .accessToken(jwtTokenDto.getAccessToken())
+                .refreshToken(jwtTokenDto.getRefreshToken())
+                .build();
+    }
+
+    public TokenResponse reissueToken(RefreshTokenRequest dto) {
+        LocalDateTime requestedDateTime = dto.getRequestAt();
+        Date requestedDate  = Date
+                .from(requestedDateTime.atZone(ZoneId.systemDefault())
+                .toInstant());
+
+        RefreshToken refreshToken = jwtTokenProvider.validateRefreshToken(dto.getRefreshToken(), requestedDateTime);
+        String userId = refreshToken.getUserId();
+
+        JwtTokenDto jwtTokenDto = jwtTokenProvider.generateToken(userId, requestedDate);
+
+        return TokenResponse.builder()
                 .accessToken(jwtTokenDto.getAccessToken())
                 .refreshToken(jwtTokenDto.getRefreshToken())
                 .build();

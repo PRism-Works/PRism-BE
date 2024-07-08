@@ -1,7 +1,6 @@
 package com.prismworks.prism.security.filter;
 
-import com.prismworks.prism.security.provider.JwtTokenProvider;
-import io.jsonwebtoken.Claims;
+import com.prismworks.prism.domain.auth.provider.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,7 +13,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Date;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

@@ -2,7 +2,7 @@ package com.prismworks.prism.security.service;
 
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.repository.UserRepository;
-import com.prismworks.prism.security.model.UserContext;
+import com.prismworks.prism.domain.auth.model.UserContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

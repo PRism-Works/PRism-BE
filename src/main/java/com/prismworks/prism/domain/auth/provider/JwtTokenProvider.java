@@ -1,9 +1,11 @@
-package com.prismworks.prism.security.provider;
+package com.prismworks.prism.domain.auth.provider;
 
-import com.prismworks.prism.security.dto.JwtTokenDto;
-import com.prismworks.prism.security.model.UserContext;
+import com.prismworks.prism.common.exception.ApplicationException;
+import com.prismworks.prism.domain.auth.exception.AuthErrorCode;
+import com.prismworks.prism.domain.auth.dto.JwtTokenDto;
+import com.prismworks.prism.domain.auth.model.RefreshToken;
+import com.prismworks.prism.domain.auth.service.RefreshTokenService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Component
@@ -27,12 +30,15 @@ public class JwtTokenProvider {
 
     private final UserDetailsService userDetailsService;
 
+    private final RefreshTokenService refreshTokenService;
+
     private final SecretKey secretKey;
 
     public JwtTokenProvider(@Value("${service.jwt.secret}") String secretKey,
-                            UserDetailsService userDetailsService)
+                            UserDetailsService userDetailsService, RefreshTokenService refreshTokenService)
     {
         this.userDetailsService = userDetailsService;
+        this.refreshTokenService = refreshTokenService;
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -40,7 +46,7 @@ public class JwtTokenProvider {
     public JwtTokenDto generateToken(String userId, Date date) {
         return JwtTokenDto.builder()
                 .accessToken(this.generateAccessToken(userId, date))
-                .refreshToken(this.generateRefreshToken(date))
+                .refreshToken(this.generateRefreshToken(userId, date))
                 .build();
     }
 
@@ -56,13 +62,17 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String generateRefreshToken(Date date) {
-        // todo: db에 저장
-        return Jwts.builder()
+    public String generateRefreshToken(String userId, Date date) {
+        Date expiredDate = new Date(new Date().getTime() + Long.parseLong(this.refreshTokenExpiringMs));
+        String refreshToken = Jwts.builder()
                 .issuedAt(date)
-                .expiration(new Date(new Date().getTime() + Long.parseLong(this.refreshTokenExpiringMs)))
+                .expiration(expiredDate)
                 .signWith(secretKey)
                 .compact();
+
+         refreshTokenService.createRefreshToken(userId, expiredDate, refreshToken);
+
+        return refreshToken;
     }
 
     public Authentication getAuthentication(String token) {
@@ -79,6 +89,18 @@ public class JwtTokenProvider {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public RefreshToken validateRefreshToken(String token, LocalDateTime dateTime) {
+        RefreshToken refreshToken = refreshTokenService.findByToken(token)
+                .orElseThrow(() -> new ApplicationException(AuthErrorCode.INVALID_TOKEN));
+
+        if(refreshToken.isExpired(dateTime)) {
+            refreshTokenService.deleteToken(refreshToken);
+            throw new ApplicationException(AuthErrorCode.TOKEN_ALREADY_EXPIRED);
+        }
+
+        return refreshToken;
     }
 
     public Claims getClaim(String token) {

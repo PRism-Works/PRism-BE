@@ -1,4 +1,4 @@
-package com.prismworks.prism.security.dto;
+package com.prismworks.prism.domain.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

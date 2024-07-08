@@ -1,4 +1,4 @@
-package com.prismworks.prism.security.model;
+package com.prismworks.prism.domain.auth.model;
 
 import com.prismworks.prism.domain.user.model.Users;
 import lombok.Getter;
