@@ -1,15 +1,15 @@
 package com.prismworks.prism.domain.auth.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.prismworks.prism.domain.email.model.AuthType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 public class AuthDto {
 
@@ -23,6 +23,7 @@ public class AuthDto {
         @JsonIgnore
         private final LocalDateTime requestAt;
 
+        @JsonCreator
         public SendCodeRequest(String email, AuthType authType) {
             this.email = email;
             this.authType = authType;
@@ -43,6 +44,7 @@ public class AuthDto {
         @JsonIgnore
         private final LocalDateTime requestAt;
 
+        @JsonCreator
         public VerifyCodeRequest(String email, String authCode, AuthType authType) {
             this.email = email;
             this.authCode = authCode;
@@ -71,5 +73,47 @@ public class AuthDto {
         private String userId;
         private String username;
         private String email;
+    }
+
+    @Getter
+    public static class LoginRequest {
+        @Email
+        private final String email;
+
+        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*[0-9])|(?=.*[A-Za-z])(?=.*[!@#$%^&*])|(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,20}$")
+        private final String password;
+
+        @JsonIgnore
+        private final Date requestAt;
+
+        @JsonCreator
+        public LoginRequest(String email, String password) {
+            this.email = email;
+            this.password = password;
+            this.requestAt = new Date();
+        }
+    }
+
+    @Getter
+    public static class RefreshTokenRequest {
+        @NotEmpty
+        private final String refreshToken;
+
+        @JsonIgnore
+        private final LocalDateTime requestAt;
+
+        @JsonCreator
+        public RefreshTokenRequest(String refreshToken) {
+            this.refreshToken = refreshToken;
+            this.requestAt = LocalDateTime.now();
+        }
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @Getter
+    public static class TokenResponse {
+        private String accessToken;
+        private String refreshToken;
     }
 }
