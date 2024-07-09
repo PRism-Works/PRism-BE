@@ -1,11 +1,10 @@
 package com.prismworks.prism.domain.user.service;
 
 import com.prismworks.prism.domain.user.dto.UserDto;
-import com.prismworks.prism.domain.user.model.User;
+import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,8 +14,6 @@ import java.util.UUID;
 @Service
 public class UserService {
 
-    private final PasswordEncoder passwordEncoder;
-
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
@@ -25,14 +22,12 @@ public class UserService {
     }
 
     @Transactional
-    public User createUser(UserDto.Create dto) {
-        String encodedPassword = passwordEncoder.encode(dto.getPassword());
-
-        User user = User.builder()
+    public Users createUser(UserDto.Create dto) {
+        Users user = Users.builder()
                 .userId(UUID.randomUUID().toString())
                 .username(dto.getUsername())
                 .email(dto.getEmail())
-                .password(encodedPassword)
+                .password(dto.getEncodedPassword()) // todo: encoding 검증
                 .isActive(true)
                 .build();
 
@@ -40,8 +35,14 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User findById(String userId) {
+    public Users findById(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("user not found by id : " + userId));
+    }
+
+    @Transactional(readOnly = true)
+    public Users findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("user not found by email: " + email));
     }
 }

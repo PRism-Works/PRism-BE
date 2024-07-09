@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = User.TABLE_NAME)
+@Table(name = Users.TABLE_NAME)
 @Entity
-public class User {
+public class Users {
     public static final String TABLE_NAME = "user";
 
     @Column(name = "user_id")
@@ -37,4 +37,8 @@ public class User {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
 }
