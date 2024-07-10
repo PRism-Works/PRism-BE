@@ -2,6 +2,7 @@ package com.prismworks.prism.security.exception;
 
 import com.prismworks.prism.common.exception.ApplicationException;
 import com.prismworks.prism.domain.auth.exception.AuthErrorCode;
+import com.prismworks.prism.domain.auth.exception.AuthException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -38,13 +39,13 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
             e instanceof MalformedJwtException ||
             e instanceof SignatureException
         ) {
-            return new ApplicationException(AuthErrorCode.INVALID_TOKEN);
+            return AuthException.INVALID_TOKEN;
         }
 
         if(e instanceof ExpiredJwtException) {
-            return new ApplicationException(AuthErrorCode.TOKEN_ALREADY_EXPIRED);
+            return AuthException.TOKEN_ALREADY_EXPIRED;
         }
 
-        return new ApplicationException(AuthErrorCode.AUTH_FAILED);
+        return AuthException.AUTH_FAILED;
     }
 }

@@ -4,11 +4,13 @@ import com.prismworks.prism.common.exception.ApplicationException;
 import com.prismworks.prism.domain.email.dto.EmailSendRequest;
 import com.prismworks.prism.domain.email.dto.EmailSendResult;
 import com.prismworks.prism.domain.email.exception.EmailErrorCode;
+import com.prismworks.prism.domain.email.exception.EmailException;
 import com.prismworks.prism.domain.email.model.EmailTemplate;
 import com.prismworks.prism.domain.email.util.EmailTemplateConverter;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -17,6 +19,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class SmtpEmailSendService implements EmailSendService{
@@ -38,7 +41,9 @@ public class SmtpEmailSendService implements EmailSendService{
             String failReason = exMessage.length() > 255 ? exMessage.substring(0, 255) : exMessage;
             EmailSendResult sendResult = EmailSendResult.createFailResult(failReason);
             emailSendLogService.saveEmailSendLog(sendRequest, sendResult);
-            throw new ApplicationException(exMessage, EmailErrorCode.EMAIL_SEND_FAILED);
+
+            log.error(exMessage);
+            throw EmailException.EMAIL_SEND_FAILED;
         }
 
         emailSendLogService.saveEmailSendLog(sendRequest, EmailSendResult.createSendResult());
@@ -67,7 +72,7 @@ public class SmtpEmailSendService implements EmailSendService{
             mimeMessageHelper.setSubject(emailTemplate.getSubject());
             mimeMessageHelper.setText(content, true);
         } catch (MessagingException e) {
-            throw new ApplicationException(EmailErrorCode.EMAIL_MESSAGE_CREATION_FAILED);
+            throw EmailException.EMAIL_MESSAGE_CREATION_FAILED;
         }
 
         return mimeMessage;

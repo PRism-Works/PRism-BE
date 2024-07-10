@@ -2,6 +2,7 @@ package com.prismworks.prism.domain.auth.service;
 
 import com.prismworks.prism.common.exception.ApplicationException;
 import com.prismworks.prism.domain.auth.exception.AuthErrorCode;
+import com.prismworks.prism.domain.auth.exception.AuthException;
 import com.prismworks.prism.domain.email.dto.EmailSendRequest;
 import com.prismworks.prism.domain.email.model.EmailAuthCode;
 import com.prismworks.prism.domain.email.model.EmailTemplate;
@@ -63,10 +64,10 @@ public class AuthService {
     public void verifyAuthCode(VerifyCodeRequest dto) {
         EmailAuthCode authCode = emailAuthCodeService
                 .findByEmailAndCodeAndAuthType(dto.getEmail(), dto.getAuthCode(), dto.getAuthType())
-                .orElseThrow(() -> new ApplicationException(AuthErrorCode.CODE_NOT_MATCH));
+                .orElseThrow(() -> AuthException.CODE_NOT_MATCH);
 
         if(!authCode.isValid(dto.getRequestAt())) {
-            throw new ApplicationException(AuthErrorCode.CODE_ALREADY_EXPIRED);
+            throw AuthException.CODE_ALREADY_EXPIRED;
         }
 
         authCode.verified(LocalDateTime.now());
@@ -75,7 +76,7 @@ public class AuthService {
     public SignupResponse signup(SignupRequest dto) {
         boolean emailVerified = emailAuthCodeService.isEmailVerified(dto.getEmail());
         if(!emailVerified) {
-            throw new ApplicationException(AuthErrorCode.EMAIL_NOT_VERIFIED);
+            throw AuthException.EMAIL_NOT_VERIFIED;
         }
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
@@ -98,7 +99,7 @@ public class AuthService {
         Users user = userService.findByEmail(dto.getEmail());
         boolean matches = passwordEncoder.matches(dto.getPassword(), user.getPassword());
         if(!matches) {
-            throw new ApplicationException(AuthErrorCode.INVALID_CREDENTIALS);
+            throw AuthException.INVALID_CREDENTIALS;
         }
 
         JwtTokenDto jwtTokenDto = jwtTokenProvider.generateToken(user.getUserId(), dto.getRequestAt());
