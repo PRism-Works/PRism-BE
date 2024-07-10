@@ -3,6 +3,7 @@ package com.prismworks.prism.domain.auth.provider;
 import com.prismworks.prism.common.exception.ApplicationException;
 import com.prismworks.prism.domain.auth.exception.AuthErrorCode;
 import com.prismworks.prism.domain.auth.dto.JwtTokenDto;
+import com.prismworks.prism.domain.auth.exception.AuthException;
 import com.prismworks.prism.domain.auth.model.RefreshToken;
 import com.prismworks.prism.domain.auth.service.RefreshTokenService;
 import io.jsonwebtoken.Claims;
@@ -93,11 +94,11 @@ public class JwtTokenProvider {
 
     public RefreshToken validateRefreshToken(String token, LocalDateTime dateTime) {
         RefreshToken refreshToken = refreshTokenService.findByToken(token)
-                .orElseThrow(() -> new ApplicationException(AuthErrorCode.INVALID_TOKEN));
+                .orElseThrow(() -> AuthException.INVALID_TOKEN);
 
         if(refreshToken.isExpired(dateTime)) {
             refreshTokenService.deleteToken(refreshToken);
-            throw new ApplicationException(AuthErrorCode.TOKEN_ALREADY_EXPIRED);
+            throw AuthException.TOKEN_ALREADY_EXPIRED;
         }
 
         return refreshToken;
