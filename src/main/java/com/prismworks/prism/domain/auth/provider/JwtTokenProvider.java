@@ -4,6 +4,7 @@ import com.prismworks.prism.common.exception.ApplicationException;
 import com.prismworks.prism.domain.auth.exception.AuthErrorCode;
 import com.prismworks.prism.domain.auth.dto.JwtTokenDto;
 import com.prismworks.prism.domain.auth.model.RefreshToken;
+import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.auth.service.RefreshTokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -78,9 +79,9 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token) {
         Claims claim = this.getClaim(token);
         String userId = claim.get("userId", String.class);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userId); //todo: userContext만 authentication에 들어가게
+        UserContext userContext = (UserContext)userDetailsService.loadUserByUsername(userId);
 
-        return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userContext, userContext.getPassword(), userContext.getAuthorities());
     }
 
     public void validateToken(String token) {

@@ -1,11 +1,15 @@
 package com.prismworks.prism.domain.index;
 
+import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
+import com.prismworks.prism.domain.auth.model.UserContext;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+
+import java.util.Map;
 
 @RestController
 @EnableWebMvc
@@ -24,7 +28,7 @@ public class IndexController {
 
     @Hidden
     @GetMapping(value = "/secured-uri")
-    public ApiSuccessResponse testSecuredUri() {
-        return ApiSuccessResponse.defaultOk();
+    public ApiSuccessResponse testSecuredUri(@CurrentUser UserContext userContext) {
+        return ApiSuccessResponse.defaultOk(Map.of("email", userContext.getEmail()));
     }
 }
