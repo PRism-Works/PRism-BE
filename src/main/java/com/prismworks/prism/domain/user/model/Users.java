@@ -18,9 +18,6 @@ public class Users {
     @Id
     private String userId;
 
-    @Column(name = "username")
-    private String username;
-
     @Column(name = "email")
     private String email;
 
@@ -31,6 +28,10 @@ public class Users {
     @Column(name = "active_flag")
     private boolean isActive = true;
 
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private UserProfile userProfile;
+
     @Builder.Default
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -39,6 +40,10 @@ public class Users {
     private LocalDateTime updatedAt;
 
     public void setActive(boolean active) {
-        isActive = active;
+        this.isActive = active;
+    }
+
+    public void setUserProfile(UserProfile userProfile) {
+        this.userProfile = userProfile;
     }
 }

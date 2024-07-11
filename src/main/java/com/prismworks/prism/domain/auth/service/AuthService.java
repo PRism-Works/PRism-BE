@@ -1,8 +1,9 @@
 package com.prismworks.prism.domain.auth.service;
 
-import com.prismworks.prism.common.exception.ApplicationException;
-import com.prismworks.prism.domain.auth.exception.AuthErrorCode;
+import com.prismworks.prism.domain.auth.dto.JwtTokenDto;
 import com.prismworks.prism.domain.auth.exception.AuthException;
+import com.prismworks.prism.domain.auth.model.RefreshToken;
+import com.prismworks.prism.domain.auth.provider.JwtTokenProvider;
 import com.prismworks.prism.domain.email.dto.EmailSendRequest;
 import com.prismworks.prism.domain.email.model.EmailAuthCode;
 import com.prismworks.prism.domain.email.model.EmailTemplate;
@@ -11,9 +12,6 @@ import com.prismworks.prism.domain.email.service.EmailSendService;
 import com.prismworks.prism.domain.user.dto.UserDto;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.service.UserService;
-import com.prismworks.prism.domain.auth.dto.JwtTokenDto;
-import com.prismworks.prism.domain.auth.model.RefreshToken;
-import com.prismworks.prism.domain.auth.provider.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,7 +36,6 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional(readOnly = true)
     public boolean emailExists(String email) {
         if(!StringUtils.hasText(email)) {
             return false;
@@ -80,23 +77,22 @@ public class AuthService {
         }
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
-        UserDto.Create userCreateDto = UserDto.Create.builder()
+        UserDto.CreateInfo userCreateInfo = UserDto.CreateInfo.builder()
                 .username(dto.getUsername())
                 .email(dto.getEmail())
                 .encodedPassword(encodedPassword)
                 .build();
 
-        Users user = userService.createUser(userCreateDto);
+        Users user = userService.createUser(userCreateInfo);
 
         return SignupResponse.builder()
                 .userId(user.getUserId())
-                .username(user.getUsername())
                 .email(user.getEmail())
                 .build();
     }
 
     public TokenResponse login(LoginRequest dto) {
-        Users user = userService.findByEmail(dto.getEmail());
+        Users user = userService.findUserByEmail(dto.getEmail());
         boolean matches = passwordEncoder.matches(dto.getPassword(), user.getPassword());
         if(!matches) {
             throw AuthException.INVALID_CREDENTIALS;

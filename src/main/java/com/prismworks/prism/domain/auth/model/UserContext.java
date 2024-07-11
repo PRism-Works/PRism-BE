@@ -17,7 +17,7 @@ public class UserContext extends User {
     private final String email;
 
     public UserContext(Users user) {
-        super(user.getUsername(), user.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_USER"))); //todo: 추후 role 확장
+        super(user.getEmail(), user.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_USER"))); //todo: 추후 role 확장
         this.userId = user.getUserId();
         this.email = user.getEmail();
     }
