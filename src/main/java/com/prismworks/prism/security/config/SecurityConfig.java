@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(this.corsConfigurationSource()))
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/secured-uri").authenticated()
+                        .requestMatchers("/secured-uri", "/api/v1/users/**").authenticated()
                         .anyRequest().permitAll()
                 );
 
