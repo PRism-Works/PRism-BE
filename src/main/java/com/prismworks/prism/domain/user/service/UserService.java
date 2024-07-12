@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -88,6 +89,16 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
+    public Users findById(String userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("user not found by id : " + userId));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Users> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
     @Transactional
     public void updateUserProfile(String userId, UserDto.UpdateProfileRequest dto) {
         UserProfile userProfile = this.findProfileById(userId);
