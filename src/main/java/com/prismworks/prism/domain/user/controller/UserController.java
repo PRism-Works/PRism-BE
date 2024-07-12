@@ -4,7 +4,6 @@ import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.user.dto.UserDto;
-import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,15 +18,14 @@ public class UserController {
 
     @GetMapping("/me")
     public ApiSuccessResponse getUser(@CurrentUser UserContext userContext) {
-        Users user = userService.findUserById(userContext.getUserId());
-        UserDto.UsersDetail response = new UserDto.UsersDetail(user.getUserId(), user.getEmail());
+        UserDto.UserDetail response = userService.getUserDetail(userContext.getUserId());
         return ApiSuccessResponse.defaultOk(response);
     }
 
     @GetMapping("/{userId}/profile")
     public ApiSuccessResponse getProfile(@PathVariable String userId) {
-        UserDto.UserProfileDetail userProfile = userService.getUserProfileDetail(userId);
-        return ApiSuccessResponse.defaultOk(userProfile);
+        UserDto.UserProfileDetail response = userService.getUserProfileDetail(userId);
+        return ApiSuccessResponse.defaultOk(response);
     }
 
     @PatchMapping("/profile")

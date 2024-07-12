@@ -47,26 +47,33 @@ public class UserProfile {
     private LocalDateTime updatedAt;
 
     public void updateProfile(UserDto.UpdateProfileRequest dto) {
+        boolean isUpdate = false;
         String username = dto.getUsername();
         if(StringUtils.hasText(username) && !username.equals(this.username)) {
             this.username = username;
+            isUpdate = true;
         }
 
         List<String> skills = dto.getSkills();
         if(skills != null && !skills.isEmpty()) {
             this.skills = skills;
+            isUpdate = true;
         }
 
         List<String> interestJobs = dto.getInterestJobs();
         if(interestJobs != null && !interestJobs.isEmpty()) {
             this.interestJobs = interestJobs;
+            isUpdate = true;
         }
 
         String introduction = dto.getIntroduction();
         if(StringUtils.hasText(introduction) && !introduction.equals(this.introduction)) {
             this.introduction = introduction;
+            isUpdate = true;
         }
 
-        this.updatedAt = dto.getRequestAt();
+        if(isUpdate) {
+            this.updatedAt = dto.getRequestAt();
+        }
     }
 }

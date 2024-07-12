@@ -43,6 +43,19 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public UserDto.UserDetail getUserDetail(String userId) {
+        Users user = this.findUserById(userId);
+        UserProfile userProfile = user.getUserProfile();
+
+        return UserDto.UserDetail.builder()
+                .userId(user.getUserId())
+                .email(user.getEmail())
+                .username(userProfile.getUsername())
+                .interestJobs(userProfile.getInterestJobs())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
     public UserDto.UserProfileDetail getUserProfileDetail(String userId) {
         Users user = this.findUserById(userId);
         UserProfile userProfile = user.getUserProfile();
@@ -52,6 +65,7 @@ public class UserService {
                 .email(user.getEmail())
                 .interestJobs(userProfile.getInterestJobs())
                 .skills(userProfile.getSkills())
+                .introduction(userProfile.getIntroduction())
                 .build();
     }
 
@@ -66,10 +80,11 @@ public class UserService {
 
         UserProfile userProfile = UserProfile
                 .builder()
+                .userId(user.getUserId())
                 .username(dto.getUsername())
                 .build();
 
-        user.setUserProfile(userProfile);
+        userProfileRepository.save(userProfile);
         return userRepository.save(user);
     }
 

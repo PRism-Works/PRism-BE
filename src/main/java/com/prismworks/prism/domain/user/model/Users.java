@@ -28,7 +28,7 @@ public class Users {
     @Column(name = "active_flag")
     private boolean isActive = true;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id")
     private UserProfile userProfile;
 

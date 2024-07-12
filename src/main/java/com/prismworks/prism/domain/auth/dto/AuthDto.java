@@ -71,7 +71,6 @@ public class AuthDto {
     @Getter
     public static class SignupResponse {
         private String userId;
-        private String username;
         private String email;
     }
 

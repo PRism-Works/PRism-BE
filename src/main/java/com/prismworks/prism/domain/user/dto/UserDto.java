@@ -21,11 +21,14 @@ public class UserDto {
         private String encodedPassword;
     }
 
+    @Builder
     @AllArgsConstructor
     @Getter
-    public static class UsersDetail {
+    public static class UserDetail {
         private String userId;
         private String email;
+        private String username;
+        private List<String> interestJobs;
     }
 
     @Builder
@@ -35,6 +38,7 @@ public class UserDto {
         private String email;
         private List<String> interestJobs;
         private List<String> skills;
+        private String introduction;
     }
 
     @Getter

@@ -2,6 +2,7 @@ package com.prismworks.prism.common.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
@@ -16,6 +17,9 @@ public class StringToListConverter implements AttributeConverter<List<String>, S
 
     @Override
     public String convertToDatabaseColumn(List<String> attribute) {
+        if(CollectionUtils.isEmpty(attribute)) {
+            return null;
+        }
         return attribute.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(SEPARATOR));
