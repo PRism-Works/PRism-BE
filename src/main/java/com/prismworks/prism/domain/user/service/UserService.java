@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -41,8 +42,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Users findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("user not found by email: " + email));
+    public Optional<Users> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }

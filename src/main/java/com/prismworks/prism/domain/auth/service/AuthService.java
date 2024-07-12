@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.prismworks.prism.domain.auth.dto.AuthDto.*;
 
@@ -96,10 +97,15 @@ public class AuthService {
     }
 
     public TokenResponse login(LoginRequest dto) {
-        Users user = userService.findByEmail(dto.getEmail());
+        Optional<Users> userOptional = userService.findByEmail(dto.getEmail());
+        if(userOptional.isEmpty()) {
+            throw AuthException.EMAIL_NOT_REGISTERED;
+        }
+
+        Users user = userOptional.get();
         boolean matches = passwordEncoder.matches(dto.getPassword(), user.getPassword());
         if(!matches) {
-            throw AuthException.INVALID_CREDENTIALS;
+            throw AuthException.PASSWORD_NOT_MATCH;
         }
 
         JwtTokenDto jwtTokenDto = jwtTokenProvider.generateToken(user.getUserId(), dto.getRequestAt());
