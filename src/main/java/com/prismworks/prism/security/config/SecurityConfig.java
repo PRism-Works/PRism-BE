@@ -51,9 +51,9 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("*"));
-        corsConfiguration.setAllowedHeaders(List.of("*"));
-        corsConfiguration.setAllowedHeaders(List.of("*"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000")); // 로컬 React 서버의 주소
+        corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setMaxAge(3600L);
         corsConfiguration.setAllowCredentials(true);
 
@@ -62,5 +62,4 @@ public class SecurityConfig {
 
         return source;
     }
-
 }
