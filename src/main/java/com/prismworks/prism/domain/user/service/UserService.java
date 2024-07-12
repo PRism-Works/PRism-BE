@@ -32,9 +32,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Users findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("user not found by email: " + email));
+    public Optional<Users> findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Transactional(readOnly = true)
@@ -89,16 +88,6 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    @Transactional(readOnly = true)
-    public Users findById(String userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("user not found by id : " + userId));
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<Users> findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
     @Transactional
     public void updateUserProfile(String userId, UserDto.UpdateProfileRequest dto) {
         UserProfile userProfile = this.findProfileById(userId);

@@ -93,7 +93,7 @@ public class AuthService {
     }
 
     public TokenResponse login(LoginRequest dto) {
-        Optional<Users> userOptional = userService.findByEmail(dto.getEmail());
+        Optional<Users> userOptional = userService.findUserByEmail(dto.getEmail());
         if(userOptional.isEmpty()) {
             throw AuthException.EMAIL_NOT_REGISTERED;
         }
