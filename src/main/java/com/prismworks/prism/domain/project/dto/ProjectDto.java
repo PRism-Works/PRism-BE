@@ -14,12 +14,16 @@ public class ProjectDto {
     private String projectName;
 
     private String projectDescription;
+    private String organizationName;
+    private int memberCount;
     private List<String> categories;
+    private List<String> hashTags;
+    private List<String> skills;
     @NotEmpty
     private String startDate;
     @NotEmpty
     private String endDate;
+    private String projectUrlLink;
     @NotEmpty
     private List<@Valid MemberDto> members;
 }
-

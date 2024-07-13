@@ -6,13 +6,14 @@ import com.prismworks.prism.domain.project.dto.ProjectResponseDto;
 import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.repository.UserRepository;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,18 +26,23 @@ public class ProjectService {
     private ProjectRepository projectRepository;
 
     @Transactional
-    public ProjectResponseDto createProject(ProjectDto projectDto) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    public ProjectResponseDto createProject(ProjectDto projectDto) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
         Project project = new Project();
         project.setProjectName(projectDto.getProjectName());
         project.setProjectDescription(projectDto.getProjectDescription());
+        project.setOrganizationName(projectDto.getOrganizationName());
+        project.setMemberCount(projectDto.getMemberCount());
         project.setCategories(projectDto.getCategories());
-        project.setStartDate(LocalDateTime.parse(projectDto.getStartDate(), formatter));
-        project.setEndDate(LocalDateTime.parse(projectDto.getEndDate(), formatter));
+        project.setHashTags(projectDto.getHashTags());
+        project.setSkills(projectDto.getSkills());
+        project.setStartDate(sdf.parse(projectDto.getStartDate()));
+        project.setEndDate(sdf.parse(projectDto.getEndDate()));
+        project.setProjectUrlLink(projectDto.getProjectUrlLink());
         project.setVisibility(true);
-        project.setCreatedAt(LocalDateTime.now());
-        project.setUpdatedAt(LocalDateTime.now());
+        project.setCreatedAt(new Date());
+        project.setUpdatedAt(new Date());
 
         List<ProjectUserJoin> members = projectDto.getMembers().stream().map(memberDto -> {
             ProjectUserJoin join = new ProjectUserJoin();
@@ -44,6 +50,7 @@ public class ProjectService {
             join.setName(memberDto.getName());
             join.setEmail(memberDto.getEmail());
             join.setRoles(memberDto.getRoles());
+            join.setSkills(memberDto.getSkills());
             join.setProject(project);
             return join;
         }).collect(Collectors.toList());
@@ -55,25 +62,35 @@ public class ProjectService {
                 .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
                 .projectDescription(project.getProjectDescription())
+                .organizationName(project.getOrganizationName())
+                .memberCount(project.getMemberCount())
                 .categories(project.getCategories())
+                .hashTags(project.getHashTags())
+                .skills(project.getSkills())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
+                .projectUrlLink(project.getProjectUrlLink())
                 .build();
     }
 
     @Transactional
-    public ProjectResponseDto updateProject(int projectId, ProjectDto projectDto) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+    public ProjectResponseDto updateProject(int projectId, ProjectDto projectDto) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found with ID: " + projectId));
 
         project.setProjectName(projectDto.getProjectName());
         project.setProjectDescription(projectDto.getProjectDescription());
+        project.setOrganizationName(projectDto.getOrganizationName());
+        project.setMemberCount(projectDto.getMemberCount());
         project.setCategories(projectDto.getCategories());
-        project.setStartDate(LocalDateTime.parse(projectDto.getStartDate(), formatter));
-        project.setEndDate(LocalDateTime.parse(projectDto.getEndDate(), formatter));
-        project.setUpdatedAt(LocalDateTime.now());
+        project.setHashTags(projectDto.getHashTags());
+        project.setSkills(projectDto.getSkills());
+        project.setStartDate(sdf.parse(projectDto.getStartDate()));
+        project.setEndDate(sdf.parse(projectDto.getEndDate()));
+        project.setProjectUrlLink(projectDto.getProjectUrlLink());
+        project.setUpdatedAt(new Date());
 
         List<ProjectUserJoin> members = projectDto.getMembers().stream().map(memberDto -> {
             return project.getMembers().stream()
@@ -81,6 +98,7 @@ public class ProjectService {
                     .findFirst()
                     .map(existingMember -> {
                         existingMember.setRoles(memberDto.getRoles());
+                        existingMember.setSkills(memberDto.getSkills());
                         return existingMember;
                     })
                     .orElseGet(() -> {
@@ -90,6 +108,7 @@ public class ProjectService {
                         newMember.setName(memberDto.getName());
                         newMember.setEmail(memberDto.getEmail());
                         newMember.setRoles(memberDto.getRoles());
+                        newMember.setSkills(memberDto.getSkills());
                         newMember.setProject(project);
                         return newMember;
                     });
@@ -102,9 +121,14 @@ public class ProjectService {
                 .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
                 .projectDescription(project.getProjectDescription())
+                .organizationName(project.getOrganizationName())
+                .memberCount(project.getMemberCount())
                 .categories(project.getCategories())
+                .hashTags(project.getHashTags())
+                .skills(project.getSkills())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
+                .projectUrlLink(project.getProjectUrlLink())
                 .build();
     }
 
@@ -113,13 +137,23 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found with ID: " + projectId));
 
+        Hibernate.initialize(project.getCategories());
+        Hibernate.initialize(project.getHashTags());
+        Hibernate.initialize(project.getSkills());
+        Hibernate.initialize(project.getMembers());
+
         ProjectResponseDto response = ProjectResponseDto.builder()
                 .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
                 .projectDescription(project.getProjectDescription())
-                .categories(new ArrayList<>(project.getCategories()))
+                .organizationName(project.getOrganizationName())
+                .memberCount(project.getMemberCount())
+                .categories(project.getCategories())
+                .hashTags(project.getHashTags())
+                .skills(project.getSkills())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
+                .projectUrlLink(project.getProjectUrlLink())
                 .build();
 
         projectRepository.delete(project);

@@ -3,7 +3,7 @@ package com.prismworks.prism.domain.project.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -21,18 +21,33 @@ public class Project {
     @Column(length = 1000)
     private String projectDescription;
 
-    @ElementCollection
+    @Column(length = 300)
+    private String organizationName;
+
+    private int memberCount;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "project_hash_tags", joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "hash_tag")
+    private List<String> hashTags;
+
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "project_categories", joinColumns = @JoinColumn(name = "project_id"))
     @Column(name = "category")
     private List<String> categories;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP")
-    private LocalDateTime startDate;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "project_skills", joinColumns = @JoinColumn(name = "project_id"))
+    @Column(name = "skill")
+    private List<String> skills;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP")
-    private LocalDateTime endDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date startDate;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "project")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date endDate;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "project", fetch = FetchType.EAGER)
     private List<ProjectUserJoin> members;
 
     @Column(nullable = false)
@@ -41,12 +56,13 @@ public class Project {
     @Column(length = 255)
     private String projectUrlLink;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP")
-    private LocalDateTime createdAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
 
-    @Column(nullable = false, columnDefinition = "TIMESTAMP")
-    private LocalDateTime updatedAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
 
-    @Column(columnDefinition = "TIMESTAMP")
-    private LocalDateTime deletedAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date deletedAt;
+
 }

@@ -27,10 +27,12 @@ public class ProjectUserJoin {
     private String email;
 
     @ElementCollection
-    @CollectionTable(name = "project_user_roles", joinColumns = @JoinColumn(name = "join_id"))
+    @CollectionTable(name = "project_user_skills", joinColumns = @JoinColumn(name = "project_user_joins_id"))
+    @Column(name = "skill")
+    private List<String> skills;
+
+    @ElementCollection
+    @CollectionTable(name = "project_user_roles", joinColumns = @JoinColumn(name = "project_user_joins_id"))
     @Column(name = "role")
-    private List<String> roles;  // roles가 List<String> 형태이기 때문에 ElementCollection 사용
-
-    private String skills;
-
+    private List<String> roles;
 }
