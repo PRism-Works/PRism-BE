@@ -1,26 +1,21 @@
 package com.prismworks.prism.domain.auth.provider;
 
-import com.prismworks.prism.common.exception.ApplicationException;
-import com.prismworks.prism.domain.auth.exception.AuthErrorCode;
 import com.prismworks.prism.domain.auth.dto.JwtTokenDto;
-import com.prismworks.prism.domain.auth.exception.AuthException;
-import com.prismworks.prism.domain.auth.model.RefreshToken;
 import com.prismworks.prism.domain.auth.model.UserContext;
-import com.prismworks.prism.domain.auth.service.RefreshTokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.Date;
+
+import static com.prismworks.prism.utils.DateUtil.toLocalDateTime;
 
 @Component
 public class JwtTokenProvider {
@@ -32,49 +27,46 @@ public class JwtTokenProvider {
 
     private final UserDetailsService userDetailsService;
 
-    private final RefreshTokenService refreshTokenService;
-
     private final SecretKey secretKey;
 
     public JwtTokenProvider(@Value("${service.jwt.secret}") String secretKey,
-                            UserDetailsService userDetailsService, RefreshTokenService refreshTokenService)
+                            UserDetailsService userDetailsService)
     {
         this.userDetailsService = userDetailsService;
-        this.refreshTokenService = refreshTokenService;
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public JwtTokenDto generateToken(String userId, Date date) {
+    public JwtTokenDto generateToken(String userId, Date issuedDate) {
+        Date accessTokenExpiredDate = new Date(issuedDate.getTime() +  Long.parseLong(this.accessTokenExpiringMs));
+        Date refreshTokenExpiredDate = new Date(issuedDate.getTime() + Long.parseLong(this.refreshTokenExpiringMs));
+
         return JwtTokenDto.builder()
-                .accessToken(this.generateAccessToken(userId, date))
-                .refreshToken(this.generateRefreshToken(userId, date))
+                .accessToken(this.generateAccessToken(userId, issuedDate, accessTokenExpiredDate))
+                .accessTokenExpiredAt(toLocalDateTime(accessTokenExpiredDate))
+                .refreshToken(this.generateRefreshToken(issuedDate, refreshTokenExpiredDate))
+                .refreshTokenExpiredAt(toLocalDateTime(refreshTokenExpiredDate))
                 .build();
     }
 
-    public String generateAccessToken(String userId, Date date) {
+    private String generateAccessToken(String userId, Date issuedAt, Date expiration) {
         return Jwts.builder()
                 .claims()
                     .add("userId", userId)
 //                    .add("role", "ROLE_USER") // todo: role 확장
                 .and()
-                .issuedAt(date)
-                .expiration(new Date(new Date().getTime() + Long.parseLong(this.accessTokenExpiringMs)))
+                .issuedAt(issuedAt)
+                .expiration(expiration)
                 .signWith(secretKey)
                 .compact();
     }
 
-    public String generateRefreshToken(String userId, Date date) {
-        Date expiredDate = new Date(new Date().getTime() + Long.parseLong(this.refreshTokenExpiringMs));
-        String refreshToken = Jwts.builder()
-                .issuedAt(date)
-                .expiration(expiredDate)
+    private String generateRefreshToken(Date issuedAt, Date expiration) {
+        return Jwts.builder()
+                .issuedAt(issuedAt)
+                .expiration(expiration)
                 .signWith(secretKey)
                 .compact();
-
-         refreshTokenService.createRefreshToken(userId, expiredDate, refreshToken);
-
-        return refreshToken;
     }
 
     public Authentication getAuthentication(String token) {
@@ -91,18 +83,6 @@ public class JwtTokenProvider {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-    }
-
-    public RefreshToken validateRefreshToken(String token, LocalDateTime dateTime) {
-        RefreshToken refreshToken = refreshTokenService.findByToken(token)
-                .orElseThrow(() -> AuthException.INVALID_TOKEN);
-
-        if(refreshToken.isExpired(dateTime)) {
-            refreshTokenService.deleteToken(refreshToken);
-            throw AuthException.TOKEN_ALREADY_EXPIRED;
-        }
-
-        return refreshToken;
     }
 
     public Claims getClaim(String token) {

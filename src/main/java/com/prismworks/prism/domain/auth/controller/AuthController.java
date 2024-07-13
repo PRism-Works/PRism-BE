@@ -1,10 +1,14 @@
 package com.prismworks.prism.domain.auth.controller;
 
+import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.dto.AuthDto;
+import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.auth.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,5 +53,15 @@ public class AuthController {
     public ApiSuccessResponse reissueToken(@RequestBody @Valid AuthDto.RefreshTokenRequest request) {
         AuthDto.TokenResponse response = authService.reissueToken(request);
         return ApiSuccessResponse.defaultOk(response);
+    }
+
+    @PostMapping("/logout")
+    public ApiSuccessResponse logout(HttpServletRequest request, @CurrentUser UserContext userContext) {
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+        String userId = userContext.getUserId();
+
+        authService.logout(userId, accessToken);
+
+        return ApiSuccessResponse.defaultOk();
     }
 }

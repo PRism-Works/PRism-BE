@@ -19,6 +19,6 @@ public class AuthException extends ApplicationException {
     }
 
     public AuthException(ApplicationErrorCode errorCode) {
-        super(errorCode);
+        super(errorCode.getErrorInfo().getReason(), errorCode);
     }
 }

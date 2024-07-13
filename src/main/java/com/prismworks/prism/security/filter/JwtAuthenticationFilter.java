@@ -1,6 +1,8 @@
 package com.prismworks.prism.security.filter;
 
+import com.prismworks.prism.domain.auth.exception.AuthException;
 import com.prismworks.prism.domain.auth.provider.JwtTokenProvider;
+import com.prismworks.prism.domain.auth.service.AuthTokenBlackListService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +21,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String BEARER = "Bearer";
 
     private final JwtTokenProvider tokenProvider;
+    private final AuthTokenBlackListService authTokenBlackListService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -26,6 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = this.extractTokenFromHeader(request);
         try {
+            this.checkTokenInBlackList(token);
             tokenProvider.validateToken(token);
             Authentication authentication = tokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -43,5 +47,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         return null;
+    }
+
+    private void checkTokenInBlackList(String token) {
+        boolean isInBlackList = authTokenBlackListService.existsByToken(token);
+        if(isInBlackList) {
+            throw AuthException.INVALID_TOKEN;
+        }
     }
 }

@@ -6,10 +6,11 @@ import com.prismworks.prism.domain.email.model.AuthType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class AuthDto {
 
@@ -83,13 +84,13 @@ public class AuthDto {
         private final String password;
 
         @JsonIgnore
-        private final Date requestAt;
+        private final LocalDateTime requestAt;
 
         @JsonCreator
         public LoginRequest(String email, String password) {
             this.email = email;
             this.password = password;
-            this.requestAt = new Date();
+            this.requestAt = LocalDateTime.now();
         }
     }
 
@@ -114,5 +115,13 @@ public class AuthDto {
     public static class TokenResponse {
         private String accessToken;
         private String refreshToken;
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @Getter
+    public static class LogoutRequest {
+        private String userId;
+        private String accessToken;
     }
 }

@@ -2,7 +2,7 @@ package com.prismworks.prism.domain.auth.service;
 
 import com.prismworks.prism.domain.auth.dto.JwtTokenDto;
 import com.prismworks.prism.domain.auth.exception.AuthException;
-import com.prismworks.prism.domain.auth.model.RefreshToken;
+import com.prismworks.prism.domain.auth.model.AuthToken;
 import com.prismworks.prism.domain.auth.provider.JwtTokenProvider;
 import com.prismworks.prism.domain.email.dto.EmailSendRequest;
 import com.prismworks.prism.domain.email.model.EmailAuthCode;
@@ -12,6 +12,7 @@ import com.prismworks.prism.domain.email.service.EmailSendService;
 import com.prismworks.prism.domain.user.dto.UserDto;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.service.UserService;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,12 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
 import static com.prismworks.prism.domain.auth.dto.AuthDto.*;
+import static com.prismworks.prism.utils.DateUtil.fromLocalDateTime;
+import static com.prismworks.prism.utils.DateUtil.toLocalDateTime;
 
 @RequiredArgsConstructor
 @Service
@@ -33,6 +35,8 @@ public class AuthService {
     private final EmailSendService emailSendService;
     private final EmailAuthCodeService emailAuthCodeService;
     private final UserService userService;
+    private final AuthTokenService authTokenService;
+    private final AuthTokenBlackListService authTokenBlackListService;
 
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
@@ -104,7 +108,7 @@ public class AuthService {
             throw AuthException.PASSWORD_NOT_MATCH;
         }
 
-        JwtTokenDto jwtTokenDto = jwtTokenProvider.generateToken(user.getUserId(), dto.getRequestAt());
+        JwtTokenDto jwtTokenDto = this.generateToken(user.getUserId(), dto.getRequestAt());
 
         return TokenResponse.builder()
                 .accessToken(jwtTokenDto.getAccessToken())
@@ -113,19 +117,41 @@ public class AuthService {
     }
 
     public TokenResponse reissueToken(RefreshTokenRequest dto) {
-        LocalDateTime requestedDateTime = dto.getRequestAt();
-        Date requestedDate  = Date
-                .from(requestedDateTime.atZone(ZoneId.systemDefault())
-                .toInstant());
+        LocalDateTime requestAt = dto.getRequestAt();
+        AuthToken authToken = authTokenService.findByToken(dto.getRefreshToken())
+                .orElseThrow(() -> AuthException.INVALID_TOKEN);
 
-        RefreshToken refreshToken = jwtTokenProvider.validateRefreshToken(dto.getRefreshToken(), requestedDateTime);
-        String userId = refreshToken.getUserId();
+        if(authToken.isExpired(requestAt)) {
+            authTokenService.deleteToken(authToken);
+            throw AuthException.TOKEN_ALREADY_EXPIRED;
+        }
 
-        JwtTokenDto jwtTokenDto = jwtTokenProvider.generateToken(userId, requestedDate);
+        JwtTokenDto jwtTokenDto = this.generateToken(authToken.getUserId(), requestAt);
 
         return TokenResponse.builder()
                 .accessToken(jwtTokenDto.getAccessToken())
                 .refreshToken(jwtTokenDto.getRefreshToken())
                 .build();
+    }
+
+    @Transactional
+    public void logout(String userId, String accessToken) {
+        // 1. push access token to blacklist
+        Claims claim = jwtTokenProvider.getClaim(accessToken);
+        Date expiredDate = claim.getExpiration();
+        LocalDateTime expiredDateTime = toLocalDateTime(expiredDate);
+
+        authTokenBlackListService.createBlackList(userId, expiredDateTime, accessToken);
+
+        // 2. remove refresh token by userId
+        authTokenService.deleteTokenByUserId(userId);
+    }
+
+    private JwtTokenDto generateToken(String userId, LocalDateTime requestAt) {
+        Date requestDate = fromLocalDateTime(requestAt);
+        JwtTokenDto jwtTokenDto = jwtTokenProvider.generateToken(userId, requestDate);
+        authTokenService.createAuthToken(userId, jwtTokenDto.getRefreshTokenExpiredAt(), jwtTokenDto.getRefreshToken());
+
+        return jwtTokenDto;
     }
 }
