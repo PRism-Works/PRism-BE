@@ -38,3 +38,6 @@ out/
 
 ### application.yml ###
 src/main/resources/application.yml
+
+### Aws SAM ###
+.aws-sam
