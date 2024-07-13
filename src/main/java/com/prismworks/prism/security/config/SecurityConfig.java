@@ -1,5 +1,6 @@
 package com.prismworks.prism.security.config;
 
+import com.prismworks.prism.domain.auth.service.AuthTokenBlackListService;
 import com.prismworks.prism.security.filter.JwtAuthenticationFilter;
 import com.prismworks.prism.domain.auth.provider.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +25,14 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthTokenBlackListService authTokenBlackListService;
     private final AuthenticationEntryPoint entryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, authTokenBlackListService),
+                        UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
@@ -37,7 +40,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(this.corsConfigurationSource()))
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/secured-uri", "/api/v1/users/**").authenticated()
+                        .requestMatchers("/secured-uri", "/api/v1/users/**", "/api/v1/auth/logout").authenticated()
                         .anyRequest().permitAll()
                 );
 
