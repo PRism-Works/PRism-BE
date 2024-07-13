@@ -1,12 +1,14 @@
 package com.prismworks.prism.domain.project.service;
 
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
+import com.prismworks.prism.domain.project.dto.MemberDto;
 import com.prismworks.prism.domain.project.dto.ProjectDto;
 import com.prismworks.prism.domain.project.dto.ProjectResponseDto;
+import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
+import com.prismworks.prism.domain.project.exception.ProjectException;
 import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.repository.UserRepository;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +29,22 @@ public class ProjectService {
 
     @Transactional
     public ProjectResponseDto createProject(ProjectDto projectDto) throws ParseException {
+
+        if (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) {
+            throw ProjectException.NO_PROJECT_NAME;
+        }
+
+        if (projectDto.getMembers() == null || projectDto.getMembers().isEmpty()) {
+            throw ProjectException.NO_MEMBER;
+        }
+
+        if (projectDto.getStartDate() == null || projectDto.getEndDate() == null) {
+            throw ProjectException.NO_DATETIME;
+        }
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        Date startDate = sdf.parse(projectDto.getStartDate());
+        Date endDate = sdf.parse(projectDto.getEndDate());
 
         Project project = new Project();
         project.setProjectName(projectDto.getProjectName());
@@ -37,22 +54,26 @@ public class ProjectService {
         project.setCategories(projectDto.getCategories());
         project.setHashTags(projectDto.getHashTags());
         project.setSkills(projectDto.getSkills());
-        project.setStartDate(sdf.parse(projectDto.getStartDate()));
-        project.setEndDate(sdf.parse(projectDto.getEndDate()));
+        project.setStartDate(startDate);
+        project.setEndDate(endDate);
         project.setProjectUrlLink(projectDto.getProjectUrlLink());
         project.setVisibility(true);
         project.setCreatedAt(new Date());
         project.setUpdatedAt(new Date());
 
         List<ProjectUserJoin> members = projectDto.getMembers().stream().map(memberDto -> {
-            ProjectUserJoin join = new ProjectUserJoin();
-            join.setUser(userRepository.findByEmail(memberDto.getEmail()).orElseThrow(() -> new RuntimeException("User not found")));
-            join.setName(memberDto.getName());
-            join.setEmail(memberDto.getEmail());
-            join.setRoles(memberDto.getRoles());
-            join.setSkills(memberDto.getSkills());
-            join.setProject(project);
-            return join;
+            return userRepository.findByEmail(memberDto.getEmail())
+                    .map(user -> {
+                        ProjectUserJoin join = new ProjectUserJoin();
+                        join.setUser(user);
+                        join.setName(memberDto.getName());
+                        join.setEmail(memberDto.getEmail());
+                        join.setRoles(memberDto.getRoles());
+                        join.setSkills(memberDto.getSkills());
+                        join.setProject(project);
+                        return join;
+                    })
+                    .orElseThrow(() -> ProjectException.USER_NOT_FOUND);
         }).collect(Collectors.toList());
 
         project.setMembers(members);
@@ -75,11 +96,22 @@ public class ProjectService {
 
     @Transactional
     public ProjectResponseDto updateProject(int projectId, ProjectDto projectDto) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found with ID: " + projectId));
+                .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
 
+        if (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) {
+            throw ProjectException.NO_PROJECT_NAME;
+        }
+
+        if (projectDto.getMembers() == null || projectDto.getMembers().isEmpty()) {
+            throw ProjectException.NO_MEMBER;
+        }
+
+        if (projectDto.getStartDate() == null || projectDto.getEndDate() == null) {
+            throw ProjectException.NO_DATETIME;
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         project.setProjectName(projectDto.getProjectName());
         project.setProjectDescription(projectDto.getProjectDescription());
         project.setOrganizationName(projectDto.getOrganizationName());
@@ -92,31 +124,9 @@ public class ProjectService {
         project.setProjectUrlLink(projectDto.getProjectUrlLink());
         project.setUpdatedAt(new Date());
 
-        List<ProjectUserJoin> members = projectDto.getMembers().stream().map(memberDto -> {
-            return project.getMembers().stream()
-                    .filter(m -> m.getEmail().equals(memberDto.getEmail()))
-                    .findFirst()
-                    .map(existingMember -> {
-                        existingMember.setRoles(memberDto.getRoles());
-                        existingMember.setSkills(memberDto.getSkills());
-                        return existingMember;
-                    })
-                    .orElseGet(() -> {
-                        ProjectUserJoin newMember = new ProjectUserJoin();
-                        newMember.setUser(userRepository.findByEmail(memberDto.getEmail())
-                                .orElseThrow(() -> new RuntimeException("User not found with email: " + memberDto.getEmail())));
-                        newMember.setName(memberDto.getName());
-                        newMember.setEmail(memberDto.getEmail());
-                        newMember.setRoles(memberDto.getRoles());
-                        newMember.setSkills(memberDto.getSkills());
-                        newMember.setProject(project);
-                        return newMember;
-                    });
-        }).collect(Collectors.toList());
+        updateProjectMembers(project, projectDto.getMembers());
 
-        project.setMembers(members);
         projectRepository.save(project);
-
         return ProjectResponseDto.builder()
                 .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
@@ -132,17 +142,54 @@ public class ProjectService {
                 .build();
     }
 
+    private void updateProjectMembers(Project project, List<MemberDto> memberDtos) {
+        List<ProjectUserJoin> existingMembers = project.getMembers();
+        List<ProjectUserJoin> updatedMembers = memberDtos.stream().map(memberDto -> {
+            return existingMembers.stream()
+                    .filter(m -> m.getEmail().equals(memberDto.getEmail()))
+                    .findFirst()
+                    .map(existingMember -> {
+                        updateExistingMember(existingMember, memberDto);
+                        return existingMember;
+                    })
+                    .orElseGet(() -> createNewMember(project, memberDto));
+        }).collect(Collectors.toList());
+
+        // Remove members not in the new list
+        existingMembers.removeIf(member -> updatedMembers.stream()
+                .noneMatch(updatedMember -> updatedMember.getEmail().equals(member.getEmail())));
+
+        existingMembers.addAll(updatedMembers);
+    }
+
+    private ProjectUserJoin updateExistingMember(ProjectUserJoin existingMember, MemberDto memberDto) {
+        existingMember.setRoles(memberDto.getRoles());
+        existingMember.setSkills(memberDto.getSkills());
+        return existingMember;
+    }
+
+    private ProjectUserJoin createNewMember(Project project, MemberDto memberDto) {
+        return userRepository.findByEmail(memberDto.getEmail())
+                .map(user -> {
+                    ProjectUserJoin join = new ProjectUserJoin();
+                    join.setUser(user);
+                    join.setName(memberDto.getName());
+                    join.setEmail(memberDto.getEmail());
+                    join.setRoles(memberDto.getRoles());
+                    join.setSkills(memberDto.getSkills());
+                    join.setProject(project);
+                    return join;
+                })
+                .orElseThrow(() -> new ProjectException("Member not found with email: " + memberDto.getEmail(), ProjectErrorCode.USER_NOT_FOUND));
+    }
+
     @Transactional
     public ProjectResponseDto deleteProject(int projectId) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found with ID: " + projectId));
+                .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
 
-        Hibernate.initialize(project.getCategories());
-        Hibernate.initialize(project.getHashTags());
-        Hibernate.initialize(project.getSkills());
-        Hibernate.initialize(project.getMembers());
-
-        ProjectResponseDto response = ProjectResponseDto.builder()
+        projectRepository.delete(project);
+        return ProjectResponseDto.builder()
                 .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
                 .projectDescription(project.getProjectDescription())
@@ -155,8 +202,5 @@ public class ProjectService {
                 .endDate(project.getEndDate())
                 .projectUrlLink(project.getProjectUrlLink())
                 .build();
-
-        projectRepository.delete(project);
-        return response;
     }
 }
