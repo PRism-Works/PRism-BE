@@ -3,7 +3,7 @@ package com.prismworks.prism.domain.project.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -26,11 +26,11 @@ public class Project {
     @Column(name = "category")
     private List<String> categories;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date startDate;
+    @Column(nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime startDate;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date endDate;
+    @Column(nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime endDate;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "project")
     private List<ProjectUserJoin> members;
@@ -41,13 +41,12 @@ public class Project {
     @Column(length = 255)
     private String projectUrlLink;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
+    @Column(nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime createdAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
+    @Column(nullable = false, columnDefinition = "TIMESTAMP")
+    private LocalDateTime updatedAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date deletedAt;
-
+    @Column(columnDefinition = "TIMESTAMP")
+    private LocalDateTime deletedAt;
 }

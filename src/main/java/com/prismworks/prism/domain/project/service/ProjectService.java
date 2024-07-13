@@ -10,10 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,18 +25,18 @@ public class ProjectService {
     private ProjectRepository projectRepository;
 
     @Transactional
-    public ProjectResponseDto createProject(ProjectDto projectDto) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+    public ProjectResponseDto createProject(ProjectDto projectDto) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
         Project project = new Project();
         project.setProjectName(projectDto.getProjectName());
         project.setProjectDescription(projectDto.getProjectDescription());
         project.setCategories(projectDto.getCategories());
-        project.setStartDate(sdf.parse(projectDto.getStartDate()));
-        project.setEndDate(sdf.parse(projectDto.getEndDate()));
+        project.setStartDate(LocalDateTime.parse(projectDto.getStartDate(), formatter));
+        project.setEndDate(LocalDateTime.parse(projectDto.getEndDate(), formatter));
         project.setVisibility(true);
-        project.setCreatedAt(new Date());
-        project.setUpdatedAt(new Date());
+        project.setCreatedAt(LocalDateTime.now());
+        project.setUpdatedAt(LocalDateTime.now());
 
         List<ProjectUserJoin> members = projectDto.getMembers().stream().map(memberDto -> {
             ProjectUserJoin join = new ProjectUserJoin();
@@ -61,9 +60,10 @@ public class ProjectService {
                 .endDate(project.getEndDate())
                 .build();
     }
+
     @Transactional
-    public ProjectResponseDto updateProject(int projectId, ProjectDto projectDto) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+    public ProjectResponseDto updateProject(int projectId, ProjectDto projectDto) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found with ID: " + projectId));
@@ -71,9 +71,9 @@ public class ProjectService {
         project.setProjectName(projectDto.getProjectName());
         project.setProjectDescription(projectDto.getProjectDescription());
         project.setCategories(projectDto.getCategories());
-        project.setStartDate(sdf.parse(projectDto.getStartDate()));
-        project.setEndDate(sdf.parse(projectDto.getEndDate()));
-        project.setUpdatedAt(new Date());
+        project.setStartDate(LocalDateTime.parse(projectDto.getStartDate(), formatter));
+        project.setEndDate(LocalDateTime.parse(projectDto.getEndDate(), formatter));
+        project.setUpdatedAt(LocalDateTime.now());
 
         List<ProjectUserJoin> members = projectDto.getMembers().stream().map(memberDto -> {
             return project.getMembers().stream()
@@ -107,6 +107,7 @@ public class ProjectService {
                 .endDate(project.getEndDate())
                 .build();
     }
+
     @Transactional
     public ProjectResponseDto deleteProject(int projectId) {
         Project project = projectRepository.findById(projectId)
@@ -124,5 +125,4 @@ public class ProjectService {
         projectRepository.delete(project);
         return response;
     }
-
 }

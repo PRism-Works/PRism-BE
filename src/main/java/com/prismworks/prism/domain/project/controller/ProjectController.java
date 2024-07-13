@@ -17,7 +17,6 @@ import java.text.ParseException;
 @RequestMapping("/api/v1/projects")
 @Validated
 public class ProjectController {
-
     @Autowired
     private ProjectService projectService;
 
@@ -26,8 +25,6 @@ public class ProjectController {
         try {
             ProjectResponseDto createdProjectDto = projectService.createProject(projectDto);
             return new ResponseEntity<>(createdProjectDto, HttpStatus.CREATED);
-        } catch (ParseException e) {
-            return new ResponseEntity<>(new ApiErrorResponse("PROJECT_CREATION_FAILED", "Date format should be 'yyyyMMddHHmmss'."), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>(new ApiErrorResponse("PROJECT_CREATION_FAILED", e.getMessage()), HttpStatus.BAD_REQUEST);
         }
@@ -38,8 +35,6 @@ public class ProjectController {
         try {
             ProjectResponseDto updatedProjectDto = projectService.updateProject(projectId, projectDto);
             return ResponseEntity.ok(updatedProjectDto);
-        } catch (ParseException e) {
-            return new ResponseEntity<>(new ApiErrorResponse("PROJECT_UPDATE_FAILED", "Invalid date format."), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>(new ApiErrorResponse("PROJECT_UPDATE_FAILED", e.getMessage()), HttpStatus.BAD_REQUEST);
         }

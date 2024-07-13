@@ -3,7 +3,7 @@ package com.prismworks.prism.domain.project.dto;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -13,6 +13,6 @@ public class ProjectResponseDto {
     private String projectName;
     private String projectDescription;
     private List<String> categories;
-    private Date startDate;
-    private Date endDate;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
 }
