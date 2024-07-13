@@ -76,11 +76,12 @@ public class AuthService {
     }
 
     public SignupResponse signup(SignupRequest dto) {
+        /*
         boolean emailVerified = emailAuthCodeService.isEmailVerified(dto.getEmail());
         if(!emailVerified) {
             throw AuthException.EMAIL_NOT_VERIFIED;
         }
-
+         */
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
         UserDto.CreateInfo userCreateInfo = UserDto.CreateInfo.builder()
                 .username(dto.getUsername())
