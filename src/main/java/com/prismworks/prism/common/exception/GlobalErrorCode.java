@@ -4,8 +4,9 @@ import com.prismworks.prism.common.dto.ApiErrorInfo;
 import org.springframework.http.HttpStatus;
 
 public enum GlobalErrorCode implements ApplicationErrorCode{
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Global_500_1", "internal server error"),
-    ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "Global_404_1", "Resource not found");
+    ARGUMENT_NOT_VALID(HttpStatus.BAD_REQUEST, "Global_400_1", "Argument not valid"),
+    ENTITY_NOT_FOUND(HttpStatus.NOT_FOUND, "Global_404_1", "Resource not found"),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Global_500_1", "internal server error");
 
     private final HttpStatus status;
     private final String code;

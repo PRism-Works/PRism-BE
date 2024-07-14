@@ -5,6 +5,7 @@ import com.prismworks.prism.domain.auth.exception.AuthException;
 import com.prismworks.prism.domain.auth.model.AuthToken;
 import com.prismworks.prism.domain.auth.provider.JwtTokenProvider;
 import com.prismworks.prism.domain.email.dto.EmailSendRequest;
+import com.prismworks.prism.domain.email.model.AuthType;
 import com.prismworks.prism.domain.email.model.EmailAuthCode;
 import com.prismworks.prism.domain.email.model.EmailTemplate;
 import com.prismworks.prism.domain.email.service.EmailAuthCodeService;
@@ -49,34 +50,49 @@ public class AuthService {
         return userService.userExistByEmail(email);
     }
 
+    public void checkAlreadySignup(String email) {
+        boolean emailExists = this.emailExists(email);
+
+        if(emailExists) {
+            throw AuthException.ALREADY_SIGNUP;
+        }
+    }
+
     public void sendAuthCode(SendCodeRequest dto) {
+        if(AuthType.SIGNUP.equals(dto.getAuthType())) {
+            checkAlreadySignup(dto.getEmail());
+        }
+
         EmailAuthCode emailAuthCode =
                 emailAuthCodeService.createEmailAuthCode(dto.getEmail(), dto.getAuthType(), dto.getRequestAt());
 
-        EmailSendRequest emailSendRequest = EmailSendRequest.builder() // todo: refactor
+        EmailSendRequest emailSendRequest = EmailSendRequest.builder()
                 .toEmail(emailAuthCode.getEmail())
                 .template(EmailTemplate.valueOf(emailAuthCode.getAuthType().getValue()))
                 .templateVariables(Map.of("code", emailAuthCode.getCode()))
                 .build();
 
-        emailSendService.sendEmail(emailSendRequest);
+         emailSendService.sendEmail(emailSendRequest);
     }
 
     @Transactional
     public void verifyAuthCode(VerifyCodeRequest dto) {
         EmailAuthCode authCode = emailAuthCodeService
-                .findByEmailAndCodeAndAuthType(dto.getEmail(), dto.getAuthCode(), dto.getAuthType())
+                .findByCode(dto.getEmail(), dto.getAuthCode(), dto.getAuthType())
                 .orElseThrow(() -> AuthException.CODE_NOT_MATCH);
 
-        if(!authCode.isValid(dto.getRequestAt())) {
+        LocalDateTime requestAt = dto.getRequestAt();
+        if(!authCode.isValid(requestAt)) {
             throw AuthException.CODE_ALREADY_EXPIRED;
         }
 
-        authCode.verified(LocalDateTime.now());
+        authCode.verified(requestAt);
     }
 
     public SignupResponse signup(SignupRequest dto) {
-        boolean emailVerified = emailAuthCodeService.isEmailVerified(dto.getEmail());
+        this.checkAlreadySignup(dto.getEmail());
+
+        boolean emailVerified = emailAuthCodeService.isEmailVerified(dto.getEmail(), dto.getAuthCode(), AuthType.SIGNUP);
         if(!emailVerified) {
             throw AuthException.EMAIL_NOT_VERIFIED;
         }
