@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.auth.service;
 
+import com.prismworks.prism.domain.auth.dto.AuthDto;
 import com.prismworks.prism.domain.auth.dto.JwtTokenDto;
 import com.prismworks.prism.domain.auth.exception.AuthException;
 import com.prismworks.prism.domain.auth.model.AuthToken;
@@ -50,14 +51,6 @@ public class AuthService {
         return userService.userExistByEmail(email);
     }
 
-    public void checkAlreadySignup(String email) {
-        boolean emailExists = this.emailExists(email);
-
-        if(emailExists) {
-            throw AuthException.ALREADY_SIGNUP;
-        }
-    }
-
     public void sendAuthCode(SendCodeRequest dto) {
         if(AuthType.SIGNUP.equals(dto.getAuthType())) {
             checkAlreadySignup(dto.getEmail());
@@ -90,17 +83,14 @@ public class AuthService {
     }
 
     public SignupResponse signup(SignupRequest dto) {
-        this.checkAlreadySignup(dto.getEmail());
-
-        boolean emailVerified = emailAuthCodeService.isEmailVerified(dto.getEmail(), dto.getAuthCode(), AuthType.SIGNUP);
-        if(!emailVerified) {
-            throw AuthException.EMAIL_NOT_VERIFIED;
-        }
+        String email = dto.getEmail();
+        this.checkAlreadySignup(email);
+        this.checkEmailVerified(email, dto.getAuthCode(), AuthType.SIGNUP);
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
         UserDto.CreateInfo userCreateInfo = UserDto.CreateInfo.builder()
                 .username(dto.getUsername())
-                .email(dto.getEmail())
+                .email(email)
                 .encodedPassword(encodedPassword)
                 .build();
 
@@ -110,6 +100,19 @@ public class AuthService {
                 .userId(user.getUserId())
                 .email(user.getEmail())
                 .build();
+    }
+
+    public void resetPassword(AuthDto.ResetPasswordRequest dto) {
+        String email = dto.getEmail();
+        boolean emailExists = this.emailExists(email);
+        if(!emailExists) {
+            throw AuthException.EMAIL_NOT_REGISTERED;
+        }
+
+        checkEmailVerified(email, dto.getAuthCode(), AuthType.RESET_PASSWORD);
+
+        String encodedPassword = passwordEncoder.encode(dto.getPassword());
+        userService.updateUserPassword(email, encodedPassword);
     }
 
     public TokenResponse login(LoginRequest dto) {
@@ -161,6 +164,21 @@ public class AuthService {
 
         // 2. remove refresh token by userId
         authTokenService.deleteTokenByUserId(userId);
+    }
+
+    private void checkAlreadySignup(String email) {
+        boolean emailExists = this.emailExists(email);
+
+        if(emailExists) {
+            throw AuthException.ALREADY_SIGNUP;
+        }
+    }
+
+    private void checkEmailVerified(String email, String authCode, AuthType authType) {
+        boolean emailVerified = emailAuthCodeService.isEmailVerified(email, authCode, authType);
+        if(!emailVerified) {
+            throw AuthException.EMAIL_NOT_VERIFIED;
+        }
     }
 
     private JwtTokenDto generateToken(String userId, LocalDateTime requestAt) {

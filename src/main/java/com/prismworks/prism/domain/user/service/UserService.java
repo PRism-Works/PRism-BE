@@ -93,4 +93,12 @@ public class UserService {
         UserProfile userProfile = this.findProfileById(userId);
         userProfile.updateProfile(dto);
     }
+
+    @Transactional
+    public void updateUserPassword(String email, String encodedPassword) {
+        Users user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("user not found by email: " + email));
+
+        user.updatePassword(encodedPassword);
+    }
 }

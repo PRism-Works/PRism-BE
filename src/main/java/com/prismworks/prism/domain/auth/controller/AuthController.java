@@ -43,6 +43,12 @@ public class AuthController {
         return new ApiSuccessResponse(HttpStatus.CREATED.value(), response);
     }
 
+    @PutMapping("/password")
+    public ApiSuccessResponse resetPassword(@RequestBody @Valid AuthDto.ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ApiSuccessResponse.defaultOk();
+    }
+
     @PostMapping("/login")
     public ApiSuccessResponse login(@RequestBody @Valid AuthDto.LoginRequest request) {
         AuthDto.TokenResponse response = authService.login(request);
