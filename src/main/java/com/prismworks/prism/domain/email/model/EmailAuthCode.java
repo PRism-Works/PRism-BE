@@ -51,12 +51,12 @@ public class EmailAuthCode {
         return (this.verifiedAt == null) && (this.expiredAt.isAfter(dateTime));
     }
 
-    public boolean checkCodeMatch(String code) {
-        return this.code.equals(code);
-    }
-
     public void verified(LocalDateTime dateTime) {
         this.verifiedAt = dateTime;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isVerified() {
+        return this.verifiedAt != null;
     }
 }

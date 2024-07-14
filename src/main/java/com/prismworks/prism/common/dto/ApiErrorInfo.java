@@ -8,5 +8,9 @@ import lombok.Getter;
 public class ApiErrorInfo {
     private final Integer status;
     private final String code;
-    private final String reason;
+    private String reason;
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
 }

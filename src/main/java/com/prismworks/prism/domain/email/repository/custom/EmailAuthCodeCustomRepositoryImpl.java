@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
 
 import static com.prismworks.prism.domain.email.model.QEmailAuthCode.emailAuthCode;
@@ -17,19 +17,32 @@ import static com.prismworks.prism.domain.email.model.QEmailAuthCode.emailAuthCo
 @RequiredArgsConstructor
 @Repository
 public class EmailAuthCodeCustomRepositoryImpl implements EmailAuthCodeCustomRepository{
+
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<EmailAuthCode> findValidCode(String email, AuthType authType, LocalDateTime dateTime) {
+    public List<EmailAuthCode> findAllNotVerifiedCode(String email, AuthType authType, LocalDateTime dateTime) {
+        return queryFactory
+                .selectFrom(emailAuthCode)
+                .where(
+                        this.emailEq(email),
+                        this.authTypeEq(authType),
+                        this.verifiedAtIsNull(),
+                        this.expiredAtGt(dateTime)
+                )
+                .fetch();
+    }
+
+    @Override
+    public Optional<EmailAuthCode> findByCode(String email, AuthType authType, String code) {
         EmailAuthCode authCode = queryFactory
                 .selectFrom(emailAuthCode)
                 .where(
                         this.emailEq(email),
                         this.authTypeEq(authType),
-                        expiredAtGt(dateTime),
-                        emailAuthCode.verifiedAt.isNull()
+                        this.codeEq(code)
                 )
-                .fetchOne();
+                .fetchFirst();
 
         return Optional.ofNullable(authCode);
     }
@@ -42,7 +55,15 @@ public class EmailAuthCodeCustomRepositoryImpl implements EmailAuthCodeCustomRep
         return authType != null ? emailAuthCode.authType.eq(authType) : null;
     }
 
+    private BooleanExpression codeEq(String code) {
+        return StringUtils.hasText(code) ? emailAuthCode.code.eq(code) : null;
+    }
+
     private BooleanExpression expiredAtGt(LocalDateTime dateTime) {
-        return Objects.isNull(dateTime) ? null : emailAuthCode.expiredAt.gt(dateTime);
+        return dateTime != null ? emailAuthCode.expiredAt.gt(dateTime) : null;
+    }
+
+    private BooleanExpression verifiedAtIsNull() {
+        return emailAuthCode.verifiedAt.isNull();
     }
 }

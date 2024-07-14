@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,14 +21,14 @@ public class EmailAuthCodeService {
     private final static int DEFAULT_MIN_OF_EXPIRED_AT = 5;
     private final static int DEFAULT_RANDOM_CODE_LENGTH = 6;
 
+    /**
+     * todo
+     * findAllUsableCode로 변경하여 해당 유형, 이메일에 대한 모든 사용가능한 코드들은 사용하지 못하도록 처리
+     * */
     @Transactional
     public EmailAuthCode createEmailAuthCode(String email, AuthType authType, LocalDateTime requestAt) {
-        this.findByEmailAndAuthType(email, authType)
-                .ifPresent(emailAuthCode -> {
-                    if(emailAuthCode.isValid(requestAt)) {
-                        emailAuthCode.expired(requestAt);
-                    }
-                });
+        this.findAllNotVerifiedCode(email, authType, requestAt) // 기존에 발급 받은 코드들중 사용가능한 코드 전부 만료처리
+                .forEach(emailAuthCode -> emailAuthCode.expired(requestAt));
 
         String code = RandomStringGenerator.generate(DEFAULT_RANDOM_CODE_LENGTH);
 
@@ -42,17 +43,23 @@ public class EmailAuthCodeService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<EmailAuthCode> findByEmailAndAuthType(String email, AuthType authType) {
-        return emailAuthCodeRepository.findByEmailAndAuthType(email, authType);
+    public List<EmailAuthCode> findAllNotVerifiedCode(String email, AuthType authType, LocalDateTime dateTime) {
+        return emailAuthCodeRepository.findAllNotVerifiedCode(email, authType, dateTime);
     }
 
     @Transactional(readOnly = true)
-    public Optional<EmailAuthCode> findByEmailAndCodeAndAuthType(String email, String code, AuthType authType) {
-        return emailAuthCodeRepository.findByEmailAndCodeAndAuthType(email, code, authType);
+    public Optional<EmailAuthCode> findByCode(String email, String code, AuthType authType) {
+        return emailAuthCodeRepository.findByCode(email, authType, code);
     }
 
     @Transactional(readOnly = true)
-    public boolean isEmailVerified(String email) {
-        return emailAuthCodeRepository.existsByEmailAndVerifiedAtIsNotNull(email);
+    public boolean isEmailVerified(String email, String code, AuthType authType) {
+        Optional<EmailAuthCode> emailAuthCodeOptional = this.findByCode(email, code, authType);
+        if(emailAuthCodeOptional.isEmpty()) {
+            return false;
+        }
+
+        EmailAuthCode authCode = emailAuthCodeOptional.get();
+        return authCode.isVerified();
     }
 }
