@@ -6,6 +6,7 @@ import com.prismworks.prism.domain.email.model.AuthType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,8 +15,7 @@ import java.time.LocalDateTime;
 
 public class AuthDto {
 
-    private static final String PASSWORD_PATTERN =
-            "^(?:(?=.*[0-9])(?=.*[a-zA-Z])|(?=.*[!@#$%^&*])(?=.*[a-zA-Z])|(?=.*[0-9])(?=.*[!@#$%^&*]))[a-zA-Z0-9!@#$%^&*&]{8,20}$";
+    private static final String PASSWORD_PATTERN = "^(?:(?=.*[a-zA-Z])(?=.*[\\d])|(?=.*[\\d])(?=.*[!@#$%^&*])|(?=.*[a-zA-Z])(?=.*[!@#$%^&*]))[a-zA-Z\\d!@#$%^&*]+$";
 
     @Getter
     public static class SendCodeRequest {
@@ -69,6 +69,7 @@ public class AuthDto {
         @NotEmpty(message = "인증코드는 비어있을 수 없습니다")
         private final String authCode;
 
+        @Size(min = 8, max = 20)
         @Pattern(regexp = PASSWORD_PATTERN)
         private final String password;
     }
@@ -82,6 +83,7 @@ public class AuthDto {
         @NotEmpty
         private final String authCode;
 
+        @Size(min = 8, max = 20)
         @Pattern(regexp = PASSWORD_PATTERN)
         private final String password;
     }
@@ -99,6 +101,7 @@ public class AuthDto {
         @Email
         private final String email;
 
+        @Size(min = 8, max = 20)
         @Pattern(regexp = PASSWORD_PATTERN)
         private final String password;
 
