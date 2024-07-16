@@ -1,10 +1,12 @@
 package com.prismworks.prism.domain.project.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Data
@@ -37,13 +39,9 @@ public class Project {
     @Column(name = "category")
     private List<String> categories;
     */
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "project_categories",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    private Set<Category> categories;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private Set<ProjectCategoryJoin> categories;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "project_skills", joinColumns = @JoinColumn(name = "project_id"))
@@ -74,4 +72,15 @@ public class Project {
     @Temporal(TemporalType.TIMESTAMP)
     private Date deletedAt;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return projectId != null ? projectId.equals(project.projectId) : project.projectId == null;
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectId);
+    }
 }
