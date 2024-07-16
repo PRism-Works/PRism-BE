@@ -1,10 +1,13 @@
 package com.prismworks.prism.domain.project.dto;
 
+import com.prismworks.prism.domain.project.model.Category;
+import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -14,7 +17,7 @@ public class ProjectResponseDto {
     private String projectDescription;
     private String organizationName;
     private int memberCount;
-    private List<String> categories;
+    private Set<ProjectCategoryJoin> categories;
     private List<String> hashTags;
     private List<String> skills;
     private Date startDate;
