@@ -1,6 +1,7 @@
 package com.prismworks.prism.domain.project.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
 @Data
 @Entity
 @Table(name = "project_category_joins")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ProjectCategoryJoin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

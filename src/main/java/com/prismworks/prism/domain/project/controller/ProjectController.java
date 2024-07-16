@@ -4,6 +4,7 @@ import com.prismworks.prism.common.response.ApiErrorResponse;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.project.dto.ProjectDto;
 import com.prismworks.prism.domain.project.dto.ProjectResponseDto;
+import com.prismworks.prism.domain.project.dto.SummaryProjectDto;
 import com.prismworks.prism.domain.project.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/projects")
@@ -38,4 +40,34 @@ public class ProjectController {
         projectService.deleteProject(projectId);
         return new ApiSuccessResponse(HttpStatus.NO_CONTENT.value(), null);
     }
+
+    //테스트 완료
+    @GetMapping("/summary/by-name")
+    public ApiSuccessResponse getProjectSummaryByName(@RequestParam String projectName) {
+        List<SummaryProjectDto> summaryProjects = projectService.getProjectSummaryByName(projectName);
+        return new ApiSuccessResponse(HttpStatus.OK.value(), summaryProjects);
+    }
+    /*
+    @GetMapping("/summary/by-member-and-filters")
+    public ApiSuccessResponse getProjectSummaryByMemberAndFilters(
+            @RequestParam(required = false) String projectName,
+            @RequestParam(required = false) String memberName,
+            @RequestParam(required = false) List<String> categories,
+            @RequestParam(required = false) String organizationName) {
+        List<SummaryProjectDto> summaryProjects = projectService.getProjectSummaryByMemberAndFilters(projectName, memberName, categories, organizationName);
+        return new ApiSuccessResponse(HttpStatus.OK.value(), summaryProjects);
+    }
+
+    @GetMapping("/my-projects")
+    public ApiSuccessResponse getMyProjects() {
+        List<SummaryProjectDto> myProjects = projectService.getMyProjects();
+        return new ApiSuccessResponse(HttpStatus.OK.value(), myProjects);
+    }
+
+    @GetMapping("/my-registered-projects")
+    public ApiSuccessResponse getMyRegisteredProjects() {
+        List<SummaryProjectDto> myRegisteredProjects = projectService.getMyRegisteredProjects();
+        return new ApiSuccessResponse(HttpStatus.OK.value(), myRegisteredProjects);
+    }
+    */
 }

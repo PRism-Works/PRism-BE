@@ -76,6 +76,14 @@ dependencies {
 		exclude group: 'com.google.guava', module: 'guava-jdk5'
 	}
 	//Exception 등 파라미터 검증 모듈
+
+
+
+
+
+
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.13.0' // Jackson 버전에 맞게 변경
+
 }
 
 tasks.named('test') {
