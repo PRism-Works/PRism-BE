@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Entity
@@ -33,15 +30,10 @@ public class Project {
     @CollectionTable(name = "project_hash_tags", joinColumns = @JoinColumn(name = "project_id"))
     @Column(name = "hash_tag")
     private List<String> hashTags;
-    /*
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "project_categories", joinColumns = @JoinColumn(name = "project_id"))
-    @Column(name = "category")
-    private List<String> categories;
-    */
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonManagedReference
-    private Set<ProjectCategoryJoin> categories;
+    private Set<ProjectCategoryJoin> categories = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "project_skills", joinColumns = @JoinColumn(name = "project_id"))
@@ -62,6 +54,9 @@ public class Project {
 
     @Column(length = 255)
     private String projectUrlLink;
+
+    @Column(nullable = false, length = 100)
+    private String createdBy;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;

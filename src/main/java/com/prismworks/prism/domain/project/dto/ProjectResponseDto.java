@@ -23,4 +23,5 @@ public class ProjectResponseDto {
     private Date startDate;
     private Date endDate;
     private String projectUrlLink;
+    private String createdBy; // 프로젝트 소유자 이메일 추가
 }

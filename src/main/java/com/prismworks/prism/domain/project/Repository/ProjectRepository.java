@@ -2,5 +2,24 @@ package com.prismworks.prism.domain.project.Repository;
 
 import com.prismworks.prism.domain.project.model.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-public interface ProjectRepository extends JpaRepository<Project, Integer> {;}
+import java.util.List;
+
+public interface ProjectRepository extends JpaRepository<Project, Integer> {
+    @Query("SELECT p FROM Project p WHERE p.projectName = :projectName")
+    List<Project> findByName(String projectName);
+
+    @Query("SELECT p FROM Project p JOIN p.members m JOIN p.categories c WHERE " +
+            "(:projectName IS NULL OR p.projectName = :projectName) AND " +
+            "(:memberName IS NULL OR m.name = :memberName) AND " +
+            "(:organizationName IS NULL OR p.organizationName = :organizationName) AND " +
+            "(COALESCE(:categories, NULL) IS NULL OR c.category.name IN :categories)")
+    List<Project> findByFilters(String projectName, String memberName, List<String> categories, String organizationName);
+
+    @Query("SELECT p FROM Project p JOIN p.members m WHERE m.email = :email")
+    List<Project> findByMemberEmail(String email);
+
+    @Query("SELECT p FROM Project p WHERE p.createdBy = :email")
+    List<Project> findByOwnerEmail(String email);
+}
