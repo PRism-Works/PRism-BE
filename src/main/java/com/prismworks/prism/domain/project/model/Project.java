@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Entity
@@ -30,11 +31,19 @@ public class Project {
     @CollectionTable(name = "project_hash_tags", joinColumns = @JoinColumn(name = "project_id"))
     @Column(name = "hash_tag")
     private List<String> hashTags;
-
+    /*
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "project_categories", joinColumns = @JoinColumn(name = "project_id"))
     @Column(name = "category")
     private List<String> categories;
+    */
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "project_categories",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private Set<Category> categories;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "project_skills", joinColumns = @JoinColumn(name = "project_id"))

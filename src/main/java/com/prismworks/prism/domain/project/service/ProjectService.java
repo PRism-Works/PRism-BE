@@ -1,11 +1,13 @@
 package com.prismworks.prism.domain.project.service;
 
+import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
 import com.prismworks.prism.domain.project.dto.MemberDto;
 import com.prismworks.prism.domain.project.dto.ProjectDto;
 import com.prismworks.prism.domain.project.dto.ProjectResponseDto;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
+import com.prismworks.prism.domain.project.model.Category;
 import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.repository.UserRepository;
@@ -17,15 +19,25 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
 
     @Autowired
+    private CategoryRepository categoryRepository;
+    @Autowired
     private UserRepository userRepository;
     @Autowired
     private ProjectRepository projectRepository;
+
+    private Set<Category> resolveCategories(List<String> categoryNames) {
+        return categoryNames.stream()
+                .map(name -> categoryRepository.findByName(name)
+                        .orElseThrow(() -> new RuntimeException("Category not found: " + name)))
+                .collect(Collectors.toSet());
+    }
 
     @Transactional
     public ProjectResponseDto createProject(ProjectDto projectDto) throws ParseException {
@@ -51,7 +63,9 @@ public class ProjectService {
         project.setProjectDescription(projectDto.getProjectDescription());
         project.setOrganizationName(projectDto.getOrganizationName());
         project.setMemberCount(projectDto.getMemberCount());
-        project.setCategories(projectDto.getCategories());
+        //project.setCategories(projectDto.getCategories());
+        Set<Category> categories = resolveCategories(projectDto.getCategories());
+        project.setCategories(categories);
         project.setHashTags(projectDto.getHashTags());
         project.setSkills(projectDto.getSkills());
         project.setStartDate(startDate);
@@ -116,7 +130,9 @@ public class ProjectService {
         project.setProjectDescription(projectDto.getProjectDescription());
         project.setOrganizationName(projectDto.getOrganizationName());
         project.setMemberCount(projectDto.getMemberCount());
-        project.setCategories(projectDto.getCategories());
+        //project.setCategories(projectDto.getCategories());
+        Set<Category> categories = resolveCategories(projectDto.getCategories());
+        project.setCategories(categories);
         project.setHashTags(projectDto.getHashTags());
         project.setSkills(projectDto.getSkills());
         project.setStartDate(sdf.parse(projectDto.getStartDate()));
