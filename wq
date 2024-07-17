@@ -1,0 +1,14 @@
+  37-seperate-category-elementcollection-from-project-entity[m
+  TK27-align-the-existing-code-and-exception-handling-logic-with-the-convention-for-the-project-crud[m
+  TK29-define-exceptions-for-the-project-development-side[m
+  TK36-develop-a-feature-to-view-project-part-summaries[m
+  TK37-seperate-category-elementcollection-from-project-entity[m
+  TK43-modify-the-project-registration-and-update-processes-so-that-member-skills-are-not-accepted-as-parameters[m
+  TK45-develop-an-api-to-retrieve-the-list-of-projects-displayed-on-my-page-that-include-me[m
+  TK47-develop-an-api-to-retrieve-the-list-of-projects-i-have-registered-in-the-my-projects-section-under-project-management[m
+  TK49-modify-the-api-for-creating-a-project-to-no-longer-accept-the-hashtags-parameter[m
+  TK51-ensure-that-projects-are-not-searchable-if-their-visibility-is-set-to-false[m
+  TK53-develop-an-api-to-search-for-projects-using-project-name-team-member-name-and-filter-conditions[m
+  TK55-modify-the-project-creation-to-receive-user-data-only-through-jwt-token[m
+  TK57-develop-an-api-to-retrieve-detailed-project-information-on-the-my-page[m
+* [32mmain[m

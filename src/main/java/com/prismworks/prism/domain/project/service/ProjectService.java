@@ -10,6 +10,7 @@ import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.repository.UserRepository;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -285,7 +286,7 @@ public class ProjectService {
 
 
     @Transactional(readOnly = true)
-    public ProjectDetailDto getProjectDetail(String myEmail, int projectId) {
+    public ProjectDetailDto getProjectDetailInMyPage(String myEmail, int projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
 
@@ -295,10 +296,10 @@ public class ProjectService {
 
         project.getMembers().forEach(member -> member.getRoles().size());
 
-        return convertToDetailDto(project);
+        return convertToDetailDtoInMyPage(project);
     }
 
-    private ProjectDetailDto convertToDetailDto(Project project) {
+    private ProjectDetailDto convertToDetailDtoInMyPage(Project project) {
         List<MemberDetailDto> memberDetailDtos = project.getMembers().stream().map(member -> {
             return MemberDetailDto.builder()
                     .name(member.getName())
@@ -317,6 +318,40 @@ public class ProjectService {
                 .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
                 .skills(project.getSkills())
                 .members(memberDetailDtos)
+                .build();
+    }
+
+
+    @Transactional(readOnly = true)
+    public ProjectDetailDto getProjectDetailInRetrieve(int projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectException("Project not found", ProjectErrorCode.PROJECT_NOT_FOUND));
+
+        Hibernate.initialize(project.getMembers());
+        project.getMembers().forEach(member -> Hibernate.initialize(member.getRoles()));
+        Hibernate.initialize(project.getCategories());
+
+        return convertToDetailDtoInRetrieve(project);
+    }
+
+    private ProjectDetailDto convertToDetailDtoInRetrieve(Project project) {
+        List<MemberDetailDto> memberDetails = project.getMembers().stream()
+                .map(member -> new MemberDetailDto(member.getName(), member.getEmail(), member.getRoles()))
+                .collect(Collectors.toList());
+
+        long anonymousCount = memberDetails.stream().filter(member -> member.getName().equals("Anonymous")).count();
+
+        return ProjectDetailDto.builder()
+                .projectName(project.getProjectName())
+                .organizationName(project.getOrganizationName())
+                .startDate(formatDate(project.getStartDate()))
+                .endDate(formatDate(project.getEndDate()))
+                .projectUrlLink(project.getProjectUrlLink())
+                .projectDescription(project.getProjectDescription())
+                .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
+                .skills(project.getSkills())
+                .members(memberDetails)
+                .anonymousCount(anonymousCount)
                 .build();
     }
 
