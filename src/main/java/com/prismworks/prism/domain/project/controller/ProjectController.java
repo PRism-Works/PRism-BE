@@ -1,7 +1,9 @@
 package com.prismworks.prism.domain.project.controller;
 
+import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiErrorResponse;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
+import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.project.dto.ProjectDto;
 import com.prismworks.prism.domain.project.dto.ProjectResponseDto;
 import com.prismworks.prism.domain.project.dto.SummaryProjectDto;
@@ -57,13 +59,14 @@ public class ProjectController {
         List<SummaryProjectDto> summaryProjects = projectService.getProjectSummaryByMemberAndFilters(projectName, memberName, categories, organizationName);
         return new ApiSuccessResponse(HttpStatus.OK.value(), summaryProjects);
     }
-
-    @GetMapping("/my-projects")
-    public ApiSuccessResponse getMyProjects() {
-        List<SummaryProjectDto> myProjects = projectService.getMyProjects();
+    */
+    @GetMapping("/me-involved-projects")
+    public ApiSuccessResponse getMeInvolvedProjects(@CurrentUser UserContext userContext) {
+        String myEmail = userContext.getEmail();
+        List<SummaryProjectDto> myProjects = projectService.getMeInvolvedProjects(myEmail);
         return new ApiSuccessResponse(HttpStatus.OK.value(), myProjects);
     }
-
+    /*
     @GetMapping("/my-registered-projects")
     public ApiSuccessResponse getMyRegisteredProjects() {
         List<SummaryProjectDto> myRegisteredProjects = projectService.getMyRegisteredProjects();
