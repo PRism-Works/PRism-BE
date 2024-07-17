@@ -259,10 +259,9 @@ public class ProjectService {
         List<Project> projects = projectRepository.findByMemberEmail(myEmail);
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
-
-    public List<SummaryProjectDto> getMyRegisteredProjects() {
-        String email = getCurrentUserEmail();
-        List<Project> projects = projectRepository.findByOwnerEmail(email);
+    @Transactional(readOnly = true)
+    public List<SummaryProjectDto> getMeRegisteredProjects(String myEmail) {
+        List<Project> projects = projectRepository.findByOwnerEmail(myEmail);
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
 
