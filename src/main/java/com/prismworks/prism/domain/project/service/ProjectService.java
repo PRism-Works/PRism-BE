@@ -23,7 +23,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -104,7 +103,7 @@ public class ProjectService {
                         join.setName(memberDto.getName());
                         join.setEmail(memberDto.getEmail());
                         join.setRoles(memberDto.getRoles());
-                        join.setSkills(memberDto.getSkills());
+                        //join.setSkills(memberDto.getSkills());
                         join.setProject(project);
                         return join;
                     })
@@ -204,7 +203,7 @@ public class ProjectService {
 
     private ProjectUserJoin updateExistingMember(ProjectUserJoin existingMember, MemberDto memberDto) {
         existingMember.setRoles(memberDto.getRoles());
-        existingMember.setSkills(memberDto.getSkills());
+        //existingMember.setSkills(memberDto.getSkills());
         return existingMember;
     }
 
@@ -216,7 +215,7 @@ public class ProjectService {
                     join.setName(memberDto.getName());
                     join.setEmail(memberDto.getEmail());
                     join.setRoles(memberDto.getRoles());
-                    join.setSkills(memberDto.getSkills());
+                    //join.setSkills(memberDto.getSkills());
                     join.setProject(project);
                     return join;
                 })

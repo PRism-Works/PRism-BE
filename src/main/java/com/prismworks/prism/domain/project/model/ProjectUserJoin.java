@@ -25,12 +25,12 @@ public class ProjectUserJoin {
 
     private String name;
     private String email;
-
+    /*
     @ElementCollection
     @CollectionTable(name = "project_user_skills", joinColumns = @JoinColumn(name = "project_user_joins_id"))
     @Column(name = "skill")
     private List<String> skills;
-
+    */
     @ElementCollection
     @CollectionTable(name = "project_user_roles", joinColumns = @JoinColumn(name = "project_user_joins_id"))
     @Column(name = "role")
