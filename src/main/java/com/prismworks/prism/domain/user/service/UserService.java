@@ -52,6 +52,7 @@ public class UserService {
                 .email(user.getEmail())
                 .username(userProfile.getUsername())
                 .interestJobs(userProfile.getInterestJobs())
+                .skills(userProfile.getSkills())
                 .build();
     }
 

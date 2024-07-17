@@ -29,6 +29,7 @@ public class UserDto {
         private String email;
         private String username;
         private List<String> interestJobs;
+        private List<String> skills;
     }
 
     @Builder
