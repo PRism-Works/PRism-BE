@@ -26,20 +26,26 @@ public class ProjectController {
     private ProjectService projectService;
 
     @PostMapping
-    public ApiSuccessResponse createProject(@RequestBody @Valid ProjectDto projectDto) throws ParseException {
+    public ApiSuccessResponse createProject(@CurrentUser UserContext userContext,
+                                            @RequestBody @Valid ProjectDto projectDto) throws ParseException {
+        projectDto.setCreatedBy(userContext.getEmail());
         ProjectResponseDto createdProjectDto = projectService.createProject(projectDto);
         return new ApiSuccessResponse(HttpStatus.CREATED.value(), createdProjectDto);
     }
 
     @PutMapping("/{projectId}")
-    public ApiSuccessResponse updateProject(@PathVariable int projectId, @RequestBody @Valid ProjectDto projectDto) throws ParseException {
-        ProjectResponseDto updatedProjectDto = projectService.updateProject(projectId, projectDto);
+    public ApiSuccessResponse updateProject(@CurrentUser UserContext userContext,
+                                            @PathVariable int projectId,
+                                            @RequestBody @Valid ProjectDto projectDto) throws ParseException {
+        projectDto.setCreatedBy(userContext.getEmail());
+        ProjectResponseDto updatedProjectDto = projectService.updateProject(userContext.getEmail(),projectId, projectDto);
         return new ApiSuccessResponse(HttpStatus.OK.value(), updatedProjectDto);
     }
 
     @DeleteMapping("/{projectId}")
-    public ApiSuccessResponse deleteProject(@PathVariable int projectId) {
-        projectService.deleteProject(projectId);
+    public ApiSuccessResponse deleteProject(@CurrentUser UserContext userContext,
+                                            @PathVariable int projectId) {
+        projectService.deleteProject(userContext.getEmail(),projectId);
         return new ApiSuccessResponse(HttpStatus.NO_CONTENT.value(), null);
     }
 

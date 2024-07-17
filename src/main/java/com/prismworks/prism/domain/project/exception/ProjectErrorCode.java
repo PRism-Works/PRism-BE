@@ -10,7 +10,8 @@ public enum ProjectErrorCode implements ApplicationErrorCode {
     NO_MEMBER(HttpStatus.BAD_REQUEST, "Project_400_3", "프로젝트 참여 멤버를 입력하세요"),
     NO_PROJECT_NAME(HttpStatus.BAD_REQUEST, "Project_400_4", "프로젝트 명을 입력하세요."),
     NO_DATETIME(HttpStatus.BAD_REQUEST, "Project_400_5", "시작일과 마감일을 입력하세요."),
-    CATEGORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "Project_400_6","존재하지 않는 카테고리입니다.");
+    CATEGORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "Project_400_6","존재하지 않는 카테고리입니다."),
+    UNAUTHORIZED(HttpStatus.BAD_REQUEST, "Project_400_7","접근 권한이 없는 프로젝트입니다.");
 
     private final HttpStatus status;
     private final String code;

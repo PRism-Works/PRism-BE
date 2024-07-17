@@ -83,7 +83,7 @@ public class ProjectService {
         project.setStartDate(startDate);
         project.setEndDate(endDate);
         project.setProjectUrlLink(projectDto.getProjectUrlLink());
-        project.setCreatedBy(projectDto.getCreatedBy());
+        //project.setCreatedBy(projectDto.getCreatedBy());
         project.setVisibility(true);
         project.setCreatedAt(new Date());
         project.setUpdatedAt(new Date());
@@ -122,14 +122,18 @@ public class ProjectService {
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .projectUrlLink(project.getProjectUrlLink())
-                .createdBy(project.getCreatedBy())
+                //.createdBy(project.getCreatedBy())
                 .build();
     }
 
     @Transactional
-    public ProjectResponseDto updateProject(int projectId, ProjectDto projectDto) throws ParseException {
+    public ProjectResponseDto updateProject(String myEmail,int projectId, ProjectDto projectDto) throws ParseException {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
+
+        if (!project.getCreatedBy().equals(myEmail)) {
+            throw new ProjectException("You do not have permission to update this project", ProjectErrorCode.UNAUTHORIZED);
+        }
 
         if (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) {
             throw ProjectException.NO_PROJECT_NAME;
@@ -148,12 +152,11 @@ public class ProjectService {
         project.setProjectDescription(projectDto.getProjectDescription());
         project.setOrganizationName(projectDto.getOrganizationName());
         project.setMemberCount(projectDto.getMemberCount());
-        //project.setHashTags(projectDto.getHashTags());
         project.setSkills(projectDto.getSkills());
         project.setStartDate(sdf.parse(projectDto.getStartDate()));
         project.setEndDate(sdf.parse(projectDto.getEndDate()));
         project.setProjectUrlLink(projectDto.getProjectUrlLink());
-        project.setCreatedBy(projectDto.getCreatedBy());
+        //project.setCreatedBy(projectDto.getCreatedBy());
         project.setUpdatedAt(new Date());
 
         project.getCategories().clear();
@@ -170,12 +173,11 @@ public class ProjectService {
                 .organizationName(project.getOrganizationName())
                 .memberCount(project.getMemberCount())
                 .categories(project.getCategories())
-                //.hashTags(project.getHashTags())
                 .skills(project.getSkills())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .projectUrlLink(project.getProjectUrlLink())
-                .createdBy(project.getCreatedBy())
+                //.createdBy(project.getCreatedBy())
                 .build();
     }
 
@@ -220,9 +222,13 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponseDto deleteProject(int projectId) {
+    public ProjectResponseDto deleteProject(String myEmail, int projectId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
+
+        if (!project.getCreatedBy().equals(myEmail)) {
+            throw new ProjectException("You do not have permission to delete this project", ProjectErrorCode.UNAUTHORIZED);
+        }
 
         projectRepository.delete(project);
         return ProjectResponseDto.builder()
@@ -232,12 +238,11 @@ public class ProjectService {
                 .organizationName(project.getOrganizationName())
                 .memberCount(project.getMemberCount())
                 .categories(project.getCategories())
-                //.hashTags(project.getHashTags())
                 .skills(project.getSkills())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .projectUrlLink(project.getProjectUrlLink())
-                .createdBy(project.getCreatedBy())
+                //.createdBy(project.getCreatedBy())
                 .build();
     }
 
