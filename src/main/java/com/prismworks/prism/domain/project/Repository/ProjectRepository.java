@@ -1,12 +1,13 @@
 package com.prismworks.prism.domain.project.Repository;
 
+import com.prismworks.prism.domain.project.Repository.custom.ProjectCustomRepository;
 import com.prismworks.prism.domain.project.model.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface ProjectRepository extends JpaRepository<Project, Integer> {
+public interface ProjectRepository extends JpaRepository<Project, Integer>, ProjectCustomRepository {
     @Query("SELECT p FROM Project p WHERE p.projectName = :projectName")
     List<Project> findByName(String projectName);
 
