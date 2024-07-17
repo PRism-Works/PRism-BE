@@ -14,8 +14,6 @@ import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -248,7 +246,7 @@ public class ProjectService {
         List<Project> projects = projectRepository.findByName(projectName);
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
-
+    @Transactional(readOnly = true)
     public List<SummaryProjectDto> getProjectSummaryByMemberAndFilters(String projectName, String memberName, List<String> categories, String organizationName) {
         List<Project> projects = projectRepository.findByFilters(projectName, memberName, categories, organizationName);
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
@@ -283,12 +281,4 @@ public class ProjectService {
         return sdf.format(date);
     }
 
-    private String getCurrentUserEmail() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        } else {
-            return principal.toString();
-        }
-    }
 }

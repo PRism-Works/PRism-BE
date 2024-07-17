@@ -11,10 +11,10 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, Proj
     @Query("SELECT p FROM Project p WHERE p.projectName = :projectName AND p.visibility = true")
     List<Project> findByName(String projectName);
 
-    @Query("SELECT p FROM Project p JOIN p.members m JOIN p.categories c WHERE " +
-            "(:projectName IS NULL OR p.projectName = :projectName) AND " +
-            "(:memberName IS NULL OR m.name = :memberName) AND " +
-            "(:organizationName IS NULL OR p.organizationName = :organizationName) AND " +
+    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN p.members m LEFT JOIN p.categories c WHERE " +
+            "(:projectName IS NULL OR p.projectName = :projectName) OR " +
+            "(:memberName IS NULL OR m.name = :memberName) OR " +
+            "(:organizationName IS NULL OR p.organizationName = :organizationName) OR " +
             "(COALESCE(:categories, NULL) IS NULL OR c.category.name IN :categories)")
     List<Project> findByFilters(String projectName, String memberName, List<String> categories, String organizationName);
 
