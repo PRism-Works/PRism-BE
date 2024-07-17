@@ -85,7 +85,13 @@ public class ProjectController {
     public ApiSuccessResponse getProjectDetail(@CurrentUser UserContext userContext,
                                                @PathVariable int projectId) {
         String myEmail = userContext.getEmail();
-        ProjectDetailDto projectDetail = projectService.getProjectDetail(myEmail, projectId);
+        ProjectDetailDto projectDetail = projectService.getProjectDetailInMyPage(myEmail, projectId);
+        return new ApiSuccessResponse(HttpStatus.OK.value(), projectDetail);
+    }
+
+    @GetMapping("/summary/detail/{projectId}")
+    public ApiSuccessResponse getProjectDetail(@PathVariable int projectId) {
+        ProjectDetailDto projectDetail = projectService.getProjectDetailInRetrieve(projectId);
         return new ApiSuccessResponse(HttpStatus.OK.value(), projectDetail);
     }
 
