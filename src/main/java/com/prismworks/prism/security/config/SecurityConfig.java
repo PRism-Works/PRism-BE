@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(this.corsConfigurationSource()))
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/secured-uri", "/api/v1/users/**", "/api/v1/auth/logout").authenticated()
+                        .requestMatchers("/secured-uri", "/api/v1/users/me", "/api/v1/users/profile", "/api/v1/auth/logout").authenticated()
                         .anyRequest().permitAll()
                 );
 
@@ -54,7 +54,7 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000")); // 로컬 React 서버의 주소
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://prism-fe.vercel.app"));
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setMaxAge(3600L);
