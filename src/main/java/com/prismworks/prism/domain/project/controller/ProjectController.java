@@ -4,6 +4,7 @@ import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiErrorResponse;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
+import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
 import com.prismworks.prism.domain.project.dto.ProjectDto;
 import com.prismworks.prism.domain.project.dto.ProjectResponseDto;
 import com.prismworks.prism.domain.project.dto.SummaryProjectDto;
@@ -78,6 +79,14 @@ public class ProjectController {
         String myEmail = userContext.getEmail();
         List<SummaryProjectDto> myRegisteredProjects = projectService.getMeRegisteredProjects(myEmail);
         return new ApiSuccessResponse(HttpStatus.OK.value(), myRegisteredProjects);
+    }
+
+    @GetMapping("/me-involved-projects/{projectId}")
+    public ApiSuccessResponse getProjectDetail(@CurrentUser UserContext userContext,
+                                               @PathVariable int projectId) {
+        String myEmail = userContext.getEmail();
+        ProjectDetailDto projectDetail = projectService.getProjectDetail(myEmail, projectId);
+        return new ApiSuccessResponse(HttpStatus.OK.value(), projectDetail);
     }
 
 }
