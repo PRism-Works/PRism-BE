@@ -49,7 +49,7 @@ public class ProjectController {
         List<SummaryProjectDto> summaryProjects = projectService.getProjectSummaryByName(projectName);
         return new ApiSuccessResponse(HttpStatus.OK.value(), summaryProjects);
     }
-    /*
+
     @GetMapping("/summary/by-member-and-filters")
     public ApiSuccessResponse getProjectSummaryByMemberAndFilters(
             @RequestParam(required = false) String projectName,
@@ -59,7 +59,7 @@ public class ProjectController {
         List<SummaryProjectDto> summaryProjects = projectService.getProjectSummaryByMemberAndFilters(projectName, memberName, categories, organizationName);
         return new ApiSuccessResponse(HttpStatus.OK.value(), summaryProjects);
     }
-    */
+
     @GetMapping("/me-involved-projects")
     public ApiSuccessResponse getMeInvolvedProjects(@CurrentUser UserContext userContext) {
         String myEmail = userContext.getEmail();
