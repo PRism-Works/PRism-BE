@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<Project, Integer>, ProjectCustomRepository {
-    @Query("SELECT p FROM Project p WHERE p.projectName = :projectName")
+    @Query("SELECT p FROM Project p WHERE p.projectName = :projectName AND p.visibility = true")
     List<Project> findByName(String projectName);
 
     @Query("SELECT p FROM Project p JOIN p.members m JOIN p.categories c WHERE " +
