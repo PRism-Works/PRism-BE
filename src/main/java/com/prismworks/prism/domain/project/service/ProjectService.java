@@ -48,7 +48,6 @@ public class ProjectService {
     @Transactional
     public void resolveCategoryJoins(Project project, List<String> categoryNames) {
         for (String name : categoryNames) {
-            //System.out.println("시작 : " + name);
             Category category = saveCategoryTransactional(name); // 트랜잭션 메서드 사용
             ProjectCategoryJoin join = new ProjectCategoryJoin();
             join.setProject(project);
@@ -81,7 +80,7 @@ public class ProjectService {
         project.setProjectDescription(projectDto.getProjectDescription());
         project.setOrganizationName(projectDto.getOrganizationName());
         project.setMemberCount(projectDto.getMemberCount());
-        project.setHashTags(projectDto.getHashTags());
+        //project.setHashTags(projectDto.getHashTags());
         project.setSkills(projectDto.getSkills());
         project.setStartDate(startDate);
         project.setEndDate(endDate);
@@ -120,7 +119,7 @@ public class ProjectService {
                 .organizationName(project.getOrganizationName())
                 .memberCount(project.getMemberCount())
                 .categories(project.getCategories())
-                .hashTags(project.getHashTags())
+                //.hashTags(project.getHashTags())
                 .skills(project.getSkills())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
@@ -151,7 +150,7 @@ public class ProjectService {
         project.setProjectDescription(projectDto.getProjectDescription());
         project.setOrganizationName(projectDto.getOrganizationName());
         project.setMemberCount(projectDto.getMemberCount());
-        project.setHashTags(projectDto.getHashTags());
+        //project.setHashTags(projectDto.getHashTags());
         project.setSkills(projectDto.getSkills());
         project.setStartDate(sdf.parse(projectDto.getStartDate()));
         project.setEndDate(sdf.parse(projectDto.getEndDate()));
@@ -173,7 +172,7 @@ public class ProjectService {
                 .organizationName(project.getOrganizationName())
                 .memberCount(project.getMemberCount())
                 .categories(project.getCategories())
-                .hashTags(project.getHashTags())
+                //.hashTags(project.getHashTags())
                 .skills(project.getSkills())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
@@ -235,7 +234,7 @@ public class ProjectService {
                 .organizationName(project.getOrganizationName())
                 .memberCount(project.getMemberCount())
                 .categories(project.getCategories())
-                .hashTags(project.getHashTags())
+                //.hashTags(project.getHashTags())
                 .skills(project.getSkills())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())

@@ -18,7 +18,7 @@ public class ProjectResponseDto {
     private String organizationName;
     private int memberCount;
     private Set<ProjectCategoryJoin> categories;
-    private List<String> hashTags;
+    //private List<String> hashTags;
     private List<String> skills;
     private Date startDate;
     private Date endDate;

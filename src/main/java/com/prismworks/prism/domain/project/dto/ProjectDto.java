@@ -17,7 +17,7 @@ public class ProjectDto {
     private String organizationName;
     private int memberCount;
     private List<String> categories;
-    private List<String> hashTags;
+    //private List<String> hashTags;
     private List<String> skills;
     @NotEmpty
     private String startDate;
