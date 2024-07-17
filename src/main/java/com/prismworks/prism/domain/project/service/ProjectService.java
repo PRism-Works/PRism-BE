@@ -2,10 +2,7 @@ package com.prismworks.prism.domain.project.service;
 
 import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
-import com.prismworks.prism.domain.project.dto.MemberDto;
-import com.prismworks.prism.domain.project.dto.ProjectDto;
-import com.prismworks.prism.domain.project.dto.ProjectResponseDto;
-import com.prismworks.prism.domain.project.dto.SummaryProjectDto;
+import com.prismworks.prism.domain.project.dto.*;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
 import com.prismworks.prism.domain.project.model.Category;
@@ -284,6 +281,43 @@ public class ProjectService {
     private String formatDate(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(date);
+    }
+
+
+    @Transactional(readOnly = true)
+    public ProjectDetailDto getProjectDetail(String myEmail, int projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
+
+        if (!project.getMembers().stream().anyMatch(member -> member.getEmail().equals(myEmail))) {
+            throw new ProjectException("You are not a member of this project", ProjectErrorCode.UNAUTHORIZED);
+        }
+
+        project.getMembers().forEach(member -> member.getRoles().size());
+
+        return convertToDetailDto(project);
+    }
+
+    private ProjectDetailDto convertToDetailDto(Project project) {
+        List<MemberDetailDto> memberDetailDtos = project.getMembers().stream().map(member -> {
+            return MemberDetailDto.builder()
+                    .name(member.getName())
+                    .email(member.getEmail())
+                    .roles(member.getRoles())
+                    .build();
+        }).collect(Collectors.toList());
+
+        return ProjectDetailDto.builder()
+                .projectName(project.getProjectName())
+                .organizationName(project.getOrganizationName())
+                .startDate(formatDate(project.getStartDate()))
+                .endDate(formatDate(project.getEndDate()))
+                .projectUrlLink(project.getProjectUrlLink())
+                .projectDescription(project.getProjectDescription())
+                .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
+                .skills(project.getSkills())
+                .members(memberDetailDtos)
+                .build();
     }
 
 }
