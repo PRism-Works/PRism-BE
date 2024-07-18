@@ -302,6 +302,7 @@ public class ProjectService {
     private ProjectDetailDto convertToDetailDtoInMyPage(Project project) {
         List<MemberDetailDto> memberDetailDtos = project.getMembers().stream().map(member -> {
             return MemberDetailDto.builder()
+                    .userId(member.getUser().getUserId())
                     .name(member.getName())
                     .email(member.getEmail())
                     .roles(member.getRoles())
