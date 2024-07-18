@@ -376,4 +376,60 @@ public class ProjectService {
                 .build();
     }
 
+    @Transactional
+    public ProjectDetailDto linkAnonymousProjectToUserAccount(UserContext userContext, int projectId, String anonymousEmail) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectException("Project not found", ProjectErrorCode.PROJECT_NOT_FOUND));
+
+        ProjectUserJoin updatedMember = project.getMembers().stream()
+                .filter(member -> member.getEmail().equals(anonymousEmail))
+                .findFirst()
+                .orElseThrow(() -> new ProjectException("Anonymous member not found", ProjectErrorCode.NO_MEMBER));
+
+        updatedMember.setEmail(userContext.getEmail());
+        userRepository.findById(userContext.getUserId())
+                .ifPresentOrElse(user -> {
+                    updatedMember.setUser(user);
+                }, () -> {
+                    throw new ProjectException("User not found with given ID", ProjectErrorCode.USER_NOT_FOUND);
+                });
+
+        projectRepository.save(project);
+        return createProjectDetailDto(project);
+    }
+
+    private ProjectDetailDto createProjectDetailDto(Project project) {
+        project.getMembers().forEach(member -> {
+            Hibernate.initialize(member.getRoles());
+        });
+
+        List<MemberDetailDto> memberDetails = project.getMembers().stream()
+                .map(member -> new MemberDetailDto(
+                        member.getUser() != null ? member.getUser().getUserId() : "-1",
+                        member.getName(),
+                        member.getEmail(),
+                        member.getRoles()
+                ))
+                .collect(Collectors.toList());
+
+        long anonymousCount = memberDetails.stream()
+                .filter(member -> member.getUserId().equals("-1"))
+                .count();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        return ProjectDetailDto.builder()
+                .projectName(project.getProjectName())
+                .organizationName(project.getOrganizationName())
+                .startDate(sdf.format(project.getStartDate()))
+                .endDate(sdf.format(project.getEndDate()))
+                .projectUrlLink(project.getProjectUrlLink())
+                .projectDescription(project.getProjectDescription())
+                .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
+                .skills(project.getSkills())
+                .members(memberDetails)
+                .anonymousCount(anonymousCount)
+                .build();
+    }
+
 }
