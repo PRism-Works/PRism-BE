@@ -15,5 +15,4 @@ public class MemberDto {
     private String email;
     @NotEmpty
     private List<String> roles;
-    //private List<String> skills;
 }

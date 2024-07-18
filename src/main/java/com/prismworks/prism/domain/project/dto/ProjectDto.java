@@ -17,13 +17,13 @@ public class ProjectDto {
     private String organizationName;
     private int memberCount;
     private List<String> categories;
-    //private List<String> hashTags;
     private List<String> skills;
     @NotEmpty
     private String startDate;
     @NotEmpty
     private String endDate;
     private String projectUrlLink;
+    private boolean visibility;
     @NotEmpty
     private String createdBy; // 프로젝트 소유자 이메일 추가
     @NotEmpty

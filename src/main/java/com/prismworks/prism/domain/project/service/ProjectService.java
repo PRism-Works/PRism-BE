@@ -245,8 +245,8 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getProjectSummaryByName(String projectName) {
-        List<Project> projects = projectRepository.findByName(projectName);
+    public List<SummaryProjectDto> getProjectSummaryByName(String email, String projectName) {
+        List<Project> projects = projectRepository.findByProjectNameAndUserEmail(projectName, email);
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
