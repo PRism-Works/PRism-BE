@@ -30,7 +30,7 @@ public class ProjectController {
     public ApiSuccessResponse createProject(@CurrentUser UserContext userContext,
                                             @RequestBody @Valid ProjectDto projectDto) throws ParseException {
         projectDto.setCreatedBy(userContext.getEmail());
-        ProjectResponseDto createdProjectDto = projectService.createProject(projectDto);
+        ProjectResponseDto createdProjectDto = projectService.createProject(userContext,projectDto);
         return new ApiSuccessResponse(HttpStatus.CREATED.value(), createdProjectDto);
     }
 
