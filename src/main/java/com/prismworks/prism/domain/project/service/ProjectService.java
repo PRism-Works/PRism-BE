@@ -336,7 +336,7 @@ public class ProjectService {
 
     private ProjectDetailDto convertToDetailDtoInRetrieve(Project project) {
         List<MemberDetailDto> memberDetails = project.getMembers().stream()
-                .map(member -> new MemberDetailDto(member.getName(), member.getEmail(), member.getRoles()))
+                .map(member -> new MemberDetailDto(member.getUser().getUserId() ,member.getName(), member.getEmail(), member.getRoles()))
                 .collect(Collectors.toList());
 
         long anonymousCount = memberDetails.stream().filter(member -> member.getName().equals("Anonymous")).count();
