@@ -432,4 +432,19 @@ public class ProjectService {
                 .build();
     }
 
+
+
+    @Transactional
+    public ProjectVisibilityUpdateDto updateProjectVisibility(int projectId, boolean visibility) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalStateException("Project not found"));
+
+        project.setVisibility(visibility);
+        projectRepository.save(project);
+
+        return ProjectVisibilityUpdateDto.builder()
+                .projectId(project.getProjectId())
+                .visibility(project.getVisibility())
+                .build();
+    }
 }
