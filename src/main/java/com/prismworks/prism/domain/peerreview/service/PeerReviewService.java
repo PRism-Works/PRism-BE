@@ -26,9 +26,10 @@ public class PeerReviewService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    public void createPeerReviewResponseHistory(PeerReviewDto.CreatePeerReviewResponseRequest request) throws JsonProcessingException {
+    public void createPeerReviewResponseHistory(Integer projectId,
+                                                PeerReviewDto.CreatePeerReviewResponseRequest request)
+    {
         String reviewerEmail = request.getReviewerEmail();
-        int projectId = request.getProjectId();
         Map<String, List<PeerReviewResponse>> map = responseGroupByReviewee(request.getResponses());
 
         List<PeerReviewResponseHistory> histories = new ArrayList<>();
@@ -36,7 +37,12 @@ public class PeerReviewService {
             String revieweeEmail = entry.getKey();
             List<PeerReviewResponse> responseMeta = entry.getValue();
 
-            String responseMetaJson = objectMapper.writeValueAsString(responseMeta);
+            String responseMetaJson;
+            try {
+                responseMetaJson = objectMapper.writeValueAsString(responseMeta);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e); // todo
+            }
 
             PeerReviewResponseHistory reviewResponseHistory = PeerReviewResponseHistory.builder()
                     .projectId(projectId)

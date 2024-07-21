@@ -12,7 +12,6 @@ public class PeerReviewDto {
     @AllArgsConstructor
     @Getter
     public static class CreatePeerReviewResponseRequest {
-        private int projectId;
         private String reviewerEmail;
         private List<PeerReviewResponseItem> responses;
     }
@@ -27,12 +26,39 @@ public class PeerReviewDto {
         private List<PeerReviewResponseDetailItem> responseDetails;
     }
 
-    @NoArgsConstructor
     @AllArgsConstructor
     @Getter
-    @Setter
     public static class PeerReviewResponseDetailItem {
         private String revieweeEmail;
         private Object response;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    public static class ProjectPeerReviewResponse {
+        private MyPeerReviewResult myPeerReviewResult;
+        private MyPeerReviewResultReport myPeerReviewResultReport;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    public static class MyPeerReviewResult {
+        private double communicationScore;
+        private double initiativeScore;
+        private double problemSolvingAbilityScore;
+        private double responsibilityScore;
+        private double teamworkScore;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Getter
+    public static class MyPeerReviewResultReport {
+        private double leaderShipScore;
+        private double reliabilityScore;
+        private double attractivenessScore;
+        private String reviewSummary;
     }
 }
