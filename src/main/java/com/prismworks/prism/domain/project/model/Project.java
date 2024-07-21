@@ -46,8 +46,8 @@ public class Project {
     @Temporal(TemporalType.TIMESTAMP)
     private Date endDate;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "project", fetch = FetchType.EAGER)
-    private List<ProjectUserJoin> members;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectUserJoin> members = new ArrayList<>();
 
     @Column(nullable = false)
     private Boolean visibility;

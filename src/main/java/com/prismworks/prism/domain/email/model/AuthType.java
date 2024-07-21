@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum AuthType {
 
     SIGNUP("SIGNUP"),
-    RESET_PASSWORD("RESET_PASSWORD");
+    RESET_PASSWORD("RESET_PASSWORD"),
+    LOAD_PROJECT("LOAD_PROJECT");
 
     private final String value;
 

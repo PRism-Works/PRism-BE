@@ -3,6 +3,7 @@ package com.prismworks.prism.domain.project.dto;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -15,5 +16,4 @@ public class MemberDto {
     private String email;
     @NotEmpty
     private List<String> roles;
-    //private List<String> skills;
 }

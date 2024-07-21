@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.project.service;
 
+import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
 import com.prismworks.prism.domain.project.dto.*;
@@ -9,6 +10,7 @@ import com.prismworks.prism.domain.project.model.Category;
 import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
+import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.repository.UserRepository;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,7 +56,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponseDto createProject(ProjectDto projectDto) throws ParseException {
+    public ProjectResponseDto createProject(UserContext userContext,ProjectDto projectDto) throws ParseException {
 
         if (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) {
             throw ProjectException.NO_PROJECT_NAME;
@@ -76,12 +79,11 @@ public class ProjectService {
         project.setProjectDescription(projectDto.getProjectDescription());
         project.setOrganizationName(projectDto.getOrganizationName());
         project.setMemberCount(projectDto.getMemberCount());
-        //project.setHashTags(projectDto.getHashTags());
         project.setSkills(projectDto.getSkills());
         project.setStartDate(startDate);
         project.setEndDate(endDate);
         project.setProjectUrlLink(projectDto.getProjectUrlLink());
-        //project.setCreatedBy(projectDto.getCreatedBy());
+        project.setCreatedBy(userContext.getEmail());
         project.setVisibility(true);
         project.setCreatedAt(new Date());
         project.setUpdatedAt(new Date());
@@ -91,18 +93,14 @@ public class ProjectService {
         resolveCategoryJoins(project, projectDto.getCategories());
 
         List<ProjectUserJoin> members = projectDto.getMembers().stream().map(memberDto -> {
-            return userRepository.findByEmail(memberDto.getEmail())
-                    .map(user -> {
-                        ProjectUserJoin join = new ProjectUserJoin();
-                        join.setUser(user);
-                        join.setName(memberDto.getName());
-                        join.setEmail(memberDto.getEmail());
-                        join.setRoles(memberDto.getRoles());
-                        //join.setSkills(memberDto.getSkills());
-                        join.setProject(project);
-                        return join;
-                    })
-                    .orElseThrow(() -> ProjectException.USER_NOT_FOUND);
+            Optional<Users> foundUser = userRepository.findByEmail(memberDto.getEmail());
+            ProjectUserJoin join = new ProjectUserJoin();
+            join.setProject(project);
+            join.setName(memberDto.getName());
+            join.setEmail(memberDto.getEmail());
+            join.setRoles(memberDto.getRoles());
+            foundUser.ifPresentOrElse(join::setUser, () -> {;});
+            return join;
         }).collect(Collectors.toList());
 
         project.setMembers(members);
@@ -115,12 +113,10 @@ public class ProjectService {
                 .organizationName(project.getOrganizationName())
                 .memberCount(project.getMemberCount())
                 .categories(project.getCategories())
-                //.hashTags(project.getHashTags())
                 .skills(project.getSkills())
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .projectUrlLink(project.getProjectUrlLink())
-                //.createdBy(project.getCreatedBy())
                 .build();
     }
 
@@ -154,7 +150,6 @@ public class ProjectService {
         project.setStartDate(sdf.parse(projectDto.getStartDate()));
         project.setEndDate(sdf.parse(projectDto.getEndDate()));
         project.setProjectUrlLink(projectDto.getProjectUrlLink());
-        //project.setCreatedBy(projectDto.getCreatedBy());
         project.setUpdatedAt(new Date());
 
         project.getCategories().clear();
@@ -175,32 +170,36 @@ public class ProjectService {
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .projectUrlLink(project.getProjectUrlLink())
-                //.createdBy(project.getCreatedBy())
+                .createdBy(project.getCreatedBy())
                 .build();
     }
 
-    private void updateProjectMembers(Project project, List<MemberDto> memberDtos) {
-        List<ProjectUserJoin> existingMembers = project.getMembers();
-        List<ProjectUserJoin> updatedMembers = memberDtos.stream().map(memberDto -> {
-            return existingMembers.stream()
-                    .filter(m -> m.getEmail().equals(memberDto.getEmail()))
-                    .findFirst()
-                    .map(existingMember -> {
-                        updateExistingMember(existingMember, memberDto);
-                        return existingMember;
-                    })
-                    .orElseGet(() -> createNewMember(project, memberDto));
-        }).collect(Collectors.toList());
+    @Transactional
+    public void updateProjectMembers(Project project, List<MemberDto> memberDtos) {
+        if (project.getMembers() != null) {
+            project.getMembers().clear();
+            projectRepository.flush();
+        }
 
-        existingMembers.removeIf(member -> updatedMembers.stream()
-                .noneMatch(updatedMember -> updatedMember.getEmail().equals(member.getEmail())));
+        List<ProjectUserJoin> newMembers = memberDtos.stream()
+                .map(memberDto -> {
+                    Optional<Users> foundUser = userRepository.findByEmail(memberDto.getEmail());
+                    ProjectUserJoin join = new ProjectUserJoin();
+                    join.setProject(project);
+                    join.setName(memberDto.getName());
+                    join.setEmail(memberDto.getEmail());
+                    join.setRoles(memberDto.getRoles());
+                    foundUser.ifPresent(join::setUser);
+                    return join;
+                })
+                .collect(Collectors.toList());
 
-        existingMembers.addAll(updatedMembers);
+        project.getMembers().addAll(newMembers);
     }
+
 
     private ProjectUserJoin updateExistingMember(ProjectUserJoin existingMember, MemberDto memberDto) {
         existingMember.setRoles(memberDto.getRoles());
-        //existingMember.setSkills(memberDto.getSkills());
         return existingMember;
     }
 
@@ -212,7 +211,6 @@ public class ProjectService {
                     join.setName(memberDto.getName());
                     join.setEmail(memberDto.getEmail());
                     join.setRoles(memberDto.getRoles());
-                    //join.setSkills(memberDto.getSkills());
                     join.setProject(project);
                     return join;
                 })
@@ -240,13 +238,12 @@ public class ProjectService {
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .projectUrlLink(project.getProjectUrlLink())
-                //.createdBy(project.getCreatedBy())
                 .build();
     }
 
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getProjectSummaryByName(String projectName) {
-        List<Project> projects = projectRepository.findByName(projectName);
+    public List<SummaryProjectDto> getProjectSummaryByName(String email, String projectName) {
+        List<Project> projects = projectRepository.findByProjectNameAndUserEmail(projectName, email);
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
@@ -300,14 +297,29 @@ public class ProjectService {
     }
 
     private ProjectDetailDto convertToDetailDtoInMyPage(Project project) {
+        List<MemberDetailDto> memberDetails = project.getMembers().stream()
+                .map(member -> {
+                    // User 객체가 null인 경우를 처리
+                    if (member.getUser() == null) {
+                        // 로깅, 오류 처리 또는 기본값 설정
+                        return new MemberDetailDto("-1", member.getName(), member.getEmail(), member.getRoles());
+                    } else {
+                        return new MemberDetailDto(member.getUser().getUserId(), member.getName(), member.getEmail(), member.getRoles());
+                    }
+                })
+                .collect(Collectors.toList());
+
+        long anonymousCount = memberDetails.stream().filter(member -> member.getUserId().equals("-1")).count();
+        /*
         List<MemberDetailDto> memberDetailDtos = project.getMembers().stream().map(member -> {
             return MemberDetailDto.builder()
+                    .userId(member.getUser().getUserId())
                     .name(member.getName())
                     .email(member.getEmail())
                     .roles(member.getRoles())
                     .build();
         }).collect(Collectors.toList());
-
+        */
         return ProjectDetailDto.builder()
                 .projectName(project.getProjectName())
                 .organizationName(project.getOrganizationName())
@@ -317,7 +329,8 @@ public class ProjectService {
                 .projectDescription(project.getProjectDescription())
                 .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
                 .skills(project.getSkills())
-                .members(memberDetailDtos)
+                .members(memberDetails)
+                .anonymousCount(anonymousCount)
                 .build();
     }
 
@@ -336,16 +349,80 @@ public class ProjectService {
 
     private ProjectDetailDto convertToDetailDtoInRetrieve(Project project) {
         List<MemberDetailDto> memberDetails = project.getMembers().stream()
-                .map(member -> new MemberDetailDto(member.getName(), member.getEmail(), member.getRoles()))
+                .map(member -> {
+                    // User 객체가 null인 경우를 처리
+                    if (member.getUser() == null) {
+                        // 로깅, 오류 처리 또는 기본값 설정
+                        return new MemberDetailDto("-1", member.getName(), member.getEmail(), member.getRoles());
+                    } else {
+                        return new MemberDetailDto(member.getUser().getUserId(), member.getName(), member.getEmail(), member.getRoles());
+                    }
+                })
                 .collect(Collectors.toList());
 
-        long anonymousCount = memberDetails.stream().filter(member -> member.getName().equals("Anonymous")).count();
+        long anonymousCount = memberDetails.stream().filter(member -> member.getUserId().equals("-1")).count();
 
         return ProjectDetailDto.builder()
                 .projectName(project.getProjectName())
                 .organizationName(project.getOrganizationName())
                 .startDate(formatDate(project.getStartDate()))
                 .endDate(formatDate(project.getEndDate()))
+                .projectUrlLink(project.getProjectUrlLink())
+                .projectDescription(project.getProjectDescription())
+                .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
+                .skills(project.getSkills())
+                .members(memberDetails)
+                .anonymousCount(anonymousCount)
+                .build();
+    }
+
+    @Transactional
+    public ProjectDetailDto linkAnonymousProjectToUserAccount(UserContext userContext, int projectId, String anonymousEmail) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ProjectException("Project not found", ProjectErrorCode.PROJECT_NOT_FOUND));
+
+        ProjectUserJoin updatedMember = project.getMembers().stream()
+                .filter(member -> member.getEmail().equals(anonymousEmail))
+                .findFirst()
+                .orElseThrow(() -> new ProjectException("Anonymous member not found", ProjectErrorCode.NO_MEMBER));
+
+        updatedMember.setEmail(userContext.getEmail());
+        userRepository.findById(userContext.getUserId())
+                .ifPresentOrElse(user -> {
+                    updatedMember.setUser(user);
+                }, () -> {
+                    throw new ProjectException("User not found with given ID", ProjectErrorCode.USER_NOT_FOUND);
+                });
+
+        projectRepository.save(project);
+        return createProjectDetailDto(project);
+    }
+
+    private ProjectDetailDto createProjectDetailDto(Project project) {
+        project.getMembers().forEach(member -> {
+            Hibernate.initialize(member.getRoles());
+        });
+
+        List<MemberDetailDto> memberDetails = project.getMembers().stream()
+                .map(member -> new MemberDetailDto(
+                        member.getUser() != null ? member.getUser().getUserId() : "-1",
+                        member.getName(),
+                        member.getEmail(),
+                        member.getRoles()
+                ))
+                .collect(Collectors.toList());
+
+        long anonymousCount = memberDetails.stream()
+                .filter(member -> member.getUserId().equals("-1"))
+                .count();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        return ProjectDetailDto.builder()
+                .projectName(project.getProjectName())
+                .organizationName(project.getOrganizationName())
+                .startDate(sdf.format(project.getStartDate()))
+                .endDate(sdf.format(project.getEndDate()))
                 .projectUrlLink(project.getProjectUrlLink())
                 .projectDescription(project.getProjectDescription())
                 .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))

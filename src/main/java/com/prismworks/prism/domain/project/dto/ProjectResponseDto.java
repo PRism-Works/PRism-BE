@@ -1,6 +1,5 @@
 package com.prismworks.prism.domain.project.dto;
 
-import com.prismworks.prism.domain.project.model.Category;
 import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import lombok.Builder;
 import lombok.Data;
@@ -18,10 +17,10 @@ public class ProjectResponseDto {
     private String organizationName;
     private int memberCount;
     private Set<ProjectCategoryJoin> categories;
-    //private List<String> hashTags;
     private List<String> skills;
     private Date startDate;
     private Date endDate;
     private String projectUrlLink;
+    private boolean visibility;
     private String createdBy; // 프로젝트 소유자 이메일 추가
 }

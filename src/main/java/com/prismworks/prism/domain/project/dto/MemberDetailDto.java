@@ -10,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class MemberDetailDto {
+    private String userId;
     private String name;
     private String email;
     private List<String> roles;

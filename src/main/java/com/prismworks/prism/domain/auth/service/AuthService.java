@@ -52,7 +52,7 @@ public class AuthService {
     }
 
     public void sendAuthCode(SendCodeRequest dto) {
-        if(AuthType.SIGNUP.equals(dto.getAuthType())) {
+        if(AuthType.SIGNUP.equals(dto.getAuthType()) || AuthType.LOAD_PROJECT.equals(dto.getAuthType())) {
             checkAlreadySignup(dto.getEmail());
         }
 
@@ -173,7 +173,7 @@ public class AuthService {
         }
     }
 
-    private void checkEmailVerified(String email, String authCode, AuthType authType) {
+    public void checkEmailVerified(String email, String authCode, AuthType authType) {
         boolean emailVerified = emailAuthCodeService.isEmailVerified(email, authCode, authType);
         if(!emailVerified) {
             throw AuthException.EMAIL_NOT_VERIFIED;

@@ -4,15 +4,14 @@ import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiErrorResponse;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
-import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
-import com.prismworks.prism.domain.project.dto.ProjectDto;
-import com.prismworks.prism.domain.project.dto.ProjectResponseDto;
-import com.prismworks.prism.domain.project.dto.SummaryProjectDto;
+import com.prismworks.prism.domain.project.dto.*;
+import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +29,7 @@ public class ProjectController {
     public ApiSuccessResponse createProject(@CurrentUser UserContext userContext,
                                             @RequestBody @Valid ProjectDto projectDto) throws ParseException {
         projectDto.setCreatedBy(userContext.getEmail());
-        ProjectResponseDto createdProjectDto = projectService.createProject(projectDto);
+        ProjectResponseDto createdProjectDto = projectService.createProject(userContext,projectDto);
         return new ApiSuccessResponse(HttpStatus.CREATED.value(), createdProjectDto);
     }
 
@@ -52,10 +51,12 @@ public class ProjectController {
 
     //테스트 완료
     @GetMapping("/summary/by-name")
-    public ApiSuccessResponse getProjectSummaryByName(@RequestParam String projectName) {
-        List<SummaryProjectDto> summaryProjects = projectService.getProjectSummaryByName(projectName);
+    public ApiSuccessResponse getProjectSummaryByName(@CurrentUser UserContext userContext,
+                                                      @RequestParam String projectName) {
+        List<SummaryProjectDto> summaryProjects = projectService.getProjectSummaryByName(userContext.getEmail(), projectName);
         return new ApiSuccessResponse(HttpStatus.OK.value(), summaryProjects);
     }
+
 
     @GetMapping("/summary/by-member-and-filters")
     public ApiSuccessResponse getProjectSummaryByMemberAndFilters(
@@ -92,6 +93,15 @@ public class ProjectController {
     @GetMapping("/summary/detail/{projectId}")
     public ApiSuccessResponse getProjectDetail(@PathVariable int projectId) {
         ProjectDetailDto projectDetail = projectService.getProjectDetailInRetrieve(projectId);
+        return new ApiSuccessResponse(HttpStatus.OK.value(), projectDetail);
+    }
+
+
+    @PostMapping("/link-project/{projectId}")
+    public ApiSuccessResponse linkAnonymousProjectToUserAccount(@CurrentUser UserContext userContext,
+                                                                @PathVariable int projectId,
+                                                                @RequestParam String anonymousEmail) {
+        ProjectDetailDto projectDetail = projectService.linkAnonymousProjectToUserAccount(userContext, projectId, anonymousEmail);
         return new ApiSuccessResponse(HttpStatus.OK.value(), projectDetail);
     }
 
