@@ -447,4 +447,9 @@ public class ProjectService {
                 .visibility(project.getVisibility())
                 .build();
     }
+
+    @Transactional(readOnly = true)
+    public Long countUserInProject(Integer projectId) {
+        return projectRepository.countUserByProjectId(projectId);
+    }
 }

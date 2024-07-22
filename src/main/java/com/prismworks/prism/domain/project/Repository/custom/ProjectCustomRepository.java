@@ -8,4 +8,6 @@ import org.springframework.data.domain.Pageable;
 public interface ProjectCustomRepository {
 
     Page<ProjectProjection.ProjectSearchResult> searchByCondition(ProjectSearchCondition condition, Pageable pageable);
+
+    Long countUserByProjectId(Integer projectId);
 }
