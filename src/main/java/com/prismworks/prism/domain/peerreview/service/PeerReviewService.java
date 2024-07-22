@@ -6,6 +6,7 @@ import com.prismworks.prism.domain.peerreview.dto.QuestionType;
 import com.prismworks.prism.domain.peerreview.dto.ReviewResponse;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResponse;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResponseHistory;
+import com.prismworks.prism.domain.project.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -22,12 +23,15 @@ public class PeerReviewService {
 
     private final PeerReviewResponseHistoryService peerReviewResponseHistoryService;
     private final PeerReviewResultService peerReviewResultService;
+    private final ProjectService projectService;
     private final ObjectMapper objectMapper;
 
     public void createPeerReviewResponseHistory(Integer projectId,
                                                 CreatePeerReviewResponseRequest request)
     {
         List<PeerReviewResponseHistory> histories = this.parsePeerReviewResponses(projectId, request);
+//        Long l = projectService.countUserInProject(projectId);
+//        Long reviewerCountInProject = peerReviewResponseHistoryService.getReviewerCountInProject(projectId);
         peerReviewResponseHistoryService.saveAllHistories(histories);
     }
 

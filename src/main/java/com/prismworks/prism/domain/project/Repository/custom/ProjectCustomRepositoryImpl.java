@@ -58,6 +58,15 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository{
         return PageableExecutionUtils.getPage(contents, pageable, countQuery::fetchOne);
     }
 
+    @Override
+    public Long countUserByProjectId(Integer projectId) {
+        return queryFactory
+                .select(projectUserJoin.count())
+                .from(projectUserJoin)
+                .where(projectUserJoin.project.projectId.eq(projectId))
+                .fetchOne();
+    }
+
     private JPAQuery<?> searchProjectQuery(ProjectSearchCondition condition) {
         return queryFactory
                 .from(project)

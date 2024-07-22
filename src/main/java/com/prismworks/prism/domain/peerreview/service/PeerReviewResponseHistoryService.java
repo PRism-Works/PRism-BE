@@ -18,4 +18,9 @@ public class PeerReviewResponseHistoryService {
     public void saveAllHistories(List<PeerReviewResponseHistory> responses) {
         peerReviewResponseHistoryRepository.saveAll(responses);
     }
+
+    @Transactional(readOnly = true)
+    public Long getReviewerCountInProject(Integer projectId) {
+        return peerReviewResponseHistoryRepository.countReviewerByProjectId(projectId);
+    }
 }
