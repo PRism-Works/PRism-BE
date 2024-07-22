@@ -49,13 +49,13 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectUserJoin> members = new ArrayList<>();
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Boolean visibility;
 
     @Column(length = 255)
     private String projectUrlLink;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = true, length = 100)
     private String createdBy;
 
     @Temporal(TemporalType.TIMESTAMP)
