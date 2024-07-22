@@ -2,33 +2,36 @@ package com.prismworks.prism.domain.peerreview.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.prismworks.prism.domain.peerreview.dto.PeerReviewDto;
-import com.prismworks.prism.domain.peerreview.dto.QuestionCategory;
 import com.prismworks.prism.domain.peerreview.dto.QuestionType;
 import com.prismworks.prism.domain.peerreview.dto.ReviewResponse;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResponse;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResponseHistory;
-import com.prismworks.prism.domain.peerreview.repository.PeerReviewResponseHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.prismworks.prism.domain.peerreview.dto.PeerReviewDto.*;
+
 @RequiredArgsConstructor
 @Repository
 public class PeerReviewService {
 
-    private final PeerReviewResponseHistoryRepository peerReviewResponseHistoryRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final PeerReviewResponseHistoryService peerReviewResponseHistoryService;
+    private final PeerReviewResultService peerReviewResultService;
+    private final ObjectMapper objectMapper;
 
-    @Transactional
     public void createPeerReviewResponseHistory(Integer projectId,
-                                                PeerReviewDto.CreatePeerReviewResponseRequest request)
+                                                CreatePeerReviewResponseRequest request)
     {
+        List<PeerReviewResponseHistory> histories = this.parsePeerReviewResponses(projectId, request);
+        peerReviewResponseHistoryService.saveAllHistories(histories);
+    }
+
+    private List<PeerReviewResponseHistory> parsePeerReviewResponses(Integer projectId, CreatePeerReviewResponseRequest request) {
         String reviewerEmail = request.getReviewerEmail();
         Map<String, List<PeerReviewResponse>> map = responseGroupByReviewee(request.getResponses());
 
@@ -54,34 +57,28 @@ public class PeerReviewService {
             histories.add(reviewResponseHistory);
         }
 
-        peerReviewResponseHistoryRepository.saveAll(histories);
+        return histories;
     }
 
-    private Map<String, List<PeerReviewResponse>> responseGroupByReviewee(List<PeerReviewDto.PeerReviewResponseItem> responses) {
+    private Map<String, List<PeerReviewResponse>> responseGroupByReviewee(List<PeerReviewResponseItem> responses) {
         Map<String, List<PeerReviewResponse>> map = new HashMap<>();
 
-        for(PeerReviewDto.PeerReviewResponseItem responseItem : responses) {
-            int questionOrder = responseItem.getQuestionOrder();
+        for(PeerReviewResponseItem responseItem : responses) {
             QuestionType questionType = responseItem.getQuestionType();
-            QuestionCategory questionCategory = responseItem.getQuestionCategory();
-            List<PeerReviewDto.PeerReviewResponseDetailItem> responseDetails = responseItem.getResponseDetails();
+            List<PeerReviewResponseDetailItem> responseDetails = responseItem.getResponseDetails();
 
-            for (PeerReviewDto.PeerReviewResponseDetailItem responseDetailItem : responseDetails) {
+            for (PeerReviewResponseDetailItem responseDetailItem : responseDetails) {
                 String revieweeEmail = responseDetailItem.getRevieweeEmail();
                 ReviewResponse response = questionType.convertResponse(responseDetailItem.getResponse(), objectMapper);
 
                 PeerReviewResponse responseMeta = PeerReviewResponse.builder()
-                        .questionOrder(questionOrder)
+                        .questionOrder(responseItem.getQuestionOrder())
                         .questionType(questionType)
-                        .questionCategory(questionCategory)
+                        .questionCategory(responseItem.getQuestionCategory())
                         .reviewResponse(response)
                         .build();
 
-                if(map.containsKey(revieweeEmail)) {
-                    map.get(revieweeEmail).add(responseMeta);
-                } else {
-                    map.put(revieweeEmail, new ArrayList<>(List.of(responseMeta)));
-                }
+                map.computeIfAbsent(revieweeEmail, k -> new ArrayList<>()).add(responseMeta);
             }
         }
         return map;
