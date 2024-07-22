@@ -51,9 +51,8 @@ public class ProjectController {
 
     //테스트 완료
     @GetMapping("/summary/by-name")
-    public ApiSuccessResponse getProjectSummaryByName(@CurrentUser UserContext userContext,
-                                                      @RequestParam String projectName) {
-        List<SummaryProjectDto> summaryProjects = projectService.getProjectSummaryByName(userContext.getEmail(), projectName);
+    public ApiSuccessResponse getProjectSummaryByName(@RequestParam String projectName) {
+        List<SummaryProjectDto> summaryProjects = projectService.getProjectSummaryByName(projectName);
         return new ApiSuccessResponse(HttpStatus.OK.value(), summaryProjects);
     }
 
