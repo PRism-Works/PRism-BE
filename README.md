@@ -3,7 +3,8 @@
 ## 프로젝트 아키텍처 소개
 
 ### 1. AWS 인프라 아키텍처 이미지
-![AWS Architecture](![image](https://github.com/user-attachments/assets/5588046d-f025-4c47-b735-02dcb32a278d))
+![image](https://github.com/user-attachments/assets/38677a94-9be8-4ab0-a926-ed7bbe614af2)
+
 <!-- 위에 실제 이미지 경로를 넣어주세요 -->
 
 ### 2. AWS 인프라 아키텍처 소개
