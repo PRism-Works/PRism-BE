@@ -29,4 +29,7 @@ public class ProjectUserJoin {
     @CollectionTable(name = "project_user_roles", joinColumns = @JoinColumn(name = "project_user_joins_id"))
     @Column(name = "role")
     private List<String> roles;
+
+    // 이 프로젝트
+    private Boolean anonyVisibility;
 }

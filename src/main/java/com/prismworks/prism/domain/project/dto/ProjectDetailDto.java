@@ -13,7 +13,7 @@ public class ProjectDetailDto {
     private String startDate;
     private String endDate;
     private String projectUrlLink;
-    private boolean visibility;
+    private boolean urlVisibility;
     private String projectDescription;
     private List<String> categories;
     private List<String> skills;

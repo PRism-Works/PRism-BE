@@ -84,8 +84,8 @@ public class AuthService {
 
     public SignupResponse signup(SignupRequest dto) {
         String email = dto.getEmail();
-        this.checkAlreadySignup(email);
-        this.checkEmailVerified(email, dto.getAuthCode(), AuthType.SIGNUP);
+        //this.checkAlreadySignup(email);
+        //this.checkEmailVerified(email, dto.getAuthCode(), AuthType.SIGNUP);
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
         UserDto.CreateInfo userCreateInfo = UserDto.CreateInfo.builder()
                 .username(dto.getUsername())

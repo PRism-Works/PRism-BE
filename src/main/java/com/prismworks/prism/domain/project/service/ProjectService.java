@@ -84,7 +84,7 @@ public class ProjectService {
         project.setEndDate(endDate);
         project.setProjectUrlLink(projectDto.getProjectUrlLink());
         project.setCreatedBy(userContext.getEmail());
-        project.setVisibility(true);
+        project.setUrlVisibility(true);
         project.setCreatedAt(new Date());
         project.setUpdatedAt(new Date());
 
@@ -99,6 +99,7 @@ public class ProjectService {
             join.setName(memberDto.getName());
             join.setEmail(memberDto.getEmail());
             join.setRoles(memberDto.getRoles());
+            join.setAnonyVisibility(true);
             foundUser.ifPresentOrElse(join::setUser, () -> {;});
             return join;
         }).collect(Collectors.toList());
@@ -150,6 +151,7 @@ public class ProjectService {
         project.setStartDate(sdf.parse(projectDto.getStartDate()));
         project.setEndDate(sdf.parse(projectDto.getEndDate()));
         project.setProjectUrlLink(projectDto.getProjectUrlLink());
+        project.setUrlVisibility(projectDto.isUrlVisibility());
         project.setUpdatedAt(new Date());
 
         project.getCategories().clear();
@@ -170,6 +172,7 @@ public class ProjectService {
                 .startDate(project.getStartDate())
                 .endDate(project.getEndDate())
                 .projectUrlLink(project.getProjectUrlLink())
+                .urlVisibility(project.getUrlVisibility())
                 .createdBy(project.getCreatedBy())
                 .build();
     }
@@ -189,6 +192,7 @@ public class ProjectService {
                     join.setName(memberDto.getName());
                     join.setEmail(memberDto.getEmail());
                     join.setRoles(memberDto.getRoles());
+                    join.setAnonyVisibility(memberDto.isAnonyVisibility());
                     foundUser.ifPresent(join::setUser);
                     return join;
                 })
@@ -257,6 +261,11 @@ public class ProjectService {
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
+    public List<SummaryProjectDto> getWhoInvolvedProjects(String userId) {
+        List<Project> projects = projectRepository.findByMemberUserId(userId);
+        return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
+    }
+    @Transactional(readOnly = true)
     public List<SummaryProjectDto> getMeRegisteredProjects(String myEmail) {
         List<Project> projects = projectRepository.findByOwnerEmail(myEmail);
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
@@ -270,7 +279,7 @@ public class ProjectService {
                 .startDate(formatDate(project.getStartDate()))
                 .endDate(formatDate(project.getEndDate()))
                 .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
-                .visibility(project.getVisibility())
+                .urlVisibility(project.getUrlVisibility())
                 .userEvaluation("Sample Evaluation")
                 .surveyParticipants(0)
                 .build();
@@ -302,24 +311,15 @@ public class ProjectService {
                     // User 객체가 null인 경우를 처리
                     if (member.getUser() == null) {
                         // 로깅, 오류 처리 또는 기본값 설정
-                        return new MemberDetailDto("-1", member.getName(), member.getEmail(), member.getRoles());
+                        return new MemberDetailDto("-1", member.getName(), member.getEmail(), member.getRoles(),member.getAnonyVisibility());
                     } else {
-                        return new MemberDetailDto(member.getUser().getUserId(), member.getName(), member.getEmail(), member.getRoles());
+                        return new MemberDetailDto(member.getUser().getUserId(), member.getName(), member.getEmail(), member.getRoles(),member.getAnonyVisibility());
                     }
                 })
                 .collect(Collectors.toList());
 
-        long anonymousCount = memberDetails.stream().filter(member -> member.getUserId().equals("-1")).count();
-        /*
-        List<MemberDetailDto> memberDetailDtos = project.getMembers().stream().map(member -> {
-            return MemberDetailDto.builder()
-                    .userId(member.getUser().getUserId())
-                    .name(member.getName())
-                    .email(member.getEmail())
-                    .roles(member.getRoles())
-                    .build();
-        }).collect(Collectors.toList());
-        */
+        long anonymousCount = memberDetails.stream().filter(MemberDetailDto::isAnonyVisibility).count();
+
         return ProjectDetailDto.builder()
                 .projectName(project.getProjectName())
                 .organizationName(project.getOrganizationName())
@@ -353,14 +353,14 @@ public class ProjectService {
                     // User 객체가 null인 경우를 처리
                     if (member.getUser() == null) {
                         // 로깅, 오류 처리 또는 기본값 설정
-                        return new MemberDetailDto("-1", member.getName(), member.getEmail(), member.getRoles());
+                        return new MemberDetailDto("-1", member.getName(), member.getEmail(), member.getRoles(), member.getAnonyVisibility());
                     } else {
-                        return new MemberDetailDto(member.getUser().getUserId(), member.getName(), member.getEmail(), member.getRoles());
+                        return new MemberDetailDto(member.getUser().getUserId(), member.getName(), member.getEmail(), member.getRoles(), member.getAnonyVisibility());
                     }
                 })
                 .collect(Collectors.toList());
 
-        long anonymousCount = memberDetails.stream().filter(member -> member.getUserId().equals("-1")).count();
+        long anonymousCount = memberDetails.stream().filter(MemberDetailDto::isAnonyVisibility).count();
 
         return ProjectDetailDto.builder()
                 .projectName(project.getProjectName())
@@ -408,7 +408,8 @@ public class ProjectService {
                         member.getUser() != null ? member.getUser().getUserId() : "-1",
                         member.getName(),
                         member.getEmail(),
-                        member.getRoles()
+                        member.getRoles(),
+                        member.getAnonyVisibility()
                 ))
                 .collect(Collectors.toList());
 
@@ -439,12 +440,12 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalStateException("Project not found"));
 
-        project.setVisibility(visibility);
+        project.setUrlVisibility(visibility);
         projectRepository.save(project);
 
         return ProjectVisibilityUpdateDto.builder()
                 .projectId(project.getProjectId())
-                .visibility(project.getVisibility())
+                .visibility(project.getUrlVisibility())
                 .build();
     }
 

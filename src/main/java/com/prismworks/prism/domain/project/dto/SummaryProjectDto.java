@@ -14,7 +14,7 @@ public class SummaryProjectDto {
     private String startDate;
     private String endDate;
     private List<String> categories;
-    private Boolean visibility;
+    private Boolean urlVisibility;
     private String userEvaluation;
     private Integer surveyParticipants;
 }
