@@ -66,7 +66,7 @@ public class AuthDto {
         @Email
         private final String email;
 
-        //@NotEmpty(message = "인증코드는 비어있을 수 없습니다")
+        @NotEmpty(message = "인증코드는 비어있을 수 없습니다")
         private final String authCode;
 
         @Size(min = 8, max = 20)
