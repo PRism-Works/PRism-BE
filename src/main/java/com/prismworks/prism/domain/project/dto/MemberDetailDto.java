@@ -14,4 +14,5 @@ public class MemberDetailDto {
     private String name;
     private String email;
     private List<String> roles;
+    private boolean anonyVisibility;
 }

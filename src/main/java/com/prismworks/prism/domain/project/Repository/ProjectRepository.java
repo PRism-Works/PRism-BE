@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<Project, Integer>, ProjectCustomRepository {
-    @Query("SELECT p FROM Project p WHERE p.projectName like %:projectName% AND p.visibility = true")
+    @Query("SELECT p FROM Project p WHERE p.projectName like %:projectName% AND p.urlVisibility = true")
     List<Project> findByProjectName(String projectName);
 
     @Query("SELECT DISTINCT p FROM Project p LEFT JOIN p.members m LEFT JOIN p.categories c WHERE " +
@@ -20,6 +20,9 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, Proj
 
     @Query("SELECT p FROM Project p JOIN p.members m WHERE m.email = :email")
     List<Project> findByMemberEmail(String email);
+
+    @Query("SELECT p FROM Project p JOIN p.members m WHERE m.user.userId = :userId")
+    List<Project> findByMemberUserId(String userId);
 
     @Query("SELECT p FROM Project p WHERE p.createdBy = :email")
     List<Project> findByOwnerEmail(String email);

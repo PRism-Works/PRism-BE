@@ -23,7 +23,7 @@ public class ProjectDto {
     @NotEmpty
     private String endDate;
     private String projectUrlLink;
-    private boolean visibility;
+    private boolean urlVisibility;
     private String createdBy; // 프로젝트 소유자 이메일 추가
     @NotEmpty
     private List<@Valid MemberDto> members;

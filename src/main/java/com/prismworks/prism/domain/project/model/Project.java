@@ -48,9 +48,13 @@ public class Project {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectUserJoin> members = new ArrayList<>();
-
+    /*
     @Column(nullable = true)
     private Boolean visibility;
+    */
+    // url 링크 공개할지 말지 정하는 옵션값
+    @Column(nullable = true)
+    private Boolean urlVisibility;
 
     @Column(length = 255)
     private String projectUrlLink;
