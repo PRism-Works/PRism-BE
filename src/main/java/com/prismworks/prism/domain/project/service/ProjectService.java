@@ -414,7 +414,7 @@ public class ProjectService {
                 .collect(Collectors.toList());
 
         long anonymousCount = memberDetails.stream()
-                .filter(member -> member.getUserId().equals("-1"))
+                .filter(MemberDetailDto::isAnonyVisibility)
                 .count();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
