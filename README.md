@@ -1,14 +1,14 @@
-# 프로젝트 이름
+# We are PRism's Backend Dev Team.
 
-## 프로젝트 아키텍처 소개
+## Introduce PJT's Architecture
 
-### 1. AWS 인프라 아키텍처 이미지
+### 1. AWS infra Architecture
 ![image](https://github.com/user-attachments/assets/38677a94-9be8-4ab0-a926-ed7bbe614af2)
 
-<!-- 위에 실제 이미지 경로를 넣어주세요 -->
+### 2. Our Infra Architecture
+We developed using a serverless architecture. We registered issues on GitHub, treating them as tickets. Once development was complete, we merged the respective ticket into the main branch. We then pulled the latest code from the main branch to the local environment and deployed it through SAM CI/CD.
 
-### 2. AWS 인프라 아키텍처 소개
-AWS 인프라 아키텍처에 대한 설명을 여기에 작성하세요. 예를 들어, 사용한 서비스와 각 서비스의 역할에 대해 설명합니다.
+Based on the .yml file, we configured the infrastructure on AWS CloudFormation, which includes AWS API Gateway, AWS Lambda, AWS S3, and more. Logs from the Spring Boot server running inside AWS Lambda were recorded in Amazon CloudWatch.
 
 ### 3. AWS 인프라 아키텍처 구성 이유
 AWS 인프라 아키텍처를 이렇게 구성한 이유를 설명합니다. 예를 들어, 특정 서비스나 구성 방식을 선택한 이유에 대해 설명합니다.
