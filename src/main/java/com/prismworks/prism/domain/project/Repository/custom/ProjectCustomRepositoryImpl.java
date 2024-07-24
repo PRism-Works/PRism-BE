@@ -2,6 +2,8 @@ package com.prismworks.prism.domain.project.Repository.custom;
 
 import com.prismworks.prism.domain.project.Repository.custom.projection.ProjectProjection;
 import com.prismworks.prism.domain.project.model.Project;
+import com.prismworks.prism.domain.project.model.ProjectUserJoin;
+import com.prismworks.prism.domain.project.model.QProject;
 import com.prismworks.prism.domain.search.dto.ProjectSearchCondition;
 import com.prismworks.prism.domain.search.dto.ProjectSearchCondition.SearchType;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -17,6 +19,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,6 +70,27 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository{
                 .fetchOne();
     }
 
+    @Override
+    public List<ProjectUserJoin> findAllMemberByProjectId(Integer projectId) {
+        return queryFactory
+                .selectFrom(projectUserJoin)
+                .where(this.memberProjectIdEq(projectId))
+                .fetch();
+    }
+
+    @Override
+    public Optional<ProjectUserJoin> findMemberByProjectIdAndEmail(Integer projectId, String email) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(projectUserJoin)
+                        .where(
+                                this.memberProjectIdEq(projectId),
+                                this.memberEmailEq(email)
+                        )
+                        .fetchOne()
+        );
+    }
+
     private JPAQuery<?> searchProjectQuery(ProjectSearchCondition condition) {
         return queryFactory
                 .from(project)
@@ -97,5 +121,13 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository{
         }
 
         return projectCategoryJoin.category.categoryId.in(categoryId);
+    }
+
+    private BooleanExpression memberProjectIdEq(Integer projectId) {
+        return Objects.isNull(projectId) ? null : projectUserJoin.project.projectId.eq(projectId);
+    }
+
+    private BooleanExpression memberEmailEq(String email) {
+        return StringUtils.hasText(email) ? projectUserJoin.email.eq(email) : null;
     }
 }

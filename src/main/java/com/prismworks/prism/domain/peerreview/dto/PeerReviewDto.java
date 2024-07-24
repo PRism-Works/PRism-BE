@@ -1,9 +1,6 @@
 package com.prismworks.prism.domain.peerreview.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -60,5 +57,13 @@ public class PeerReviewDto {
         private double reliabilityScore;
         private double attractivenessScore;
         private String reviewSummary;
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @Getter
+    public static class ReviewLinkInfoResponse {
+        private List<String> revieweeEmails;
+        private Integer projectId;
     }
 }

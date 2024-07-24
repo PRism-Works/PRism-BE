@@ -1,13 +1,22 @@
 package com.prismworks.prism.domain.peerreview.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
+import com.prismworks.prism.domain.auth.model.UserContext;
+import com.prismworks.prism.domain.email.dto.EmailSendRequest;
+import com.prismworks.prism.domain.email.model.EmailTemplate;
+import com.prismworks.prism.domain.email.service.EmailSendService;
 import com.prismworks.prism.domain.peerreview.dto.PeerReviewDto;
+import com.prismworks.prism.domain.peerreview.model.PeerReviewLinkCode;
 import com.prismworks.prism.domain.peerreview.service.PeerReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -16,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 public class PeerReviewController {
 
     private final PeerReviewService peerReviewService;
+
+    private final EmailSendService emailSendService;
 
     @GetMapping("/projects/{projectId}/users/{userId}") // 사용자 프로젝트 동료평가 [마이프로필 - 프로젝트 상세 - 나의 PRism, 나의 PRism분석 리포트]
     public ApiSuccessResponse getProjectPeerReview(@PathVariable Integer projectId, @PathVariable String userId) {
@@ -27,9 +38,30 @@ public class PeerReviewController {
         return ApiSuccessResponse.defaultOk(new PeerReviewDto.ProjectPeerReviewResponse());
     }
 
-    @PostMapping("/projects/{projectId}/review-link") // 동료평가 링크 이메일 발송
-    public ApiSuccessResponse sendReviewLinkEmail(@PathVariable Integer projectId) {
+    @PostMapping("/link") // 동료평가 링크 이메일 발송
+    public ApiSuccessResponse sendReviewLinkEmail(@CurrentUser UserContext userContext,
+                                                  @RequestParam Integer projectId)
+    {
+        List<PeerReviewLinkCode> linkCodes =
+                peerReviewService.createPeerReviewLinkCode(projectId, userContext.getEmail());
+
+        for(PeerReviewLinkCode linkCode : linkCodes) {
+            EmailSendRequest emailSendRequest = EmailSendRequest.builder()
+                    .toEmails(List.of(linkCode.getReviewerEmail()))
+                    .template(EmailTemplate.PEER_REVIEW_FORM)
+                    .templateVariables(new HashMap<>(Map.of("code", linkCode.getCode())))
+                    .build();
+
+            emailSendService.sendEmail(emailSendRequest);
+        }
+
         return ApiSuccessResponse.defaultOk();
+    }
+
+    @GetMapping("/link")
+    public ApiSuccessResponse getReviewLinkInfo(@RequestParam String code) {
+        PeerReviewDto.ReviewLinkInfoResponse response = peerReviewService.getReviewLinkInfo(code);
+        return ApiSuccessResponse.defaultOk(response);
     }
 
     @PostMapping("/projects/{projectId}/reviews") // 동료평가 응답 등록

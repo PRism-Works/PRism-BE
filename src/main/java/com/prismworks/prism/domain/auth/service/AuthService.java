@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -60,7 +61,7 @@ public class AuthService {
                 emailAuthCodeService.createEmailAuthCode(dto.getEmail(), dto.getAuthType(), dto.getRequestAt());
 
         EmailSendRequest emailSendRequest = EmailSendRequest.builder()
-                .toEmail(emailAuthCode.getEmail())
+                .toEmails(List.of(emailAuthCode.getEmail()))
                 .template(EmailTemplate.valueOf(emailAuthCode.getAuthType().getValue()))
                 .templateVariables(Map.of("code", emailAuthCode.getCode()))
                 .build();

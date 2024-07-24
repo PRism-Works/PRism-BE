@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -100,6 +101,7 @@ public class ProjectService {
             join.setEmail(memberDto.getEmail());
             join.setRoles(memberDto.getRoles());
             join.setAnonyVisibility(true);
+            join.setPeerReviewDone(false);
             foundUser.ifPresentOrElse(join::setUser, () -> {;});
             return join;
         }).collect(Collectors.toList());
@@ -193,6 +195,7 @@ public class ProjectService {
                     join.setEmail(memberDto.getEmail());
                     join.setRoles(memberDto.getRoles());
                     join.setAnonyVisibility(memberDto.isAnonyVisibility());
+                    join.setPeerReviewDone(false);
                     foundUser.ifPresent(join::setUser);
                     return join;
                 })
@@ -216,6 +219,7 @@ public class ProjectService {
                     join.setEmail(memberDto.getEmail());
                     join.setRoles(memberDto.getRoles());
                     join.setProject(project);
+                    join.setPeerReviewDone(false);
                     return join;
                 })
                 .orElseThrow(() -> new ProjectException("Member not found with email: " + memberDto.getEmail(), ProjectErrorCode.USER_NOT_FOUND));
@@ -452,5 +456,40 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public Long countUserInProject(Integer projectId) {
         return projectRepository.countUserByProjectId(projectId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProjectUserJoin> getAllMemberInProject(Integer projectId) {
+        return projectRepository.findAllMemberByProjectId(projectId);
+    }
+
+    @Transactional(readOnly = true)
+    public Project getProjectByOwner(Integer projectId, String email) {
+        return projectRepository.findByProjectIdAndCreatedBy(projectId, email)
+                .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
+    }
+
+    @Transactional(readOnly = true)
+    public ProjectPeerReviewEmailInfoDto getProjectPeerReviewEmailInfo(Integer projectId, String ownerEmail) {
+        Project project = this.getProjectByOwner(projectId, ownerEmail);
+
+        String ownerName = "";
+        List<String> notReviewingMemberEmails = new ArrayList<>();
+        for(ProjectUserJoin member: project.getMembers()) {
+            if(!member.isPeerReviewDone()) {
+                notReviewingMemberEmails.add(member.getEmail());
+            }
+
+            if(member.getEmail().equals(ownerEmail)) {
+                ownerName = member.getName();
+            }
+        }
+
+        return ProjectPeerReviewEmailInfoDto.builder()
+                .projectId(projectId)
+                .projectName(project.getProjectName())
+                .ownerName(ownerName)
+                .notReviewingMemberEmails(notReviewingMemberEmails)
+                .build();
     }
 }

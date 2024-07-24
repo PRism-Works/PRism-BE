@@ -32,4 +32,7 @@ public class ProjectUserJoin {
 
     // 이 프로젝트
     private Boolean anonyVisibility;
+
+    @Column(name = "peer_review_done")
+    private boolean peerReviewDone;
 }
