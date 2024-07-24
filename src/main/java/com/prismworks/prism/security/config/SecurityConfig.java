@@ -6,6 +6,7 @@ import com.prismworks.prism.security.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -51,6 +52,8 @@ public class SecurityConfig {
                                 "/api/v1/projects/who-involved-projects").permitAll()
 
                         .requestMatchers("/api/v1/search/projects").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/v1/peer-reviews/").permitAll()
 
                         .anyRequest().authenticated()
                 );
