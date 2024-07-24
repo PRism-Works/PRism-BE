@@ -108,9 +108,13 @@ public class ProjectController {
     }
 
     //mypage에서 visibility 설정 하는 api
-    @PutMapping("/visibility")
-    public ApiSuccessResponse updateProjectVisibility(@RequestBody ProjectVisibilityUpdateDto request) {
-        ProjectVisibilityUpdateDto projectVisibilityUpdateDto = projectService.updateProjectVisibility(request.getProjectId(), request.isVisibility());
+    @PutMapping("/anonyVisibility")
+    public ApiSuccessResponse updateProjectVisibility(@CurrentUser UserContext userContext,@RequestBody ProjectAnonyVisibilityUpdateDto request) {
+        ProjectAnonyVisibilityUpdateDto projectVisibilityUpdateDto = projectService.updateProjectUserJoinVisibility(
+                request.getProjectId(),
+                userContext.getEmail(),
+                request.isAnonyVisibility()
+        );
         return new ApiSuccessResponse(HttpStatus.OK.value(), projectVisibilityUpdateDto);
     }
 }

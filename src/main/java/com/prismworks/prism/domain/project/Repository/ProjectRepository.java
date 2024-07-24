@@ -2,6 +2,7 @@ package com.prismworks.prism.domain.project.Repository;
 
 import com.prismworks.prism.domain.project.Repository.custom.ProjectCustomRepository;
 import com.prismworks.prism.domain.project.model.Project;
+import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -32,5 +33,8 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, Proj
 
     @Query("SELECT p.anonyVisibility FROM ProjectUserJoin p WHERE p.email = :myEmail AND p.project.projectId = :projectId")
     boolean findByAnonyVisibility(Integer projectId,String myEmail);
+
+    @Query("SELECT p FROM ProjectUserJoin p WHERE p.email = :myEmail AND p.project.projectId = :projectId")
+    ProjectUserJoin findByMyEmailAndProjectId(Integer projectId,String myEmail);
 
 }
