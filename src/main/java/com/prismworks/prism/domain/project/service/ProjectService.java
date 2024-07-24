@@ -262,7 +262,10 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getMeInvolvedProjects(String myEmail) {
         List<Project> projects = projectRepository.findByMemberEmail(myEmail);
-        return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
+
+        return projects.stream()
+                .map(project -> convertToSummaryDtoForGetMeInvolvedProjects(myEmail, project))
+                .collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getWhoInvolvedProjects(String userId) {
@@ -286,6 +289,25 @@ public class ProjectService {
                 .urlVisibility(project.getUrlVisibility())
                 .userEvaluation("Sample Evaluation")
                 .surveyParticipants(0)
+                .build();
+    }
+
+    private SummaryProjectDto convertToSummaryDtoForGetMeInvolvedProjects(String myEmail, Project project) {
+        boolean anonyVisibility = projectRepository.findByAnonyVisibility(project.getProjectId(), myEmail);
+
+        return SummaryProjectDto.builder()
+                .projectId(project.getProjectId())
+                .projectName(project.getProjectName())
+                .organizationName(project.getOrganizationName())
+                .startDate(formatDate(project.getStartDate()))
+                .endDate(formatDate(project.getEndDate()))
+                .categories(project.getCategories().stream()
+                        .map(c -> c.getCategory().getName())
+                        .collect(Collectors.toList()))
+                .urlVisibility(project.getUrlVisibility())
+                .userEvaluation("Sample Evaluation")
+                .surveyParticipants(0)
+                .anonyVisibility(anonyVisibility)
                 .build();
     }
 

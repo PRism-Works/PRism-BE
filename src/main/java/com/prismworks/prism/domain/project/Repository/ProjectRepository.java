@@ -29,4 +29,8 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, Proj
     List<Project> findByOwnerEmail(String email);
 
     Optional<Project> findByProjectIdAndCreatedBy(Integer projectId, String createdBy);
+
+    @Query("SELECT p.anonyVisibility FROM ProjectUserJoin p WHERE p.email = :myEmail AND p.project.projectId = :projectId")
+    boolean findByAnonyVisibility(Integer projectId,String myEmail);
+
 }

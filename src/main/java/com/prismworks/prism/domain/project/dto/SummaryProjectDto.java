@@ -17,4 +17,5 @@ public class SummaryProjectDto {
     private Boolean urlVisibility;
     private String userEvaluation;
     private Integer surveyParticipants;
+    private boolean anonyVisibility;
 }
