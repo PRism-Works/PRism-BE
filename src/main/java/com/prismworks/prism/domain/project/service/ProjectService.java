@@ -3,6 +3,7 @@ package com.prismworks.prism.domain.project.service;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
+import com.prismworks.prism.domain.project.Repository.ProjectUserJoinRepository;
 import com.prismworks.prism.domain.project.dto.*;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
@@ -34,6 +35,8 @@ public class ProjectService {
     private UserRepository userRepository;
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private ProjectUserJoinRepository projectUserJoinRepository;
 
     @Transactional
     public Category saveCategoryTransactional(String name) {
@@ -462,16 +465,15 @@ public class ProjectService {
 
 
     @Transactional
-    public ProjectVisibilityUpdateDto updateProjectVisibility(int projectId, boolean visibility) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalStateException("Project not found"));
+    public ProjectAnonyVisibilityUpdateDto updateProjectUserJoinVisibility(int projectId, String email, boolean anonyVisibility) {
+        ProjectUserJoin projectUserJoin = projectUserJoinRepository.findByEmailAndProjectId(email, projectId);
 
-        project.setUrlVisibility(visibility);
-        projectRepository.save(project);
+        projectUserJoin.setAnonyVisibility(anonyVisibility);
+        projectUserJoinRepository.save(projectUserJoin); // 변경 사항을 DB에 저장
 
-        return ProjectVisibilityUpdateDto.builder()
-                .projectId(project.getProjectId())
-                .visibility(project.getUrlVisibility())
+        return ProjectAnonyVisibilityUpdateDto.builder()
+                .projectId(projectUserJoin.getProject().getProjectId())
+                .anonyVisibility(projectUserJoin.getAnonyVisibility()) // projectUserJoin의 anonyVisibility 반환
                 .build();
     }
 

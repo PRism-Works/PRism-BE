@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Builder
 @Data
-public class ProjectVisibilityUpdateDto {
+public class ProjectAnonyVisibilityUpdateDto {
     private int projectId;
-    private boolean visibility;
+    private boolean anonyVisibility;
 }
