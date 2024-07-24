@@ -68,7 +68,7 @@ public class SmtpEmailSendService implements EmailSendService{
         try {
             mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             mimeMessageHelper.setFrom(from);
-            mimeMessageHelper.setTo(sendRequest.getToEmail());
+            mimeMessageHelper.setTo(sendRequest.getToEmails().toArray(new String[0]));
             mimeMessageHelper.setSubject(emailTemplate.getSubject());
             mimeMessageHelper.setText(content, true);
         } catch (MessagingException e) {
