@@ -48,7 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/users/*/profile").permitAll()
 
                         .requestMatchers("/api/v1/summary/by-name", "/api/v1/projects/summary/by-member-and-filters",
-                                "/api/v1/projects/summary/detail/*", "/api/v1/projects/visibility",
+                                "/api/v1/projects/summary/detail/*",
                                 "/api/v1/projects/who-involved-projects").permitAll()
 
                         .requestMatchers("/api/v1/search/projects").permitAll()
