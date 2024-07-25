@@ -8,10 +8,7 @@ import com.prismworks.prism.domain.prism.dto.PrismDataDto;
 import com.prismworks.prism.domain.prism.dto.RadialDataDto;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PrismService {
@@ -35,11 +32,11 @@ public class PrismService {
         PrismDataDto dto = aggregateResults(results);
         totalResult.ifPresent(tr -> {
             RadialDataDto radialData = new RadialDataDto();
-            radialData.setLeadership(Math.round(tr.getLeadershipScore()));
-            radialData.setReliability(Math.round(tr.getReliabilityScore()));
-            radialData.setTeamwork(Math.round(tr.getTeamworkScore()));
-            radialData.setKeywords(tr.getKeywords());
-            radialData.setEvaluation(tr.getEvalution());
+            radialData.setLeadership(tr.getLeadershipScore() != null ? Math.round(tr.getLeadershipScore()) : 0);
+            radialData.setReliability(tr.getReliabilityScore() != null ? Math.round(tr.getReliabilityScore()) : 0);
+            radialData.setTeamwork(tr.getTeamworkScore() != null ? Math.round(tr.getTeamworkScore()) : 0);
+            radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
+            radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
             dto.setRadialData(radialData);
         });
 
@@ -57,11 +54,11 @@ public class PrismService {
         PrismDataDto dto = aggregateResults(results);
         totalResult.ifPresent(tr -> {
             RadialDataDto radialData = new RadialDataDto();
-            radialData.setLeadership(Math.round(tr.getLeadershipScore()));
-            radialData.setReliability(Math.round(tr.getReliabilityScore()));
-            radialData.setTeamwork(Math.round(tr.getTeamworkScore()));
-            radialData.setKeywords(tr.getKeywords());
-            radialData.setEvaluation(tr.getEvalution());
+            radialData.setLeadership(tr.getLeadershipScore() != null ? Math.round(tr.getLeadershipScore()) : 0);
+            radialData.setReliability(tr.getReliabilityScore() != null ? Math.round(tr.getReliabilityScore()) : 0);
+            radialData.setTeamwork(tr.getTeamworkScore() != null ? Math.round(tr.getTeamworkScore()) : 0);
+            radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
+            radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
             dto.setRadialData(radialData);
         });
 
@@ -79,18 +76,6 @@ public class PrismService {
 
         PrismDataDto dto = new PrismDataDto();
         dto.setPrismData(prismData);
-        return dto;
-    }
-
-    private PrismDataDto convertToPrismDataDto(PeerReviewResult result) {
-        PrismDataDto dto = new PrismDataDto();
-        dto.setPrismData(Map.of(
-                "communication", Math.round(result.getCommunicationScore()),
-                "proactivity", Math.round(result.getInitiativeScore()),
-                "problemSolving", Math.round(result.getProblemSolvingAbilityScore()),
-                "responsibility", Math.round(result.getResponsibilityScore()),
-                "cooperation", Math.round(result.getTeamworkScore())
-        ));
         return dto;
     }
 }
