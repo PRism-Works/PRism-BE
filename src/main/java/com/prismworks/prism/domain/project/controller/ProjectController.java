@@ -96,6 +96,7 @@ public class ProjectController {
     @GetMapping("/summary/detail/{projectId}")
     public ApiSuccessResponse getProjectDetail(@PathVariable int projectId) {
         ProjectDetailDto projectDetail = projectService.getProjectDetailInRetrieve(projectId);
+        projectDetail.setMostCommonTraits("적극성"); //특정 프로젝트에 포함된 팀원들의 특징 중 지표가 높은 것? 추가 필드
         return new ApiSuccessResponse(HttpStatus.OK.value(), projectDetail);
     }
 
