@@ -55,6 +55,7 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/peer-reviews/").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/peer-reviews/projects/*/reviews").permitAll()
+                        .requestMatchers("/ai-test").permitAll() // todo: 제거
 
                         .anyRequest().authenticated()
                 );
