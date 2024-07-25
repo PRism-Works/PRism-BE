@@ -46,6 +46,9 @@ public class PeerReviewLinkCodeService {
             peerReviewLinkCodes.add(linkCode);
         }
 
-        return peerReviewLinkCodeRepository.saveAll(peerReviewLinkCodes);
+        List<PeerReviewLinkCode> savedPeerReviewLinkCodes = peerReviewLinkCodeRepository.saveAll(peerReviewLinkCodes);
+
+        linkCodes.addAll(savedPeerReviewLinkCodes);
+        return linkCodes;
     }
 }
