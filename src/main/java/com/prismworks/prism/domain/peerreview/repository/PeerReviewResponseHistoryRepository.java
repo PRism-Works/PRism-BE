@@ -5,7 +5,11 @@ import com.prismworks.prism.domain.peerreview.repository.custom.PeerReviewRespon
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PeerReviewResponseHistoryRepository extends JpaRepository<PeerReviewResponseHistory, Integer>,
         PeerReviewResponseHistoryCustomRepository {
+
+    List<PeerReviewResponseHistory> findAllByRevieweeEmail(String revieweeEmail);
 }
