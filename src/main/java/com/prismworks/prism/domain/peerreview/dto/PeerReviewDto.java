@@ -55,7 +55,7 @@ public class PeerReviewDto {
     public static class MyPeerReviewResultReport {
         private double leaderShipScore;
         private double reliabilityScore;
-        private double attractivenessScore;
+        private double teamworkScore;
         private String reviewSummary;
     }
 

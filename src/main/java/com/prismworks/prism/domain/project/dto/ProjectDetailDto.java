@@ -15,6 +15,7 @@ public class ProjectDetailDto {
     private String projectUrlLink;
     private boolean urlVisibility;
     private String projectDescription;
+    private String mostCommonTraits;
     private List<String> categories;
     private List<String> skills;
     private List<MemberDetailDto> members;

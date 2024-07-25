@@ -30,19 +30,25 @@ public class PeerReviewTotalResult {
 
     @Column(name = "email")
     public String email;
-
+    /*
     @Column(name = "responsibility_score")
     public Float responsibilityScore;
+    */
+    @Column(name = "reliability_score")
+    public Float reliabilityScore;
 
     @Column(name = "teamwork_score")
     public Float teamworkScore;
 
     @Column(name = "leadership_score")
-    public Float leadership_score;
+    public Float leadershipScore;
 
     @Convert(converter = StringToListConverter.class)
     @Column(name = "keywords")
     List<String> keywords;
+
+    @Column(name = "evalution")
+    String evalution;
 
     @Column(name = "total_feedback")
     public String totalFeedback;
