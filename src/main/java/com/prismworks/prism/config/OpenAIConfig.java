@@ -1,5 +1,5 @@
 package com.prismworks.prism.config;
-
+/*
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
@@ -18,3 +18,4 @@ public class OpenAIConfig {
         return builder.defaultOptions(chatOptions).build();
     }
 }
+*/
