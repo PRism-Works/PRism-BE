@@ -1,5 +1,8 @@
 package com.prismworks.prism.domain.peerreview.service;
 
+import com.prismworks.prism.domain.email.dto.EmailSendRequest;
+import com.prismworks.prism.domain.email.model.EmailTemplate;
+import com.prismworks.prism.domain.email.service.EmailSendService;
 import com.prismworks.prism.domain.peerreview.converter.PeerReviewResponseConverter;
 import com.prismworks.prism.domain.peerreview.dto.PeerReviewDto;
 import com.prismworks.prism.domain.peerreview.exception.PeerReviewException;
@@ -12,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.prismworks.prism.domain.peerreview.dto.PeerReviewDto.*;
 
@@ -23,15 +28,32 @@ public class PeerReviewService {
     private final PeerReviewResponseHistoryService peerReviewResponseHistoryService;
     private final PeerReviewResultService peerReviewResultService;
     private final PeerReviewLinkCodeService peerReviewLinkCodeService;
-    private final ProjectService projectService; // todo: 분리
+    private final ProjectService projectService;
+    private final EmailSendService emailSendService;
 
     private final PeerReviewResponseConverter peerReviewResponseConverter;
 
-    public List<PeerReviewLinkCode> createPeerReviewLinkCode(Integer projectId, String ownerEmail) {
+    public void sendPeerReviewLinkEmail(Integer projectId, String ownerEmail) {
         ProjectPeerReviewEmailInfoDto projectInfo = projectService.getProjectPeerReviewEmailInfo(projectId, ownerEmail);
         List<String> notReviewingMemberEmails = projectInfo.getNotReviewingMemberEmails();
 
-        return peerReviewLinkCodeService.createLinkCode(projectId, notReviewingMemberEmails);
+        List<PeerReviewLinkCode> linkCodes =
+                peerReviewLinkCodeService.createLinkCode(projectId, notReviewingMemberEmails);
+
+        Map<String, Object> emailTemplateVariables = new HashMap<>();
+        emailTemplateVariables.put("projectName", projectInfo.getProjectName());
+        emailTemplateVariables.put("ownerName", projectInfo.getOwnerName());
+        for(PeerReviewLinkCode linkCode : linkCodes) {
+            emailTemplateVariables.put("code", linkCode.getCode());
+
+            EmailSendRequest emailSendRequest = EmailSendRequest.builder()
+                    .toEmails(List.of(linkCode.getReviewerEmail()))
+                    .template(EmailTemplate.PEER_REVIEW_FORM)
+                    .templateVariables(emailTemplateVariables)
+                    .build();
+
+            emailSendService.sendEmail(emailSendRequest);
+        }
     }
 
     public ReviewLinkInfoResponse getReviewLinkInfo(String code) {

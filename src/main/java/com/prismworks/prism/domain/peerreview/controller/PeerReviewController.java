@@ -26,8 +26,6 @@ public class PeerReviewController {
 
     private final PeerReviewService peerReviewService;
 
-    private final EmailSendService emailSendService;
-
     @GetMapping("/projects/{projectId}/users/{userId}") // 사용자 프로젝트 동료평가 [마이프로필 - 프로젝트 상세 - 나의 PRism, 나의 PRism분석 리포트]
     public ApiSuccessResponse getProjectPeerReview(@PathVariable Integer projectId, @PathVariable String userId) {
         return ApiSuccessResponse.defaultOk(new PeerReviewDto.ProjectPeerReviewResponse());
@@ -42,19 +40,7 @@ public class PeerReviewController {
     public ApiSuccessResponse sendReviewLinkEmail(@CurrentUser UserContext userContext,
                                                   @RequestParam Integer projectId)
     {
-        List<PeerReviewLinkCode> linkCodes =
-                peerReviewService.createPeerReviewLinkCode(projectId, userContext.getEmail());
-
-        for(PeerReviewLinkCode linkCode : linkCodes) {
-            EmailSendRequest emailSendRequest = EmailSendRequest.builder()
-                    .toEmails(List.of(linkCode.getReviewerEmail()))
-                    .template(EmailTemplate.PEER_REVIEW_FORM)
-                    .templateVariables(new HashMap<>(Map.of("code", linkCode.getCode())))
-                    .build();
-
-            emailSendService.sendEmail(emailSendRequest);
-        }
-
+        peerReviewService.sendPeerReviewLinkEmail(projectId, userContext.getEmail());
         return ApiSuccessResponse.defaultOk();
     }
 
