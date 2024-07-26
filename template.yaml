@@ -5,16 +5,14 @@ Description: Prism-BE aws Lambda server
 Globals:
   Function:
     Timeout: 60
-#    Environment:
-#      Variables:
-#        DATABASE_ENDPOINT: !Ref DatabaseEndpoint
-
-#Parameters:
-#  DatabaseEndpoint:
-#    Description: 데이터베이스엔드포인트
-#    Type: String
 
 Resources:
+  ApiGatewayRestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: prism-dev
+      StageName: Prod1
+
   SpringLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -34,18 +32,9 @@ Resources:
       Policies:
         - AWSLambdaBasicExecutionRole
       Events:
-        Healthcheck:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /
-            Method: Get
-        SwaggerDoc:
+        SpringLambdaFunction:
           Type: Api
           Properties:
-            Path: /swagger-ui/index.html
-            Method: Get
-        SpringLambdaFunction:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
+            RestApiId: !Ref ApiGatewayRestApi
             Path: /{proxy+}
             Method: ANY

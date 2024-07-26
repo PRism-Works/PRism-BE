@@ -1,10 +1,10 @@
 version = 0.1
 [default.deploy.parameters]
-stack_name = "prism3"
+stack_name = "prism-dev-new"
 resolve_s3 = true
-s3_prefix = "prism3"
+s3_prefix = "prism-dev-new"
 region = "ap-northeast-2"
-capabilities = "CAPABILITY_IAM"
-image_repositories = []
 confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
 disable_rollback = true
+image_repositories = []
