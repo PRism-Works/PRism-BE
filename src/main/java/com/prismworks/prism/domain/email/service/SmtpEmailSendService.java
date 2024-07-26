@@ -12,6 +12,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -71,6 +72,12 @@ public class SmtpEmailSendService implements EmailSendService{
             mimeMessageHelper.setTo(sendRequest.getToEmails().toArray(new String[0]));
             mimeMessageHelper.setSubject(emailTemplate.getSubject());
             mimeMessageHelper.setText(content, true);
+            if(!emailTemplate.getImages().isEmpty()) {
+                Map<String, String> images = emailTemplate.getImages();
+                for (Map.Entry<String, String> entry : images.entrySet()) {
+                    mimeMessageHelper.addInline(entry.getKey(), new ClassPathResource("static/images/" + entry.getValue()));
+                }
+            }
         } catch (MessagingException e) {
             throw EmailException.EMAIL_MESSAGE_CREATION_FAILED;
         }

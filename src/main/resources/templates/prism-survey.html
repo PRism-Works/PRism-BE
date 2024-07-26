@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PRism Survey</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        /*display: flex;*/
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .top-banner,
+      .bottom-banner {
+        width: 100%;
+        height: 10px;
+        background: linear-gradient(
+          180deg,
+          rgba(168, 85, 247, 0.8) 0.56%,
+          rgba(99, 102, 241, 0.8) 112.82%
+        );
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 15px 25px;
+        background-color: #ffffff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        /*display: flex;*/
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+      }
+      .header {
+        text-align: left;
+        padding: 20px 0;
+      }
+      .header img {
+        max-width: 120px;
+      }
+      .content {
+        font-size: 18px;
+        line-height: 1.2;
+        color: #333333;
+      }
+      .body1 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #a855f7;
+      }
+      .title {
+        font-size: 28px;
+        font-weight: 600;
+        margin-top: -5px;
+      }
+      .prism-button {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 160px;
+        height: 50px;
+        opacity: 0;
+        cursor: pointer;
+        border: none;
+        background: none;
+      }
+      .info-container {
+        /*display: flex;*/
+        align-items: center;
+        justify-content: center;
+      }
+      .info-button {
+        display: inline;
+        font-size: 16px;
+        font-weight: 500;
+        text-decoration: none;
+        color: #374151;
+        padding-bottom: 2px;
+        margin-left: 5px;
+        border-bottom: 1px solid #374151;
+      }
+      .footnote {
+        font-size: 14px;
+        line-height: 1.8;
+        margin-top: -5px;
+        color: #6b7280;
+      }
+      .prism-chart {
+        position: relative;
+        margin-bottom: 10px;
+      }
+      .prism-chart img {
+        width: 100%;
+        max-width: 540px;
+        border-radius: 10px;
+      }
+      .service-description {
+        font-size: 16px;
+        color: #333333;
+      }
+      .footer {
+        font-size: 12px;
+        line-height: 1.4;
+        margin-top: 50px;
+        padding-top: 10px;
+        color: #4b5563;
+        border-top: solid 1px #b2b3b4;
+      }
+      .team-PRism {
+        font-size: 16px;
+        font-weight: 600;
+        margin-top: 40px;
+        color: #374151;
+      }
+      .copyright {
+        font-size: 12px;
+        margin: -10px 0px 15px 0px;
+        color: #9ca3af;
+      }
+
+      @media (max-width: 456px) {
+        .content {
+          font-size: 16px;
+        }
+        .body1 {
+          font-size: 16px;
+        }
+        .title {
+          font-size: 20px;
+        }
+        .info-button {
+          font-size: 14px;
+        }
+        .footnote {
+          font-size: 12px;
+        }
+        .service-description {
+          font-size: 14px;
+        }
+        .footer {
+          font-size: 10px;
+        }
+        .team-PRism {
+          font-size: 14px;
+        }
+        .copyright {
+          font-size: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="top-banner"></div>
+      <div class="header">
+        <!-- 로고 이미지 추가 -->
+        <img src='cid:logo-image' alt="PRism Logo" />
+      </div>
+      <div class="content">
+        <p>
+          <span class="body1" style="color: #a855f7" th:text="${ownerName}"></span>
+          <span>님이 보내신</span>
+          <span class="body1" style="color: #a855f7" th:text="${projectName}"></span>
+          <span>프로젝트</span>
+        </p>
+        <p class="title">동료평가 요청이 도착했습니다!</p>
+
+        <div class="prism-chart">
+          <!-- 평가지 링크  -->
+          <a th:href="@{|${frontendOrigin}/survey?code=${code}|}">
+            <!-- 동료평가 이미지 추가 -->
+            <img src='cid:prism-image' alt="PRism chart" />
+          </a>
+          <a >
+          <a href="#" class="prism-button"></a>
+        </div>
+        <div class="service-description">
+          <div class="info-container">
+            <p>PRism이 처음이신가요?</p>
+
+            <!-- 배포 후 "/" 로 설정 -->
+            <a href="#" class="info-button">서비스 더 알아보기</a>
+          </div>
+          <p class="footnote">
+            * 해당 이메일은 <span th:text="${ownerName}"></span> 님이 제공한 이메일
+            주소를 통해 발송되었습니다.
+          </p>
+        </div>
+      </div>
+      <div class="footer">
+        <p>
+          본 이메일 및 이메일 내 포함된 정보는 모두 기밀이며 지정된 수신자만이
+          사용할 수 있습니다. 지정된 수신자가 아니라면 본 정보의 유출, 복사,
+          배포 및 기타 행위는 엄격히 금지되어 있습니다. 만약 실수로 본 이메일을
+          수신하였다면 송신자에게 이메일로 즉시 알려주시기를 바랍니다. PRism
+          이메일의 내용이나 제공된 정보를 바탕으로 취한 행동에 어떠한 책임도
+          지지 않습니다.
+        </p>
+        <p>
+          본 메일은 발신전용입니다. 궁금하신 내용은 swyp5thteam6@gmail.com으로
+          문의하시면 성심성의껏 답변드리겠습니다.
+        </p>
+        <p class="team-PRism">Team PRism.</p>
+        <p class="copyright">©2024.PRism. All rights reserved.</p>
+      </div>
+      <div class="bottom-banner"></div>
+    </div>
+  </body>
+</html>
