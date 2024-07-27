@@ -2,7 +2,6 @@ package com.prismworks.prism.domain.peerreview.model;
 
 import com.prismworks.prism.common.converter.StringToListConverter;
 import com.prismworks.prism.domain.peerreview.dto.PeerReviewDto;
-import com.prismworks.prism.domain.peerreview.dto.PeerReviewDto.ProjectReviewResult;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -62,7 +61,10 @@ public class PeerReviewResult {
     @Column(name = "updatedAt")
     public LocalDateTime updatedAt;
 
-    public void updateResult(ProjectReviewResult projectReviewResult) {
+    @Column(name = "prism_type")
+    public String prismType;
+
+    public void updateResult(PeerReviewDto.ProjectReviewResult projectReviewResult) {
         this.responsibilityScore = projectReviewResult.getResponsibilityScore();
         this.communicationScore = projectReviewResult.getCommunicationScore();
         this.teamworkScore = projectReviewResult.getTeamworkScore();

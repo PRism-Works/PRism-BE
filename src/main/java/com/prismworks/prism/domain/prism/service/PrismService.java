@@ -21,9 +21,9 @@ public class PrismService {
         this.peerReviewTotalResultRepository = peerReviewTotalResultRepository;
     }
 
-    public PrismDataDto calculateUserPrismData(String userId) {
-        List<PeerReviewResult> results = peerReviewResultRepository.findByUserId(userId);
-        Optional<PeerReviewTotalResult> totalResult = peerReviewTotalResultRepository.findByUserId(userId);
+    public PrismDataDto calculateUserPrismData(String userId,String prismType) {
+        List<PeerReviewResult> results = peerReviewResultRepository.findByUserIdAndPrismType(userId,prismType);
+        Optional<PeerReviewTotalResult> totalResult = peerReviewTotalResultRepository.findByUserIdAndPrismType(userId,prismType);
 
         if (results.isEmpty() && totalResult.isEmpty()) {
             throw new RuntimeException("No data found for user");
@@ -43,9 +43,9 @@ public class PrismService {
         return dto;
     }
 
-    public PrismDataDto calculateUserProjectPrismData(String userId, int projectId) {
-        List<PeerReviewResult> results = peerReviewResultRepository.findByUserIdAndProjectId(userId, projectId);
-        Optional<PeerReviewTotalResult> totalResult = peerReviewTotalResultRepository.findByUserIdAndProjectId(userId, projectId);
+    public PrismDataDto calculateUserProjectPrismData(String userId, int projectId, String prismType) {
+        List<PeerReviewResult> results = peerReviewResultRepository.findByUserIdAndProjectIdAndPrismType(userId, projectId,prismType);
+        Optional<PeerReviewTotalResult> totalResult = peerReviewTotalResultRepository.findByUserIdAndProjectIdAndPrismType(userId, projectId,prismType);
 
         if (results.isEmpty() && totalResult.isEmpty()) {
             throw new RuntimeException("No data found for user and project");

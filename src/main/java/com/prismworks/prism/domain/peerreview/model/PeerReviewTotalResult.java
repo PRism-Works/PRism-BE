@@ -30,10 +30,7 @@ public class PeerReviewTotalResult {
 
     @Column(name = "email")
     public String email;
-    /*
-    @Column(name = "responsibility_score")
-    public Float responsibilityScore;
-    */
+
     @Column(name = "reliability_score")
     public Float reliabilityScore;
 
@@ -50,12 +47,12 @@ public class PeerReviewTotalResult {
     @Column(name = "evalution")
     String evalution;
 
-    @Column(name = "total_feedback")
-    public String totalFeedback;
-
     @Column(name = "created_at")
     public LocalDateTime createdAt;
 
     @Column(name = "updatedAt")
     public LocalDateTime updatedAt;
+
+    @Column(name = "prism_type")
+    public String prismType;
 }

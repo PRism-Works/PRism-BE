@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface PeerReviewTotalResultRepository extends JpaRepository<PeerReviewTotalResult, Integer> {
-    Optional<PeerReviewTotalResult> findByUserId(String userId);
-    Optional<PeerReviewTotalResult> findByUserIdAndProjectId(String userId, int projectId);
+    Optional<PeerReviewTotalResult> findByUserIdAndPrismType(String userId,String prismType);
+    Optional<PeerReviewTotalResult> findByUserIdAndProjectIdAndPrismType(String userId, int projectId,String prismType);
 }
