@@ -58,4 +58,7 @@ public class PeerReviewResult {
 
     @Column(name = "updatedAt")
     public LocalDateTime updatedAt;
+
+    @Column(name = "prism_type")
+    public String prismType;
 }

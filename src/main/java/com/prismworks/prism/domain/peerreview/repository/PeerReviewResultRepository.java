@@ -11,6 +11,6 @@ import java.util.Optional;
 public interface PeerReviewResultRepository extends JpaRepository<PeerReviewResult, Integer> {
     boolean existsByProjectIdAndEmail(Integer projectId, String email);
 
-    List<PeerReviewResult> findByUserId(String userId);
-    List<PeerReviewResult> findByUserIdAndProjectId(String userId, int projectId);
+    List<PeerReviewResult> findByUserIdAndPrismType(String userId,String prismType);
+    List<PeerReviewResult> findByUserIdAndProjectIdAndPrismType(String userId, int projectId,String prismType);
 }
