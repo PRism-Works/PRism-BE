@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @SpringBootApplication
 @Import({IndexController.class})
 public class PrismApplication {
-
+    /*
     @Bean
     public HandlerMapping handlerMapping() {
         return new RequestMappingHandlerMapping();
@@ -25,6 +25,7 @@ public class PrismApplication {
     public HandlerAdapter handlerAdapter() {
         return new RequestMappingHandlerAdapter();
     }
+    */
     @Bean
     public ObjectMapper getObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();

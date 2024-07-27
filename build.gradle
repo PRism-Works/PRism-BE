@@ -23,11 +23,9 @@ repositories {
 	mavenCentral()
 	maven { url 'https://repo.spring.io/snapshot' }
 }
-/*
 ext {
 	set('springAiVersion', "1.0.0-SNAPSHOT")
 }
-*/
 // 빌드 시 tomcat 미포함
 task buildZip(type: Zip) {
 	from compileJava
@@ -44,9 +42,9 @@ build {
 }
 
 dependencies {
-	//implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+	implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -86,14 +84,14 @@ dependencies {
 	//Exception 등 파라미터 검증 모듈
 
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.13.0' // Jackson 버전에 맞게 변경
+
+
 }
-/*
 dependencyManagement {
 	imports {
 		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
 	}
 }
-*/
 tasks.named('test') {
 	useJUnitPlatform()
 }
