@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/healthcheck").permitAll()
+                        .requestMatchers("/api/v1/prism/*","/api/v1/prism/*/*").permitAll()
                         .requestMatchers("/api/v1/auth/email/exists", "/api/v1/auth/code",
                                 "/api/v1/auth/code/verification", "/api/v1/auth/signup", "/api/v1/auth/password",
                                 "/api/v1/auth/refresh-token", "/api/v1/auth/login").permitAll()
