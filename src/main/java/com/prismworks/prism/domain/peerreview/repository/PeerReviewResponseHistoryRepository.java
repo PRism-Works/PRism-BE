@@ -12,4 +12,6 @@ public interface PeerReviewResponseHistoryRepository extends JpaRepository<PeerR
         PeerReviewResponseHistoryCustomRepository {
 
     List<PeerReviewResponseHistory> findAllByRevieweeEmail(String revieweeEmail);
+
+    List<PeerReviewResponseHistory> findAllByProjectId(Integer projectId);
 }

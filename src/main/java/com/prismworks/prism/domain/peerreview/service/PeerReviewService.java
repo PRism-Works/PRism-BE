@@ -87,6 +87,8 @@ public class PeerReviewService {
     public void createPeerReviewResponseHistory(Integer projectId,
                                                 CreatePeerReviewResponseRequest request)
     {
+        // todo: reviewerEmail이 projectMember인지 검증
+        // todo: revieweeEmail이 projectMember인지 검증
         List<PeerReviewResponseHistory> histories = peerReviewResponseConverter.toPeerReviewResponseHistories(projectId, request);
         peerReviewResponseHistoryService.saveAllHistories(histories);
     }

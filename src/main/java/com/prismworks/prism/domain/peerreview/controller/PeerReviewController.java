@@ -50,7 +50,7 @@ public class PeerReviewController {
         return ApiSuccessResponse.defaultOk(response);
     }
 
-    @PostMapping("/projects/{projectId}/reviews") // 동료평가 응답 등록
+    @PostMapping("/projects/{projectId}") // 동료평가 응답 등록
     public ApiSuccessResponse createProjectPeerReviews(@PathVariable Integer projectId,
                                                        @RequestBody @Valid PeerReviewDto.CreatePeerReviewResponseRequest request)
     {
