@@ -151,7 +151,8 @@ public class PeerReviewResponseConverter {
                 .build();
     }
 
+    @SneakyThrows
     public ShortAnswerResponse toShortAnswerResponse(String jsonStr) {
-        return objectMapper.convertValue(jsonStr, ShortAnswerResponse.class);
+        return objectMapper.readValue(jsonStr, ShortAnswerResponse.class);
     }
 }

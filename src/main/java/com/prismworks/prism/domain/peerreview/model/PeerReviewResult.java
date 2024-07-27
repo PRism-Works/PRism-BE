@@ -57,7 +57,7 @@ public class PeerReviewResult {
 
     @Builder.Default
     @Column(name = "created_at")
-    public LocalDateTime createdAt;
+    public LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updatedAt")
     public LocalDateTime updatedAt;

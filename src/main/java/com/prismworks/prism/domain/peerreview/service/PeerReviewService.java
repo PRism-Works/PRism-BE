@@ -1,6 +1,5 @@
 package com.prismworks.prism.domain.peerreview.service;
 
-import com.prismworks.prism.config.OpenAIConfig;
 import com.prismworks.prism.domain.email.dto.EmailSendRequest;
 import com.prismworks.prism.domain.email.model.EmailTemplate;
 import com.prismworks.prism.domain.email.service.EmailSendService;
@@ -100,9 +99,9 @@ public class PeerReviewService {
         peerReviewResponseHistoryService.saveAllHistories(histories);
     }
 
-    public void getProjectPrismData(Integer projectId) {
+    public List<PrismData> getProjectPrismData(Integer projectId) {
         List<PeerReviewResponseHistory> histories = peerReviewResponseHistoryService.getAllHistoriesByProject(projectId);
-        List<PrismData> prismData = this.generatePrismData(histories);
+        return this.generatePrismData(histories);
     }
 
     public void getTotalPrismData() {

@@ -58,8 +58,9 @@ public class PeerReviewController {
         return ApiSuccessResponse.defaultOk();
     }
 
-    @PatchMapping("/projects/{projectId}/reviews") // 동료평가 갱신
+    @PatchMapping("/projects/{projectId}/prism") // 동료평가 갱신
     public ApiSuccessResponse patchAllPeerReviews(@PathVariable Integer projectId) {
+        peerReviewService.getProjectPrismData(projectId);
         return ApiSuccessResponse.defaultOk();
     }
 
