@@ -1,5 +1,4 @@
 package com.prismworks.prism.domain.peerreview.controller;
-/*
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -27,4 +26,3 @@ public class OpenAITestController { // todo: 제거
         return chatResponse.getResult().getOutput().getContent();
     }
 }
- */
