@@ -150,4 +150,8 @@ public class PeerReviewResponseConverter {
                 .improvementPoint(improvementPoint)
                 .build();
     }
+
+    public ShortAnswerResponse toShortAnswerResponse(String jsonStr) {
+        return objectMapper.convertValue(jsonStr, ShortAnswerResponse.class);
+    }
 }
