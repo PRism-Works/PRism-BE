@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class PrismData {
     private String revieweeEmail;
+    private String revieweeUserId;
     private float communicationScore = 0F;
     private float initiativeScore = 0F;
     private float problemSolvingAbilityScore = 0F;
@@ -34,8 +35,9 @@ public class PrismData {
         private String reviewSummary = "";
     }
 
-    public PrismData(String revieweeEmail) {
+    public PrismData(String revieweeEmail, String revieweeUserId) {
         this.revieweeEmail = revieweeEmail;
+        this.revieweeUserId = revieweeUserId;
     }
 
     public void accumulateScore(float communicationScore, float initiativeScore, float problemSolvingAbilityScore,

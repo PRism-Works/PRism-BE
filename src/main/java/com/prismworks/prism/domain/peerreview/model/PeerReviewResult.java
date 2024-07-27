@@ -64,13 +64,12 @@ public class PeerReviewResult {
     @Column(name = "prism_type")
     public String prismType;
 
-    public void updateResult(PeerReviewDto.ProjectReviewResult projectReviewResult) {
-        this.responsibilityScore = projectReviewResult.getResponsibilityScore();
-        this.communicationScore = projectReviewResult.getCommunicationScore();
-        this.teamworkScore = projectReviewResult.getTeamworkScore();
-        this.problemSolvingAbilityScore = projectReviewResult.getProblemSolvingAbilityScore();
-        this.initiativeScore = projectReviewResult.getInitiativeScore();
-        this.totalFeedback = projectReviewResult.getTotalFeedback();
+    public void updateResult(PrismData prismData) {
+        this.responsibilityScore = prismData.getResponsibilityScore();
+        this.communicationScore = prismData.getCommunicationScore();
+        this.teamworkScore = prismData.getTeamworkScore();
+        this.problemSolvingAbilityScore = prismData.getProblemSolvingAbilityScore();
+        this.initiativeScore = prismData.getInitiativeScore();
         this.updatedAt = LocalDateTime.now();
     }
 }

@@ -13,14 +13,13 @@ import com.prismworks.prism.domain.peerreview.model.PrismData;
 import com.prismworks.prism.domain.project.dto.ProjectPeerReviewEmailInfoDto;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.project.service.ProjectService;
+import com.prismworks.prism.domain.user.model.Users;
+import com.prismworks.prism.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.prismworks.prism.domain.peerreview.dto.PeerReviewDto.*;
 import static java.util.stream.Collectors.groupingBy;
@@ -30,9 +29,9 @@ import static java.util.stream.Collectors.groupingBy;
 public class PeerReviewService {
 
     private final PeerReviewResponseHistoryService peerReviewResponseHistoryService;
-    private final PeerReviewResultService peerReviewResultService;
     private final PeerReviewLinkCodeService peerReviewLinkCodeService;
     private final ProjectService projectService;
+    private final UserService userService;
     private final EmailSendService emailSendService;
 
     private final ChatClient chatClient;
@@ -104,21 +103,23 @@ public class PeerReviewService {
         return this.generatePrismData(histories);
     }
 
-    public void getTotalPrismData() {
-
-    }
-
     private List<PrismData> generatePrismData(List<PeerReviewResponseHistory> histories) {
         List<PrismData> prismDataList = new ArrayList<>();
 
         Map<String, List<PeerReviewResponseHistory>> groupingByReviewee =
-                histories.stream().collect(groupingBy(PeerReviewResponseHistory::getReviewerEmail));
+                histories.stream().collect(groupingBy(PeerReviewResponseHistory::getRevieweeEmail));
         for (Map.Entry<String, List<PeerReviewResponseHistory>> entry : groupingByReviewee.entrySet()) {
             String revieweeEmail = entry.getKey();
+            String revieweeUserId = null;
+            Optional<Users> userOptional = userService.findUserByEmail(revieweeEmail);
+            if(userOptional.isPresent()) {
+                revieweeUserId = userOptional.get().getUserId();
+            }
+
             List<PeerReviewResponseHistory> reviews = entry.getValue();
             int reviewerCount = reviews.size();
 
-            PrismData prismData = new PrismData(revieweeEmail);
+            PrismData prismData = new PrismData(revieweeEmail, revieweeUserId);
 
             List<ShortAnswerResponse> strengthFeedbacks = new ArrayList<>();
             for(PeerReviewResponseHistory review: reviews) {
@@ -142,8 +143,10 @@ public class PeerReviewService {
 
     // todo: summary
     private PrismData.PrismSummaryData summaryReview(List<ShortAnswerResponse> strengthFeedback) {
-        List<String> keywords = new ArrayList<>();
-        String reviewSummary = "";
+        List<String> keywords = new ArrayList<>(); // 키워드
+        String reviewSummary = ""; // 팀원평가요약
+
+        // todo: chatClient summary
 
         return PrismData.PrismSummaryData.builder()
                 .keywords(keywords)

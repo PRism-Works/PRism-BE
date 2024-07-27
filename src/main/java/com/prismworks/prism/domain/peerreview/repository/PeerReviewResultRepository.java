@@ -13,4 +13,6 @@ public interface PeerReviewResultRepository extends JpaRepository<PeerReviewResu
 
     List<PeerReviewResult> findByUserIdAndPrismType(String userId,String prismType);
     List<PeerReviewResult> findByUserIdAndProjectIdAndPrismType(String userId, int projectId,String prismType);
+
+    List<PeerReviewResult> findAllByEmailAndPrismType(String email, String prismType);
 }

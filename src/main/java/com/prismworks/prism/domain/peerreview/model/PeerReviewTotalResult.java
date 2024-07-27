@@ -47,12 +47,22 @@ public class PeerReviewTotalResult {
     @Column(name = "evalution")
     String evalution;
 
+    @Builder.Default
     @Column(name = "created_at")
-    public LocalDateTime createdAt;
+    public LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updatedAt")
     public LocalDateTime updatedAt;
 
     @Column(name = "prism_type")
     public String prismType;
+
+    public void updateResult(PrismData prismData) {
+        this.reliabilityScore = prismData.getReliabilityScore();
+        this.teamworkScore = prismData.getTeamworkScore();
+        this.leadershipScore = prismData.getLeadershipScore();
+        this.keywords = prismData.getPrismSummaryData().getKeywords();
+        this.evalution = prismData.getPrismSummaryData().getReviewSummary();
+        this.updatedAt = LocalDateTime.now();
+    }
 }
