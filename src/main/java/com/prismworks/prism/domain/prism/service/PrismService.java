@@ -100,8 +100,6 @@ public class PrismService {
 
     @Transactional
     public void refreshPrismData(Integer projectId, List<PrismData> projectPrismDataList) {
-        List<PeerReviewResult> peerReviewResults = new ArrayList<>();
-        List<PeerReviewTotalResult> peerReviewTotalResults = new ArrayList<>();
         for(PrismData prismData : projectPrismDataList) {
             String revieweeEmail = prismData.getRevieweeEmail();
             String revieweeUserId = prismData.getRevieweeUserId();
@@ -109,8 +107,6 @@ public class PrismService {
             // project prism
             PeerReviewResult reviewResult = this.createProjectMemberPeerReviewResult(projectId, "each", prismData);
             PeerReviewTotalResult totalReviewResult = this.createProjectMemberPeerReviewTotalResult(projectId, "each", prismData);
-            peerReviewResults.add(reviewResult);
-            peerReviewTotalResults.add(totalReviewResult);
 
             // user all prism
             List<PeerReviewResult> peerReviewResultsByUser =
@@ -120,16 +116,10 @@ public class PrismService {
             peerReviewResultsByUser.add(reviewResult);
             peerReviewTotalResultsByUser.add(totalReviewResult);
 
-            PeerReviewResult userPeerReviewResult =
-                    this.createUserPeerReviewResult(revieweeEmail, revieweeUserId, peerReviewResultsByUser);
-            PeerReviewTotalResult userPeerReviewTotalResult =
-                    this.createUserPeerReviewTotalResult(revieweeEmail, revieweeUserId, peerReviewTotalResultsByUser);
-            peerReviewResults.add(userPeerReviewResult);
-            peerReviewTotalResults.add(userPeerReviewTotalResult);
-        }
 
-        peerReviewResultRepository.saveAll(peerReviewResults);
-        peerReviewTotalResultRepository.saveAll(peerReviewTotalResults);
+            this.createUserPeerReviewResult(revieweeEmail, revieweeUserId, peerReviewResultsByUser);
+            this.createUserPeerReviewTotalResult(revieweeEmail, revieweeUserId, peerReviewTotalResultsByUser);
+        }
     }
 
     @Transactional
@@ -143,7 +133,7 @@ public class PrismService {
             return peerReviewResult;
         }
 
-        return PeerReviewResult.builder()
+        PeerReviewResult peerReviewResult = PeerReviewResult.builder()
                 .projectId(projectId)
                 .userId(prismData.getRevieweeUserId())
                 .email(revieweeEmail)
@@ -154,6 +144,8 @@ public class PrismService {
                 .communicationScore(prismData.getCommunicationScore())
                 .prismType(prismType)
                 .build();
+
+        return peerReviewResultRepository.save(peerReviewResult);
     }
 
     @Transactional
@@ -167,7 +159,7 @@ public class PrismService {
             return peerReviewTotalResult;
         }
 
-        return PeerReviewTotalResult.builder()
+        PeerReviewTotalResult peerReviewTotalResult = PeerReviewTotalResult.builder()
                 .projectId(projectId)
                 .email(revieweeEmail)
                 .userId(prismData.getRevieweeUserId())
@@ -178,10 +170,12 @@ public class PrismService {
                 .evalution(prismData.getPrismSummaryData().getReviewSummary())
                 .prismType(prismType)
                 .build();
+
+        return peerReviewTotalResultRepository.save(peerReviewTotalResult);
     }
 
     @Transactional
-    public PeerReviewResult createUserPeerReviewResult(String email, String userId, List<PeerReviewResult> peerReviewResults) {
+    public void createUserPeerReviewResult(String email, String userId, List<PeerReviewResult> peerReviewResults) {
         float communicationScore = 0F;
         float initiativeScore = 0F;
         float problemSolvingAbilityScore = 0F;
@@ -202,25 +196,27 @@ public class PrismService {
             reviewResult.updateResult(responsibilityScore/size, communicationScore/size, cooperationScore/size,
                     problemSolvingAbilityScore/size, initiativeScore/size);
 
-            return reviewResult;
+            return;
         }
 
 
-        return PeerReviewResult.builder()
+        PeerReviewResult peerReviewResult = PeerReviewResult.builder()
                 .projectId(null)
                 .email(email)
                 .userId(userId)
-                .responsibilityScore(responsibilityScore/size)
-                .initiativeScore(initiativeScore/size)
-                .problemSolvingAbilityScore(problemSolvingAbilityScore/size)
-                .teamworkScore(cooperationScore/size)
-                .communicationScore(communicationScore/size)
+                .responsibilityScore(responsibilityScore / size)
+                .initiativeScore(initiativeScore / size)
+                .problemSolvingAbilityScore(problemSolvingAbilityScore / size)
+                .teamworkScore(cooperationScore / size)
+                .communicationScore(communicationScore / size)
                 .prismType("total")
                 .build();
+
+        peerReviewResultRepository.save(peerReviewResult);
     }
 
     @Transactional
-    public PeerReviewTotalResult createUserPeerReviewTotalResult(String email, String userId, List<PeerReviewTotalResult> peerReviewTotalResults) {
+    public void createUserPeerReviewTotalResult(String email, String userId, List<PeerReviewTotalResult> peerReviewTotalResults) {
         float teamworkScore = 0F;
         float leadershipScore = 0F;
         float reliabilityScore = 0F;
@@ -240,20 +236,24 @@ public class PrismService {
             PeerReviewTotalResult reviewTotalResult = reviewTotalResultOptional.get();
             reviewTotalResult.updateResult(reliabilityScore/size, teamworkScore/size, leadershipScore/size,
                     keywords, evaluation);
+
+            return;
         }
 
 
-        return PeerReviewTotalResult.builder()
+        PeerReviewTotalResult peerReviewTotalResult = PeerReviewTotalResult.builder()
                 .projectId(null)
                 .email(email)
                 .userId(userId)
-                .leadershipScore(leadershipScore/size)
-                .reliabilityScore(reliabilityScore/size)
-                .teamworkScore(teamworkScore/size)
+                .leadershipScore(leadershipScore / size)
+                .reliabilityScore(reliabilityScore / size)
+                .teamworkScore(teamworkScore / size)
                 .keywords(keywords)
                 .evalution(evaluation)
                 .prismType("total")
                 .build();
+
+        peerReviewTotalResultRepository.save(peerReviewTotalResult);
     }
 
     private PrismDataDto aggregateResults(Optional<PeerReviewResult> peerReviewResult) {
