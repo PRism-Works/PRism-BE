@@ -63,8 +63,16 @@ public class PeerReviewDto {
     @AllArgsConstructor
     @Getter
     public static class ReviewLinkInfoResponse {
-        private List<String> revieweeEmails;
+        private List<RevieweeInfo> revieweeInfoList;
         private Integer projectId;
         private String reviewerEmail;
+    }
+
+    @Builder
+    @AllArgsConstructor
+    @Getter
+    public static class RevieweeInfo {
+        private String revieweeEmail;
+        private String revieweeName;
     }
 }
