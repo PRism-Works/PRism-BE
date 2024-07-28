@@ -3,11 +3,7 @@ package com.prismworks.prism.domain.peerreview.controller;
 import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
-import com.prismworks.prism.domain.email.dto.EmailSendRequest;
-import com.prismworks.prism.domain.email.model.EmailTemplate;
-import com.prismworks.prism.domain.email.service.EmailSendService;
 import com.prismworks.prism.domain.peerreview.dto.PeerReviewDto;
-import com.prismworks.prism.domain.peerreview.model.PeerReviewLinkCode;
 import com.prismworks.prism.domain.peerreview.model.PrismData;
 import com.prismworks.prism.domain.peerreview.service.PeerReviewService;
 import com.prismworks.prism.domain.prism.service.PrismService;
@@ -16,9 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -63,7 +57,7 @@ public class PeerReviewController {
 
     @PostMapping("/projects/{projectId}/prism") // 동료평가 갱신 (프로젝트에서 호출)
     public ApiSuccessResponse patchAllPeerReviews(@PathVariable Integer projectId) {
-        List<PrismData> projectPrismDataList = peerReviewService.getProjectPrismData(projectId);
+        List<PrismData> projectPrismDataList = peerReviewService.getNewEachPrismData(projectId);
         prismService.refreshPrismData(projectId, projectPrismDataList);
         return ApiSuccessResponse.defaultOk();
     }

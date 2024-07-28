@@ -65,6 +65,7 @@ public class PeerReviewDto {
     public static class ReviewLinkInfoResponse {
         private List<String> revieweeEmails;
         private Integer projectId;
+        private String reviewerEmail;
     }
 
     @Builder
