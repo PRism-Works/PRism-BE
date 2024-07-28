@@ -99,12 +99,12 @@ public class PeerReviewService {
         peerReviewResponseHistoryService.saveAllHistories(histories);
     }
 
-    public List<PrismData> getProjectPrismData(Integer projectId) {
+    public List<PrismData> getNewEachPrismData(Integer projectId) {
         List<PeerReviewResponseHistory> histories = peerReviewResponseHistoryService.getAllHistoriesByProject(projectId);
-        return this.generatePrismData(histories);
+        return this.generateEachPrismData(histories);
     }
 
-    private List<PrismData> generatePrismData(List<PeerReviewResponseHistory> histories) {
+    private List<PrismData> generateEachPrismData(List<PeerReviewResponseHistory> histories) {
         List<PrismData> prismDataList = new ArrayList<>();
 
         Map<String, List<PeerReviewResponseHistory>> groupingByReviewee =
