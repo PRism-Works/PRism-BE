@@ -95,6 +95,7 @@ public class PeerReviewService {
         // todo: reviewerEmail이 projectMember인지 검증
         // todo: revieweeEmail이 projectMember인지 검증
         List<PeerReviewResponseHistory> histories = peerReviewResponseConverter.toPeerReviewResponseHistories(projectId, request);
+        projectService.memberDonePeerReview(projectId, request.getReviewerEmail());
         peerReviewResponseHistoryService.saveAllHistories(histories);
     }
 
