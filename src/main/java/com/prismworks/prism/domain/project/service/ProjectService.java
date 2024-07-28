@@ -520,4 +520,10 @@ public class ProjectService {
                 .notReviewingMemberEmails(notReviewingMemberEmails)
                 .build();
     }
+
+    @Transactional
+    public void memberDonePeerReview(Integer projectId, String reviewerEmail) {
+        ProjectUserJoin member = projectUserJoinRepository.findByEmailAndProjectId(reviewerEmail, projectId);
+        member.doneReview();
+    }
 }

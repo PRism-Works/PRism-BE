@@ -35,4 +35,8 @@ public class ProjectUserJoin {
 
     @Column(name = "peer_review_done")
     private boolean peerReviewDone;
+
+    public void doneReview() {
+        this.peerReviewDone = true;
+    }
 }
