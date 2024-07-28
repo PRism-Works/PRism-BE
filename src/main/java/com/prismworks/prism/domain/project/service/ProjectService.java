@@ -1,6 +1,8 @@
 package com.prismworks.prism.domain.project.service;
 
 import com.prismworks.prism.domain.auth.model.UserContext;
+import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
+import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRepository;
 import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectUserJoinRepository;
@@ -37,6 +39,8 @@ public class ProjectService {
     private ProjectRepository projectRepository;
     @Autowired
     private ProjectUserJoinRepository projectUserJoinRepository;
+    @Autowired
+    private PeerReviewTotalResultRepository peerReviewTotalResultRepository;
 
     @Transactional
     public Category saveCategoryTransactional(String name) {
@@ -294,8 +298,40 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getWhoInvolvedProjects(String userId) {
         List<Project> projects = projectRepository.findByMemberUserId(userId);
-        return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
+
+        return projects.stream()
+                .map(project -> convertToSummaryDtoForWhoInvolvedProjects(userId,project))
+                .collect(Collectors.toList());
+
+        //return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
+    private SummaryProjectDto convertToSummaryDtoForWhoInvolvedProjects(String userId,Project project) {
+        PeerReviewTotalResult peerReviewTotalResult = peerReviewTotalResultRepository.findByProjectIdAndUserIdAndPrismType(
+                project.getProjectId(), userId, "each"
+        );
+
+        String evaluation = "";
+
+        if(peerReviewTotalResult == null){
+            //throw new ProjectException("PeerReviewTotalResult Not Exists", ProjectErrorCode.PEER_REVIEW_TOTAL_RESULT_NOT_EXISTS);
+            evaluation = "총평 데이터 없음";
+        }else{
+            evaluation = peerReviewTotalResult.getEvalution();
+        }
+
+        return SummaryProjectDto.builder()
+                .projectId(project.getProjectId())
+                .projectName(project.getProjectName())
+                .organizationName(project.getOrganizationName())
+                .startDate(formatDate(project.getStartDate()))
+                .endDate(formatDate(project.getEndDate()))
+                .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
+                .urlVisibility(project.getUrlVisibility())
+                .userEvaluation(evaluation)
+                .surveyParticipants(0)
+                .build();
+    }
+
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getMeRegisteredProjects(String myEmail) {
         List<Project> projects = projectRepository.findByOwnerEmail(myEmail);
@@ -318,6 +354,17 @@ public class ProjectService {
 
     private SummaryProjectDto convertToSummaryDtoForGetMeInvolvedProjects(String myEmail, Project project) {
         boolean anonyVisibility = projectRepository.findByAnonyVisibility(project.getProjectId(), myEmail);
+        PeerReviewTotalResult peerReviewTotalResult = peerReviewTotalResultRepository.findByProjectIdAndEmailAndPrismType(
+                project.getProjectId(), myEmail, "each"
+        );
+        String evaluation = "";
+
+        if(peerReviewTotalResult == null){
+            //throw new ProjectException("PeerReviewTotalResult Not Exists", ProjectErrorCode.PEER_REVIEW_TOTAL_RESULT_NOT_EXISTS);
+            evaluation = "총평 데이터 없음";
+        }else{
+            evaluation = peerReviewTotalResult.getEvalution();
+        }
 
         return SummaryProjectDto.builder()
                 .projectId(project.getProjectId())
@@ -329,7 +376,7 @@ public class ProjectService {
                         .map(c -> c.getCategory().getName())
                         .collect(Collectors.toList()))
                 .urlVisibility(project.getUrlVisibility())
-                .userEvaluation("Sample Evaluation")
+                .userEvaluation(evaluation)
                 .surveyParticipants(0)
                 .anonyVisibility(anonyVisibility)
                 .build();
