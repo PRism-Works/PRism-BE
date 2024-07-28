@@ -184,25 +184,46 @@ public class ProjectService {
 
     @Transactional
     public void updateProjectMembers(Project project, List<MemberDto> memberDtos) {
+
+        List<ProjectUserJoin> newMembers = memberDtos.stream()
+                .map(memberDto -> {
+                    ProjectUserJoin projectUserJoin = projectUserJoinRepository.findByEmailAndProjectId(memberDto.getEmail() ,project.getProjectId());
+                    Optional<Users> foundUser = userRepository.findByEmail(memberDto.getEmail());
+
+                    ProjectUserJoin join = new ProjectUserJoin();
+                    if(projectUserJoin == null) {
+                        join.setProject(project);
+                        join.setName(memberDto.getName());
+                        join.setEmail(memberDto.getEmail());
+                        join.setRoles(memberDto.getRoles());
+                        join.setAnonyVisibility(true);
+                        join.setPeerReviewDone(false);
+                    }else {
+                        if (foundUser.isPresent()) {
+                            join.setProject(project);
+                            join.setUser(foundUser.get());
+                            join.setName(projectUserJoin.getName());
+                            join.setEmail(projectUserJoin.getEmail());
+                            join.setRoles(memberDto.getRoles());
+                            join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
+                            join.setPeerReviewDone(false);
+                        }else{
+                            join.setProject(project);
+                            join.setName(memberDto.getName());
+                            join.setEmail(memberDto.getEmail());
+                            join.setRoles(memberDto.getRoles());
+                            join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
+                            join.setPeerReviewDone(false);
+                        }
+                    }
+                    return join;
+                })
+                .collect(Collectors.toList());
+
         if (project.getMembers() != null) {
             project.getMembers().clear();
             projectRepository.flush();
         }
-
-        List<ProjectUserJoin> newMembers = memberDtos.stream()
-                .map(memberDto -> {
-                    Optional<Users> foundUser = userRepository.findByEmail(memberDto.getEmail());
-                    ProjectUserJoin join = new ProjectUserJoin();
-                    join.setProject(project);
-                    join.setName(memberDto.getName());
-                    join.setEmail(memberDto.getEmail());
-                    join.setRoles(memberDto.getRoles());
-                    join.setAnonyVisibility(memberDto.isAnonyVisibility());
-                    join.setPeerReviewDone(false);
-                    foundUser.ifPresent(join::setUser);
-                    return join;
-                })
-                .collect(Collectors.toList());
 
         project.getMembers().addAll(newMembers);
     }
