@@ -65,4 +65,15 @@ public class PeerReviewTotalResult {
         this.evalution = prismData.getPrismSummaryData().getReviewSummary();
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void updateResult(float reliabilityScore, float teamworkScore, float leadershipScore, List<String> keywords,
+                             String evalution)
+    {
+        this.reliabilityScore = reliabilityScore;
+        this.teamworkScore = teamworkScore;
+        this.leadershipScore = leadershipScore;
+        this.keywords = keywords;
+        this.evalution = evalution;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

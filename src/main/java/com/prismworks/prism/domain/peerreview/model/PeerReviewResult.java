@@ -72,4 +72,15 @@ public class PeerReviewResult {
         this.initiativeScore = prismData.getInitiativeScore();
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void updateResult(float responsibilityScore, float communicationScore, float teamworkScore,
+                             float problemSolvingAbilityScore, float initiativeScore)
+    {
+        this.responsibilityScore = responsibilityScore;
+        this.communicationScore = communicationScore;
+        this.teamworkScore = teamworkScore;
+        this.problemSolvingAbilityScore = problemSolvingAbilityScore;
+        this.initiativeScore = initiativeScore;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

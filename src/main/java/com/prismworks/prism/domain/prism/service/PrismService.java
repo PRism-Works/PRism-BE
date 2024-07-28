@@ -79,6 +79,11 @@ public class PrismService {
     }
 
     @Transactional(readOnly = true)
+    public Optional<PeerReviewResult> getPeerReviewResultsByUser(String email, String prismType) {
+        return peerReviewResultRepository.findByEmailAndPrismType(email, prismType);
+    }
+
+    @Transactional(readOnly = true)
     public Optional<PeerReviewTotalResult> getPeerReviewTotalResult(Integer projectId, String email) {
         return peerReviewTotalResultRepository.findByProjectIdAndEmail(projectId, email);
     }
@@ -86,6 +91,11 @@ public class PrismService {
     @Transactional(readOnly = true)
     public List<PeerReviewTotalResult> getAllPeerReviewTotalResultsByUser(String email, String prismType) {
         return peerReviewTotalResultRepository.findAllByEmailAndPrismType(email, prismType);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<PeerReviewTotalResult> getPeerReviewTotalResultsByUser(String email, String prismType) {
+        return peerReviewTotalResultRepository.findByEmailAndPrismType(email, prismType);
     }
 
     @Transactional
@@ -177,6 +187,7 @@ public class PrismService {
         float problemSolvingAbilityScore = 0F;
         float responsibilityScore = 0F;
         float cooperationScore = 0F;
+        int size = peerReviewResults.size();
         for(PeerReviewResult reviewResult : peerReviewResults) {
             communicationScore += reviewResult.getCommunicationScore();
             initiativeScore += reviewResult.getInitiativeScore();
@@ -185,7 +196,16 @@ public class PrismService {
             cooperationScore += reviewResult.getTeamworkScore();
         }
 
-        int size = peerReviewResults.size();
+        Optional<PeerReviewResult> peerReviewResultOptional = this.getPeerReviewResultsByUser(email, "total");
+        if(peerReviewResultOptional.isPresent()) {
+            PeerReviewResult reviewResult = peerReviewResultOptional.get();
+            reviewResult.updateResult(responsibilityScore/size, communicationScore/size, cooperationScore/size,
+                    problemSolvingAbilityScore/size, initiativeScore/size);
+
+            return reviewResult;
+        }
+
+
         return PeerReviewResult.builder()
                 .projectId(null)
                 .email(email)
@@ -213,6 +233,13 @@ public class PrismService {
             teamworkScore += reviewTotalResult.getTeamworkScore();
             leadershipScore += reviewTotalResult.getLeadershipScore();
             reliabilityScore += reviewTotalResult.getReliabilityScore();
+        }
+
+        Optional<PeerReviewTotalResult> reviewTotalResultOptional = this.getPeerReviewTotalResultsByUser(email, "total");
+        if(reviewTotalResultOptional.isPresent()) {
+            PeerReviewTotalResult reviewTotalResult = reviewTotalResultOptional.get();
+            reviewTotalResult.updateResult(reliabilityScore/size, teamworkScore/size, leadershipScore/size,
+                    keywords, evaluation);
         }
 
 

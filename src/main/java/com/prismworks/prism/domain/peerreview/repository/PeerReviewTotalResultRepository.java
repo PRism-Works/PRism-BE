@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.peerreview.repository;
 
+import com.prismworks.prism.domain.peerreview.model.PeerReviewResult;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -15,4 +16,6 @@ public interface PeerReviewTotalResultRepository extends JpaRepository<PeerRevie
     Optional<PeerReviewTotalResult> findByProjectIdAndEmail(Integer projectId, String email);
 
     List<PeerReviewTotalResult> findAllByEmailAndPrismType(String email, String prismType);
+
+    Optional<PeerReviewTotalResult> findByEmailAndPrismType(String email, String prismType);
 }
