@@ -14,6 +14,9 @@ public class PeerReviewException extends ApplicationException {
     public static final PeerReviewException LINK_CODE_NOT_FOUND =
             new PeerReviewException(PeerReviewErrorCode.LINK_CODE_NOT_FOUND);
 
+    public static final PeerReviewException REVIEW_DATA_NOT_EXIST =
+            new PeerReviewException(PeerReviewErrorCode.REVIEW_DATA_NOT_EXIST);
+
     public PeerReviewException(String message, ApplicationErrorCode errorCode) {
         super(message, errorCode);
     }

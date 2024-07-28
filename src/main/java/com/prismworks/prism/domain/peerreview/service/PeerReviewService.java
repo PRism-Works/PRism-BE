@@ -17,6 +17,8 @@ import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.metadata.ChatResponseMetadata;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -144,14 +146,70 @@ public class PeerReviewService {
 
     // todo: summary
     private PrismData.PrismSummaryData summaryReview(List<ShortAnswerResponse> strengthFeedback) {
-        List<String> keywords = new ArrayList<>(); // 키워드
-        String reviewSummary = ""; // 팀원평가요약
+        List<String> keywords       = new ArrayList<>(); // 키워드
+        String reviewSummary        = "";                // 팀원평가요약
 
         // todo: chatClient summary
+        keywords            = getKeywordsFromLLM(strengthFeedback);
+        reviewSummary       = getreviewSummaryFromLLM(strengthFeedback);
 
         return PrismData.PrismSummaryData.builder()
                 .keywords(keywords)
                 .reviewSummary(reviewSummary)
                 .build();
+    }
+
+    private String callLLM(String message) {
+        ChatResponse chatResponse = chatClient.prompt()
+                .user(message)
+                .call()
+                .chatResponse();
+        return chatResponse.getResult().getOutput().getContent();
+    }
+
+    private List<String> getKeywordsFromLLM(List<ShortAnswerResponse> strengthFeedback) {
+        StringBuilder prompt = new StringBuilder("당신은 특정 인물에 대한 주변 인물들의 평가를 기반으로 그 사람을 대표하는 키워드를 뽑아주는 전문가입니다.\n" +
+                "아래 특정 인물에 대한 키워드들을 가지고 공통으로 출현하거나 비슷하게 출현하는 빈도가 높은 단어들을\n" +
+                "빈도가 높은 순서대로 통합해서 추출해주세요.\n" +
+                "주의 사항이 있습니다.\n" +
+                "예시처럼 반드시 추출된 키워드들의 처음과 마지막에 k를 붙여 주세요.\n" +
+                "또한, k부터 k까지의 단어 말고 다른 단어를 사용하지 마세요.\n" +
+                "k키워드1,키워드2,키워드3k\n" +
+                "평가데이터\n");
+
+        for (int i = 0; i < strengthFeedback.size(); i++) {
+            prompt.append(i + 1).append(". ").append(strengthFeedback.get(i).getDescription()).append("\n");
+        }
+
+        String answer               = callLLM(prompt.toString());
+        String keywordSection       = answer.substring(answer.indexOf('k') + 1, answer.lastIndexOf('k'));
+
+        List<String> keywordsList   = new ArrayList<>(Arrays.asList(keywordSection.split(",")));
+
+        for (int i = 0; i < keywordsList.size(); i++) {
+            keywordsList.set(i, keywordsList.get(i).trim());
+        }
+
+        return keywordsList;
+    }
+    private String getreviewSummaryFromLLM(List<ShortAnswerResponse> strengthFeedback) {
+        StringBuilder prompt = new StringBuilder("당신은 특정 인물에 대한 주변 인물들의 평가를 기반으로 그 사람에 대한 두 줄 요약글을 뽑아주는 전문가입니다.\n" +
+                "아래 특정 인물에 대한 평가들을 가지고 공통으로 출현하거나 비슷하게 출현하는 빈도가 높은 단어들을\n" +
+                "사용해서 두 줄 요약글을 작성해주세요.\n" +
+                "주의 사항이 있습니다.\n" +
+                "예시처럼 반드시 추출된 두 줄 요약글의 처음과 마지막에 k를 붙여 주세요.\n" +
+                "또한, k부터 k까지의 단어 말고 다른 단어를 사용하지 마세요.\n" +
+                "k모든 인물들의 평가를 두 줄로 요약한 글k\n" +
+                "평가데이터\n");
+
+        for (int i = 0; i < strengthFeedback.size(); i++) {
+            prompt.append(i + 1).append(". ").append(strengthFeedback.get(i).getExample()).append("\n");
+        }
+
+        String answer   = callLLM(prompt.toString());
+        answer          = answer.substring(answer.indexOf('k') + 1, answer.lastIndexOf('k'));
+        answer          = answer.replace("k","");
+
+        return answer;
     }
 }

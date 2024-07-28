@@ -11,8 +11,8 @@ public enum PeerReviewErrorCode implements ApplicationErrorCode {
     UPDATE_PRISM_FORBIDDEN(HttpStatus.BAD_REQUEST, "PeerReviewCode_400_3", "평가 갱신을 할 권한이 없습니다."),
     UPDATE_PRISM_FAILED(HttpStatus.BAD_REQUEST, "PeerReviewCode_400_4", "평가 갱신에 실패했습니다."),
     ALREADY_UPDATE_PRISM(HttpStatus.BAD_REQUEST, "PeerReviewCode_400_5", "이미 평가 갱신이 완료되었습니다"),
-    LINK_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "PeerReviewCode_404_1", "평가 링크 코드를 찾을 수 없습니다.");
-
+    LINK_CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "PeerReviewCode_404_1", "평가 링크 코드를 찾을 수 없습니다."),
+    REVIEW_DATA_NOT_EXIST(HttpStatus.NOT_FOUND, "PeerReviewCode_404_2","평가 데이터가 존재하지 않습니다.");
 
     private final HttpStatus status;
     private final String code;

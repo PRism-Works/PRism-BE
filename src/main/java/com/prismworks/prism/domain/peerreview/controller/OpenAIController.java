@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-public class OpenAITestController { // todo: 제거
+@RequestMapping(value = "/ai",produces = "application/json; charset=utf8")
+public class OpenAIController { // todo: 제거
 
     private final ChatClient chatClient;
 
-    @GetMapping("/ai-test")
+    @GetMapping("/call")
     public String testAI(@RequestParam String message) {
         ChatResponse chatResponse = chatClient.prompt()
                 .user(message)
@@ -22,7 +23,6 @@ public class OpenAITestController { // todo: 제거
 
         ChatResponseMetadata metadata = chatResponse.getMetadata();
         log.info("## model: {}", metadata.getModel());
-
         return chatResponse.getResult().getOutput().getContent();
     }
 }

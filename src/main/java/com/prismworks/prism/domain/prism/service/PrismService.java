@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.prism.service;
 
+import com.prismworks.prism.domain.peerreview.exception.PeerReviewException;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResult;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
 import com.prismworks.prism.domain.peerreview.model.PrismData;
@@ -7,6 +8,7 @@ import com.prismworks.prism.domain.peerreview.repository.PeerReviewResultReposit
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRepository;
 import com.prismworks.prism.domain.prism.dto.PrismDataDto;
 import com.prismworks.prism.domain.prism.dto.RadialDataDto;
+import com.prismworks.prism.domain.project.exception.ProjectException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +30,7 @@ public class PrismService {
         Optional<PeerReviewTotalResult> totalResult = peerReviewTotalResultRepository.findByUserIdAndPrismType(userId,prismType);
 
         if (results.isEmpty() && totalResult.isEmpty()) {
-            throw new RuntimeException("No data found for user");
+            throw PeerReviewException.REVIEW_DATA_NOT_EXIST;
         }
 
         PrismDataDto dto = aggregateResults(results);
@@ -50,7 +52,7 @@ public class PrismService {
         Optional<PeerReviewTotalResult> totalResult = peerReviewTotalResultRepository.findByUserIdAndProjectIdAndPrismType(userId, projectId,prismType);
 
         if (results.isEmpty() && totalResult.isEmpty()) {
-            throw new RuntimeException("No data found for user and project");
+            throw PeerReviewException.REVIEW_DATA_NOT_EXIST;
         }
 
         PrismDataDto dto = aggregateResults(results);
