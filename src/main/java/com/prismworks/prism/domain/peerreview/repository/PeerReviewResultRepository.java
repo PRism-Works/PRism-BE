@@ -10,9 +10,9 @@ import java.util.Optional;
 @Repository
 public interface PeerReviewResultRepository extends JpaRepository<PeerReviewResult, Integer> {
     Optional<PeerReviewResult> findByProjectIdAndEmail(Integer projectId, String email);
-
-    List<PeerReviewResult> findByUserIdAndPrismType(String userId,String prismType);
-    List<PeerReviewResult> findByUserIdAndProjectIdAndPrismType(String userId, int projectId,String prismType);
+    Optional<PeerReviewResult> findByUserIdAndPrismType(String userId,String prismType);
+    //List<PeerReviewResult> findByUserIdAndPrismType(String userId,String prismType);
+    Optional<PeerReviewResult> findByUserIdAndProjectIdAndPrismType(String userId, int projectId,String prismType);
 
     List<PeerReviewResult> findAllByEmailAndPrismType(String email, String prismType);
 }

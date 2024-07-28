@@ -8,7 +8,6 @@ import com.prismworks.prism.domain.peerreview.repository.PeerReviewResultReposit
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRepository;
 import com.prismworks.prism.domain.prism.dto.PrismDataDto;
 import com.prismworks.prism.domain.prism.dto.RadialDataDto;
-import com.prismworks.prism.domain.project.exception.ProjectException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +25,7 @@ public class PrismService {
     }
 
     public PrismDataDto calculateUserPrismData(String userId,String prismType) {
-        List<PeerReviewResult> results = peerReviewResultRepository.findByUserIdAndPrismType(userId,prismType);
+        Optional<PeerReviewResult> results = peerReviewResultRepository.findByUserIdAndPrismType(userId,prismType);
         Optional<PeerReviewTotalResult> totalResult = peerReviewTotalResultRepository.findByUserIdAndPrismType(userId,prismType);
 
         if (results.isEmpty() && totalResult.isEmpty()) {
@@ -48,7 +47,7 @@ public class PrismService {
     }
 
     public PrismDataDto calculateUserProjectPrismData(String userId, int projectId, String prismType) {
-        List<PeerReviewResult> results = peerReviewResultRepository.findByUserIdAndProjectIdAndPrismType(userId, projectId,prismType);
+        Optional<PeerReviewResult> results = peerReviewResultRepository.findByUserIdAndProjectIdAndPrismType(userId, projectId,prismType);
         Optional<PeerReviewTotalResult> totalResult = peerReviewTotalResultRepository.findByUserIdAndProjectIdAndPrismType(userId, projectId,prismType);
 
         if (results.isEmpty() && totalResult.isEmpty()) {
@@ -230,15 +229,14 @@ public class PrismService {
                 .build();
     }
 
-    private PrismDataDto aggregateResults(List<PeerReviewResult> results) {
+    private PrismDataDto aggregateResults(Optional<PeerReviewResult> peerReviewResult) {
         Map<String, Integer> prismData = Map.of(
-                "communication", (int) results.stream().mapToDouble(PeerReviewResult::getCommunicationScore).average().orElse(0.0),
-                "proactivity", (int) results.stream().mapToDouble(PeerReviewResult::getInitiativeScore).average().orElse(0.0),
-                "problemSolving", (int) results.stream().mapToDouble(PeerReviewResult::getProblemSolvingAbilityScore).average().orElse(0.0),
-                "responsibility", (int) results.stream().mapToDouble(PeerReviewResult::getResponsibilityScore).average().orElse(0.0),
-                "cooperation", (int) results.stream().mapToDouble(PeerReviewResult::getTeamworkScore).average().orElse(0.0)
+                "communication", Math.round(peerReviewResult.get().getCommunicationScore()),
+                "proactivity", Math.round(peerReviewResult.get().getInitiativeScore()),
+                "problemSolving", Math.round(peerReviewResult.get().getProblemSolvingAbilityScore()),
+                "responsibility", Math.round(peerReviewResult.get().getResponsibilityScore()),
+                "cooperation", Math.round(peerReviewResult.get().getTeamworkScore())
         );
-
         PrismDataDto dto = new PrismDataDto();
         dto.setPrismData(prismData);
         return dto;
