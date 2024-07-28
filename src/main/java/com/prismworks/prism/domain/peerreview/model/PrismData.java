@@ -47,7 +47,7 @@ public class PrismData {
         this.initiativeScore += initiativeScore;
         this.problemSolvingAbilityScore += problemSolvingAbilityScore;
         this.responsibilityScore += responsibilityScore;
-        this.teamworkScore += teamworkScore;
+        this.cooperationScore += teamworkScore;
     }
 
     public void averageScore(int reviewerCount) {
@@ -55,7 +55,7 @@ public class PrismData {
         initiativeScore /= reviewerCount;
         problemSolvingAbilityScore /= reviewerCount;
         responsibilityScore /= reviewerCount;
-        teamworkScore /= reviewerCount;
+        cooperationScore /= reviewerCount;
     }
 
     public void setReportData(PrismSummaryData summaryData) {

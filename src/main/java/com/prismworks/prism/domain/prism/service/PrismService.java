@@ -139,7 +139,7 @@ public class PrismService {
                 .responsibilityScore(prismData.getResponsibilityScore())
                 .initiativeScore(prismData.getInitiativeScore())
                 .problemSolvingAbilityScore(prismData.getProblemSolvingAbilityScore())
-                .teamworkScore(prismData.getCooperationScore())
+                .cooperationScore(prismData.getCooperationScore())
                 .communicationScore(prismData.getCommunicationScore())
                 .prismType(prismType)
                 .build();
@@ -186,7 +186,7 @@ public class PrismService {
             initiativeScore += reviewResult.getInitiativeScore();
             problemSolvingAbilityScore += reviewResult.getProblemSolvingAbilityScore();
             responsibilityScore += reviewResult.getResponsibilityScore();
-            cooperationScore += reviewResult.getTeamworkScore();
+            cooperationScore += reviewResult.getCooperationScore();
         }
 
         Optional<PeerReviewResult> peerReviewResultOptional = this.getPeerReviewResultsByUser(email, "total");
@@ -206,7 +206,7 @@ public class PrismService {
                 .responsibilityScore(responsibilityScore / size)
                 .initiativeScore(initiativeScore / size)
                 .problemSolvingAbilityScore(problemSolvingAbilityScore / size)
-                .teamworkScore(cooperationScore / size)
+                .cooperationScore( cooperationScore / size)
                 .communicationScore(communicationScore / size)
                 .prismType("total")
                 .build();
@@ -261,7 +261,7 @@ public class PrismService {
                 "proactivity", Math.round(peerReviewResult.get().getInitiativeScore()),
                 "problemSolving", Math.round(peerReviewResult.get().getProblemSolvingAbilityScore()),
                 "responsibility", Math.round(peerReviewResult.get().getResponsibilityScore()),
-                "cooperation", Math.round(peerReviewResult.get().getTeamworkScore())
+                "cooperation", Math.round(peerReviewResult.get().getCooperationScore())
         );
         PrismDataDto dto = new PrismDataDto();
         dto.setPrismData(prismData);

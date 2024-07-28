@@ -1,7 +1,6 @@
 package com.prismworks.prism.domain.peerreview.model;
 
 import com.prismworks.prism.common.converter.StringToListConverter;
-import com.prismworks.prism.domain.peerreview.dto.PeerReviewDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -48,8 +47,8 @@ public class PeerReviewResult {
     @Column(name = "communication_score")
     public Float communicationScore;
 
-    @Column(name = "teamwork_score")
-    public Float teamworkScore;
+    @Column(name = "cooperation_score")
+    public Float cooperationScore;
 
     @Column(name = "total_feedback")
     public String totalFeedback;
@@ -67,7 +66,7 @@ public class PeerReviewResult {
     public void updateResult(PrismData prismData) {
         this.responsibilityScore = prismData.getResponsibilityScore();
         this.communicationScore = prismData.getCommunicationScore();
-        this.teamworkScore = prismData.getCooperationScore();
+        this.cooperationScore = prismData.getCooperationScore();
         this.problemSolvingAbilityScore = prismData.getProblemSolvingAbilityScore();
         this.initiativeScore = prismData.getInitiativeScore();
         this.updatedAt = LocalDateTime.now();
@@ -78,7 +77,7 @@ public class PeerReviewResult {
     {
         this.responsibilityScore = responsibilityScore;
         this.communicationScore = communicationScore;
-        this.teamworkScore = teamworkScore;
+        this.cooperationScore = teamworkScore;
         this.problemSolvingAbilityScore = problemSolvingAbilityScore;
         this.initiativeScore = initiativeScore;
         this.updatedAt = LocalDateTime.now();
