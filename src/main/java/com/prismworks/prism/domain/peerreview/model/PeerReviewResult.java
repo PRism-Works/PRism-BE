@@ -1,6 +1,7 @@
 package com.prismworks.prism.domain.peerreview.model;
 
 import com.prismworks.prism.common.converter.StringToListConverter;
+import com.prismworks.prism.domain.peerreview.dto.PeerReviewDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -53,12 +54,22 @@ public class PeerReviewResult {
     @Column(name = "total_feedback")
     public String totalFeedback;
 
+    @Builder.Default
     @Column(name = "created_at")
-    public LocalDateTime createdAt;
+    public LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updatedAt")
     public LocalDateTime updatedAt;
 
     @Column(name = "prism_type")
     public String prismType;
+
+    public void updateResult(PrismData prismData) {
+        this.responsibilityScore = prismData.getResponsibilityScore();
+        this.communicationScore = prismData.getCommunicationScore();
+        this.teamworkScore = prismData.getTeamworkScore();
+        this.problemSolvingAbilityScore = prismData.getProblemSolvingAbilityScore();
+        this.initiativeScore = prismData.getInitiativeScore();
+        this.updatedAt = LocalDateTime.now();
+    }
 }

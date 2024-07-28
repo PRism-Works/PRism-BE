@@ -28,4 +28,9 @@ public class PeerReviewResponseHistoryService {
     public List<PeerReviewResponseHistory> getAllHistoriesByReviewee(String revieweeEmail) {
         return peerReviewResponseHistoryRepository.findAllByRevieweeEmail(revieweeEmail);
     }
+
+    @Transactional(readOnly = true)
+    public List<PeerReviewResponseHistory> getAllHistoriesByProject(Integer projectId) {
+        return peerReviewResponseHistoryRepository.findAllByProjectId(projectId);
+    }
 }

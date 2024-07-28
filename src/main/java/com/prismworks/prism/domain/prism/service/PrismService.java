@@ -2,11 +2,13 @@ package com.prismworks.prism.domain.prism.service;
 
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResult;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
+import com.prismworks.prism.domain.peerreview.model.PrismData;
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewResultRepository;
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRepository;
 import com.prismworks.prism.domain.prism.dto.PrismDataDto;
 import com.prismworks.prism.domain.prism.dto.RadialDataDto;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -63,6 +65,168 @@ public class PrismService {
         });
 
         return dto;
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<PeerReviewResult> getPeerReviewResult(Integer projectId, String email) {
+        return peerReviewResultRepository.findByProjectIdAndEmail(projectId, email);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PeerReviewResult> getAllPeerReviewResultsByUser(String email, String prismType) {
+        return peerReviewResultRepository.findAllByEmailAndPrismType(email, prismType);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<PeerReviewTotalResult> getPeerReviewTotalResult(Integer projectId, String email) {
+        return peerReviewTotalResultRepository.findByProjectIdAndEmail(projectId, email);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PeerReviewTotalResult> getAllPeerReviewTotalResultsByUser(String email, String prismType) {
+        return peerReviewTotalResultRepository.findAllByEmailAndPrismType(email, prismType);
+    }
+
+    @Transactional
+    public void refreshPrismData(Integer projectId, List<PrismData> projectPrismDataList) {
+        List<PeerReviewResult> peerReviewResults = new ArrayList<>();
+        List<PeerReviewTotalResult> peerReviewTotalResults = new ArrayList<>();
+        for(PrismData prismData : projectPrismDataList) {
+            String revieweeEmail = prismData.getRevieweeEmail();
+            String revieweeUserId = prismData.getRevieweeUserId();
+
+            // project prism
+            PeerReviewResult reviewResult = this.createProjectMemberPeerReviewResult(projectId, "each", prismData);
+            PeerReviewTotalResult totalReviewResult = this.createProjectMemberPeerReviewTotalResult(projectId, "each", prismData);
+            peerReviewResults.add(reviewResult);
+            peerReviewTotalResults.add(totalReviewResult);
+
+            // user all prism
+            List<PeerReviewResult> peerReviewResultsByUser =
+                    this.getAllPeerReviewResultsByUser(revieweeEmail, "each");
+            List<PeerReviewTotalResult> peerReviewTotalResultsByUser =
+                    this.getAllPeerReviewTotalResultsByUser(revieweeEmail, "each");
+            peerReviewResultsByUser.add(reviewResult);
+            peerReviewTotalResultsByUser.add(totalReviewResult);
+
+            PeerReviewResult userPeerReviewResult =
+                    this.createUserPeerReviewResult(revieweeEmail, revieweeUserId, peerReviewResultsByUser);
+            PeerReviewTotalResult userPeerReviewTotalResult =
+                    this.createUserPeerReviewTotalResult(revieweeEmail, revieweeUserId, peerReviewTotalResultsByUser);
+            peerReviewResults.add(userPeerReviewResult);
+            peerReviewTotalResults.add(userPeerReviewTotalResult);
+        }
+
+        peerReviewResultRepository.saveAll(peerReviewResults);
+        peerReviewTotalResultRepository.saveAll(peerReviewTotalResults);
+    }
+
+    @Transactional
+    public PeerReviewResult createProjectMemberPeerReviewResult(Integer projectId, String prismType, PrismData prismData) {
+        String revieweeEmail = prismData.getRevieweeEmail();
+        Optional<PeerReviewResult> peerReviewResultOptional = this.getPeerReviewResult(projectId, revieweeEmail);
+
+        if(peerReviewResultOptional.isPresent()) {
+            PeerReviewResult peerReviewResult = peerReviewResultOptional.get();
+            peerReviewResult.updateResult(prismData);
+            return peerReviewResult;
+        }
+
+        return PeerReviewResult.builder()
+                .projectId(projectId)
+                .userId(prismData.getRevieweeUserId())
+                .email(revieweeEmail)
+                .responsibilityScore(prismData.getResponsibilityScore())
+                .initiativeScore(prismData.getInitiativeScore())
+                .problemSolvingAbilityScore(prismData.getProblemSolvingAbilityScore())
+                .teamworkScore(prismData.getTeamworkScore())
+                .communicationScore(prismData.getCommunicationScore())
+                .prismType(prismType)
+                .build();
+    }
+
+    @Transactional
+    public PeerReviewTotalResult createProjectMemberPeerReviewTotalResult(Integer projectId, String prismType, PrismData prismData) {
+        String revieweeEmail = prismData.getRevieweeEmail();
+        Optional<PeerReviewTotalResult> peerReviewResultOptional = this.getPeerReviewTotalResult(projectId, revieweeEmail);
+
+        if(peerReviewResultOptional.isPresent()) {
+            PeerReviewTotalResult peerReviewTotalResult = peerReviewResultOptional.get();
+            peerReviewTotalResult.updateResult(prismData);
+            return peerReviewTotalResult;
+        }
+
+        return PeerReviewTotalResult.builder()
+                .projectId(projectId)
+                .email(revieweeEmail)
+                .userId(prismData.getRevieweeUserId())
+                .leadershipScore(prismData.getLeadershipScore())
+                .reliabilityScore(prismData.getReliabilityScore())
+                .teamworkScore(prismData.getTeamworkScore())
+                .keywords(prismData.getPrismSummaryData().getKeywords())
+                .evalution(prismData.getPrismSummaryData().getReviewSummary())
+                .prismType(prismType)
+                .build();
+    }
+
+    @Transactional
+    public PeerReviewResult createUserPeerReviewResult(String email, String userId, List<PeerReviewResult> peerReviewResults) {
+        // 1. 이미 prism type all인게 있으면 업데이트
+        // 2. 없으면 prism type all 새로 생성
+
+        float communicationScore = 0F;
+        float initiativeScore = 0F;
+        float problemSolvingAbilityScore = 0F;
+        float responsibilityScore = 0F;
+        float cooperationScore = 0F;
+        for(PeerReviewResult reviewResult : peerReviewResults) {
+            communicationScore += reviewResult.getCommunicationScore();
+            initiativeScore += reviewResult.getInitiativeScore();
+            problemSolvingAbilityScore += reviewResult.getProblemSolvingAbilityScore();
+            responsibilityScore += reviewResult.getResponsibilityScore();
+            cooperationScore += reviewResult.getTeamworkScore();
+        }
+
+        int size = peerReviewResults.size();
+        return PeerReviewResult.builder()
+                .projectId(null)
+                .email(email)
+                .userId(userId)
+                .responsibilityScore(responsibilityScore/size)
+                .initiativeScore(initiativeScore/size)
+                .problemSolvingAbilityScore(problemSolvingAbilityScore/size)
+                .teamworkScore(cooperationScore/size)
+                .communicationScore(communicationScore/size)
+                .prismType("all")
+                .build();
+    }
+
+    @Transactional
+    public PeerReviewTotalResult createUserPeerReviewTotalResult(String email, String userId, List<PeerReviewTotalResult> peerReviewTotalResults) {
+        float teamworkScore = 0F;
+        float leadershipScore = 0F;
+        float reliabilityScore = 0F;
+        List<String> keywords = new ArrayList<>();
+        String evaluation = "";
+
+        for(PeerReviewTotalResult reviewTotalResult : peerReviewTotalResults) {
+            teamworkScore += reviewTotalResult.getTeamworkScore();
+            leadershipScore += reviewTotalResult.getLeadershipScore();
+            reliabilityScore += reviewTotalResult.getReliabilityScore();
+        }
+
+        int size = peerReviewTotalResults.size();
+        return PeerReviewTotalResult.builder()
+                .projectId(null)
+                .email(email)
+                .userId(userId)
+                .leadershipScore(leadershipScore/size)
+                .reliabilityScore(reliabilityScore/size)
+                .teamworkScore(teamworkScore/size)
+                .keywords(keywords)
+                .evalution(evaluation)
+                .prismType("all")
+                .build();
     }
 
     private PrismDataDto aggregateResults(List<PeerReviewResult> results) {
