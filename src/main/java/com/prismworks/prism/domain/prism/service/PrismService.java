@@ -116,7 +116,6 @@ public class PrismService {
             peerReviewResultsByUser.add(reviewResult);
             peerReviewTotalResultsByUser.add(totalReviewResult);
 
-
             this.createUserPeerReviewResult(revieweeEmail, revieweeUserId, peerReviewResultsByUser);
             this.createUserPeerReviewTotalResult(revieweeEmail, revieweeUserId, peerReviewTotalResultsByUser);
         }
@@ -140,7 +139,7 @@ public class PrismService {
                 .responsibilityScore(prismData.getResponsibilityScore())
                 .initiativeScore(prismData.getInitiativeScore())
                 .problemSolvingAbilityScore(prismData.getProblemSolvingAbilityScore())
-                .teamworkScore(prismData.getTeamworkScore())
+                .teamworkScore(prismData.getCooperationScore())
                 .communicationScore(prismData.getCommunicationScore())
                 .prismType(prismType)
                 .build();

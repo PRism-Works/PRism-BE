@@ -67,7 +67,7 @@ public class PeerReviewResult {
     public void updateResult(PrismData prismData) {
         this.responsibilityScore = prismData.getResponsibilityScore();
         this.communicationScore = prismData.getCommunicationScore();
-        this.teamworkScore = prismData.getTeamworkScore();
+        this.teamworkScore = prismData.getCooperationScore();
         this.problemSolvingAbilityScore = prismData.getProblemSolvingAbilityScore();
         this.initiativeScore = prismData.getInitiativeScore();
         this.updatedAt = LocalDateTime.now();

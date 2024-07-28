@@ -67,16 +67,4 @@ public class PeerReviewDto {
         private Integer projectId;
         private String reviewerEmail;
     }
-
-    @Builder
-    @AllArgsConstructor
-    @Getter
-    public static class ProjectReviewResult {
-        private float communicationScore = 0F;
-        private float initiativeScore = 0F;
-        private float problemSolvingAbilityScore = 0F;
-        private float responsibilityScore = 0F;
-        private float teamworkScore = 0F;
-        private String totalFeedback;
-    }
 }
