@@ -171,9 +171,6 @@ public class PrismService {
 
     @Transactional
     public PeerReviewResult createUserPeerReviewResult(String email, String userId, List<PeerReviewResult> peerReviewResults) {
-        // 1. 이미 prism type all인게 있으면 업데이트
-        // 2. 없으면 prism type all 새로 생성
-
         float communicationScore = 0F;
         float initiativeScore = 0F;
         float problemSolvingAbilityScore = 0F;
@@ -206,8 +203,10 @@ public class PrismService {
         float teamworkScore = 0F;
         float leadershipScore = 0F;
         float reliabilityScore = 0F;
-        List<String> keywords = new ArrayList<>();
-        String evaluation = "";
+        int size = peerReviewTotalResults.size();
+        PeerReviewTotalResult recentTotalResult = peerReviewTotalResults.get(size - 1);
+        List<String> keywords = recentTotalResult.getKeywords();
+        String evaluation = recentTotalResult.getEvalution();
 
         for(PeerReviewTotalResult reviewTotalResult : peerReviewTotalResults) {
             teamworkScore += reviewTotalResult.getTeamworkScore();
@@ -215,7 +214,7 @@ public class PrismService {
             reliabilityScore += reviewTotalResult.getReliabilityScore();
         }
 
-        int size = peerReviewTotalResults.size();
+
         return PeerReviewTotalResult.builder()
                 .projectId(null)
                 .email(email)
