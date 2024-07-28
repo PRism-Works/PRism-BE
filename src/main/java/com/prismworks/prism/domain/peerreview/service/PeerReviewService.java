@@ -73,20 +73,26 @@ public class PeerReviewService {
             throw PeerReviewException.REVIEWEE_NOT_EXIST;
         }
 
-        List<String> revieweeEmails = new ArrayList<>();
+        List<RevieweeInfo> revieweeInfoList = new ArrayList<>();
         for(ProjectUserJoin member : allMemberInProject) {
-            String email = member.getEmail();
-            if(reviewerEmail.equals(email)) {
+            String revieweeEmail = member.getEmail();
+            String revieweeName = member.getName();
+            if(reviewerEmail.equals(revieweeEmail)) {
                 if(member.isPeerReviewDone()) {
                     throw PeerReviewException.ALREADY_FINISH_REVIEW;
                 }
             } else {
-                revieweeEmails.add(email);
+                revieweeInfoList.add(
+                        RevieweeInfo.builder()
+                                .revieweeName(revieweeName)
+                                .revieweeEmail(revieweeEmail)
+                                .build()
+                );
             }
         }
 
         return PeerReviewDto.ReviewLinkInfoResponse.builder()
-                .revieweeEmails(revieweeEmails)
+                .revieweeInfoList(revieweeInfoList)
                 .projectId(projectId)
                 .reviewerEmail(reviewerEmail)
                 .build();

@@ -55,7 +55,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/v1/search/projects").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "/api/v1/peer-reviews/").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/peer-reviews/link").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/peer-reviews/projects/*").permitAll()
                         .requestMatchers("/ai/call").permitAll() // todo: 제거
 
