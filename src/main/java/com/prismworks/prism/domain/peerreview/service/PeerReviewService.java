@@ -86,6 +86,7 @@ public class PeerReviewService {
         return PeerReviewDto.ReviewLinkInfoResponse.builder()
                 .revieweeEmails(revieweeEmails)
                 .projectId(projectId)
+                .reviewerEmail(reviewerEmail)
                 .build();
     }
 
