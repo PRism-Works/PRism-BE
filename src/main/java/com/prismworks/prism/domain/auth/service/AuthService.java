@@ -53,7 +53,7 @@ public class AuthService {
     }
 
     public void sendAuthCode(SendCodeRequest dto) {
-        if(AuthType.SIGNUP.equals(dto.getAuthType()) || AuthType.LOAD_PROJECT.equals(dto.getAuthType())) {
+        if(AuthType.SIGNUP.equals(dto.getAuthType())) {
             checkAlreadySignup(dto.getEmail());
         }
 

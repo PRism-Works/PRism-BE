@@ -10,6 +10,8 @@ public enum EmailTemplate {
             Map.of("logo-image", "logo-image.png")),
     RESET_PASSWORD("prism-emailVerification", false, "[PRism] 이메일 인증 번호 안내",
             Map.of("logo-image", "logo-image.png")),
+    LOAD_PROJECT("prism-emailVerification", false, "[PRism] 이메일 인증 번호 안내",
+            Map.of("logo-image", "logo-image.png")),
     PEER_REVIEW_FORM("prism-survey", true, "[PRism] 동료 평가 요청",
             Map.of("logo-image", "logo-image.png",
                     "prism-image", "prism-email.png"));
