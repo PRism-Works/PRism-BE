@@ -195,7 +195,7 @@ public class PrismService {
                 .problemSolvingAbilityScore(problemSolvingAbilityScore/size)
                 .teamworkScore(cooperationScore/size)
                 .communicationScore(communicationScore/size)
-                .prismType("all")
+                .prismType("total")
                 .build();
     }
 
@@ -225,7 +225,7 @@ public class PrismService {
                 .teamworkScore(teamworkScore/size)
                 .keywords(keywords)
                 .evalution(evaluation)
-                .prismType("all")
+                .prismType("total")
                 .build();
     }
 
