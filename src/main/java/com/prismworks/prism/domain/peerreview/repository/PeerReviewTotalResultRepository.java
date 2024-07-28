@@ -18,4 +18,7 @@ public interface PeerReviewTotalResultRepository extends JpaRepository<PeerRevie
     List<PeerReviewTotalResult> findAllByEmailAndPrismType(String email, String prismType);
 
     Optional<PeerReviewTotalResult> findByEmailAndPrismType(String email, String prismType);
+
+    PeerReviewTotalResult findByProjectIdAndEmailAndPrismType(int projectId, String email, String prismType);
+    PeerReviewTotalResult findByProjectIdAndUserIdAndPrismType(int projectId, String userId, String prismType);
 }
