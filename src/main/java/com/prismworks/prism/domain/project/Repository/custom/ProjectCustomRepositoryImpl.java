@@ -96,7 +96,7 @@ public class ProjectCustomRepositoryImpl implements ProjectCustomRepository{
                 .from(project)
                 .innerJoin(projectUserJoin)
                 .on(project.eq(projectUserJoin.project))
-                .innerJoin(projectCategoryJoin)
+                .leftJoin(projectCategoryJoin)
                 .on(project.eq(projectCategoryJoin.project))
                 .where(
                         this.searchWordContains(condition.getSearchType(), condition.getSearchWord()),
