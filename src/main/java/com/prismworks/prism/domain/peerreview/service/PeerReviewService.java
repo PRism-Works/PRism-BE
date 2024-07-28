@@ -16,11 +16,15 @@ import com.prismworks.prism.domain.project.service.ProjectService;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.metadata.ChatResponseMetadata;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.prismworks.prism.domain.peerreview.dto.PeerReviewDto.*;
@@ -28,8 +32,9 @@ import static java.util.stream.Collectors.groupingBy;
 
 @RequiredArgsConstructor
 @Repository
+@Slf4j
 public class PeerReviewService {
-
+    private static final Logger logger = LoggerFactory.getLogger(PeerReviewService.class);
     private final PeerReviewResponseHistoryService peerReviewResponseHistoryService;
     private final PeerReviewLinkCodeService peerReviewLinkCodeService;
     private final ProjectService projectService;
@@ -167,11 +172,26 @@ public class PeerReviewService {
     }
 
     private String callLLM(String message) {
+        // 현재 시각을 YYYYMMDDHHmmss 형식으로 기록
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        String formattedNow = now.format(formatter);
+
+        // message와 시각을 로그로 기록
+        logger.info("========================================");
+        logger.info("Request received at: {}\n", formattedNow);
+        logger.info("Input message: {}\n", message);
+
         ChatResponse chatResponse = chatClient.prompt()
                 .user(message)
                 .call()
                 .chatResponse();
-        return chatResponse.getResult().getOutput().getContent();
+        String answer = chatResponse.getResult().getOutput().getContent();
+
+        // answer를 로그로 기록
+        logger.info("Generated answer: {}\n", answer);
+
+        return answer;
     }
 
     private List<String> getKeywordsFromLLM(List<ShortAnswerResponse> strengthFeedback) {
@@ -196,7 +216,8 @@ public class PeerReviewService {
         for (int i = 0; i < keywordsList.size(); i++) {
             keywordsList.set(i, keywordsList.get(i).trim());
         }
-
+        logger.info("반환되는 keywordsList는 : " + keywordsList);
+        logger.info("========================================");
         return keywordsList;
     }
     private String getreviewSummaryFromLLM(List<ShortAnswerResponse> strengthFeedback) {
@@ -217,6 +238,8 @@ public class PeerReviewService {
         answer          = answer.substring(answer.indexOf('k') + 1, answer.lastIndexOf('k'));
         answer          = answer.replace("k","");
 
+        logger.info("반환되는 reviewSummary는 : " + answer);
+        logger.info("========================================");
         return answer;
     }
 }
