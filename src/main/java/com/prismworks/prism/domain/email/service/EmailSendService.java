@@ -5,4 +5,6 @@ import jakarta.mail.MessagingException;
 
 public interface EmailSendService {
     void sendEmail(EmailSendRequest sendRequest);
+
+    void sendEmailAsync(EmailSendRequest sendRequest);
 }
