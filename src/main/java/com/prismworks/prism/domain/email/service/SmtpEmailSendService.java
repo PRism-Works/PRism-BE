@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,6 +33,7 @@ public class SmtpEmailSendService implements EmailSendService{
     private final JavaMailSender javaMailSender;
     private final EmailTemplateConverter templateConverter;
     private final EmailSendLogService emailSendLogService;
+    private final Executor emailExecutor;
 
     @Override
     public void sendEmail(EmailSendRequest sendRequest) { // todo: async
@@ -48,6 +51,26 @@ public class SmtpEmailSendService implements EmailSendService{
         }
 
         emailSendLogService.saveEmailSendLog(sendRequest, EmailSendResult.createSendResult());
+    }
+
+    @Override
+    public void sendEmailAsync(EmailSendRequest sendRequest) {
+        MimeMessage mimeMessage = this.generateEmailMessage(sendRequest);
+
+        CompletableFuture.runAsync(() -> javaMailSender.send(mimeMessage), emailExecutor)
+                .thenApply(v -> {
+                    emailSendLogService.saveEmailSendLog(sendRequest, EmailSendResult.createSendResult());
+                    return "success";
+                })
+                .exceptionally(e -> {
+                    String exMessage = e.getMessage();
+                    String failReason = exMessage.length() > 255 ? exMessage.substring(0, 255) : exMessage;
+                    EmailSendResult sendResult = EmailSendResult.createFailResult(failReason);
+                    emailSendLogService.saveEmailSendLog(sendRequest, sendResult);
+
+                    log.error("email send failed: {}", failReason);
+                    return failReason;
+                });
     }
 
     private String getMailContentFromTemplate(EmailTemplate template, Map<String, Object> variables) {

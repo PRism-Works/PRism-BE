@@ -66,7 +66,7 @@ public class AuthService {
                 .templateVariables(Map.of("code", emailAuthCode.getCode()))
                 .build();
 
-         emailSendService.sendEmail(emailSendRequest);
+         emailSendService.sendEmailAsync(emailSendRequest);
     }
 
     @Transactional
