@@ -33,6 +33,27 @@ public class PeerReviewResponseHistory {
     @Column(name = "reviewee_email")
     private String revieweeEmail;
 
+    @Column(name = "communication_score")
+    public Float communicationScore;
+
+    @Column(name = "initiative_score")
+    public Float initiativeScore;
+
+    @Column(name = "problem_solving_ability_score")
+    public Float problemSolvingAbilityScore;
+
+    @Column(name = "responsibility_score")
+    public Float responsibilityScore;
+
+    @Column(name = "teamwork_score")
+    public Float teamworkScore;
+
+    @Column(name = "strength_feedback")
+    public String strengthFeedback;
+
+    @Column(name = "improvement_point_feedback")
+    public String improvePointFeedback;
+
     @Column(name = "review_response")
     private String reviewResponse;
 }

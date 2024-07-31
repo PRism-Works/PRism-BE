@@ -47,15 +47,39 @@ public class PeerReviewResult {
     @Column(name = "communication_score")
     public Float communicationScore;
 
-    @Column(name = "teamwork_score")
-    public Float teamworkScore;
+    @Column(name = "cooperation_score")
+    public Float cooperationScore;
 
     @Column(name = "total_feedback")
     public String totalFeedback;
 
+    @Builder.Default
     @Column(name = "created_at")
-    public LocalDateTime createdAt;
+    public LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updatedAt")
     public LocalDateTime updatedAt;
+
+    @Column(name = "prism_type")
+    public String prismType;
+
+    public void updateResult(PrismData prismData) {
+        this.responsibilityScore = prismData.getResponsibilityScore();
+        this.communicationScore = prismData.getCommunicationScore();
+        this.cooperationScore = prismData.getCooperationScore();
+        this.problemSolvingAbilityScore = prismData.getProblemSolvingAbilityScore();
+        this.initiativeScore = prismData.getInitiativeScore();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateResult(float responsibilityScore, float communicationScore, float teamworkScore,
+                             float problemSolvingAbilityScore, float initiativeScore)
+    {
+        this.responsibilityScore = responsibilityScore;
+        this.communicationScore = communicationScore;
+        this.cooperationScore = teamworkScore;
+        this.problemSolvingAbilityScore = problemSolvingAbilityScore;
+        this.initiativeScore = initiativeScore;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

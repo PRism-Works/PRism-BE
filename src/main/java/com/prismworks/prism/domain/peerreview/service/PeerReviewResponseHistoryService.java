@@ -23,4 +23,14 @@ public class PeerReviewResponseHistoryService {
     public Long getReviewerCountInProject(Integer projectId) {
         return peerReviewResponseHistoryRepository.countReviewerByProjectId(projectId);
     }
+
+    @Transactional(readOnly = true)
+    public List<PeerReviewResponseHistory> getAllHistoriesByReviewee(String revieweeEmail) {
+        return peerReviewResponseHistoryRepository.findAllByRevieweeEmail(revieweeEmail);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PeerReviewResponseHistory> getAllHistoriesByProject(Integer projectId) {
+        return peerReviewResponseHistoryRepository.findAllByProjectId(projectId);
+    }
 }

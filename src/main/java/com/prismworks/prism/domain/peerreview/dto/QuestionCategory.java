@@ -1,6 +1,7 @@
 package com.prismworks.prism.domain.peerreview.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.Arrays;
 
@@ -17,6 +18,11 @@ public enum QuestionCategory {
 
     QuestionCategory(String value) {
         this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
     }
 
     @JsonCreator

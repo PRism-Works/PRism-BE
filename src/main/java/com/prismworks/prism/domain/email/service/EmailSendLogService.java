@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class EmailSendLogService {
@@ -15,14 +18,19 @@ public class EmailSendLogService {
 
     @Transactional
     public void saveEmailSendLog(EmailSendRequest request, EmailSendResult result) {
-        EmailSendLog emailSendLog = EmailSendLog.builder()
-                .receiverEmail(request.getToEmail())
-                .senderEmail(request.getFromEmail())
-                .path(request.getTemplate())
-                .status(result.getStatus())
-                .failReason(result.getFailReason())
-                .build();
+        List<EmailSendLog> logs = new ArrayList<>();
+        for (String toEmail : request.getToEmails()) {
+            EmailSendLog emailSendLog = EmailSendLog.builder()
+                    .receiverEmail(toEmail)
+                    .senderEmail(request.getFromEmail())
+                    .path(request.getTemplate())
+                    .status(result.getStatus())
+                    .failReason(result.getFailReason())
+                    .build();
 
-        emailSendLogRepository.save(emailSendLog);
+            logs.add(emailSendLog);
+        }
+
+        emailSendLogRepository.saveAll(logs);
     }
 }

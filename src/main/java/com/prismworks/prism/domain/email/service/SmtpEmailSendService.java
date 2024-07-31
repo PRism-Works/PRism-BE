@@ -12,12 +12,15 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,6 +33,7 @@ public class SmtpEmailSendService implements EmailSendService{
     private final JavaMailSender javaMailSender;
     private final EmailTemplateConverter templateConverter;
     private final EmailSendLogService emailSendLogService;
+    private final Executor emailExecutor;
 
     @Override
     public void sendEmail(EmailSendRequest sendRequest) { // todo: async
@@ -47,6 +51,26 @@ public class SmtpEmailSendService implements EmailSendService{
         }
 
         emailSendLogService.saveEmailSendLog(sendRequest, EmailSendResult.createSendResult());
+    }
+
+    @Override
+    public void sendEmailAsync(EmailSendRequest sendRequest) {
+        MimeMessage mimeMessage = this.generateEmailMessage(sendRequest);
+
+        CompletableFuture.runAsync(() -> javaMailSender.send(mimeMessage), emailExecutor)
+                .thenApply(v -> {
+                    emailSendLogService.saveEmailSendLog(sendRequest, EmailSendResult.createSendResult());
+                    return "success";
+                })
+                .exceptionally(e -> {
+                    String exMessage = e.getMessage();
+                    String failReason = exMessage.length() > 255 ? exMessage.substring(0, 255) : exMessage;
+                    EmailSendResult sendResult = EmailSendResult.createFailResult(failReason);
+                    emailSendLogService.saveEmailSendLog(sendRequest, sendResult);
+
+                    log.error("email send failed: {}", failReason);
+                    return failReason;
+                });
     }
 
     private String getMailContentFromTemplate(EmailTemplate template, Map<String, Object> variables) {
@@ -68,9 +92,15 @@ public class SmtpEmailSendService implements EmailSendService{
         try {
             mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
             mimeMessageHelper.setFrom(from);
-            mimeMessageHelper.setTo(sendRequest.getToEmail());
+            mimeMessageHelper.setTo(sendRequest.getToEmails().toArray(new String[0]));
             mimeMessageHelper.setSubject(emailTemplate.getSubject());
             mimeMessageHelper.setText(content, true);
+            if(!emailTemplate.getImages().isEmpty()) {
+                Map<String, String> images = emailTemplate.getImages();
+                for (Map.Entry<String, String> entry : images.entrySet()) {
+                    mimeMessageHelper.addInline(entry.getKey(), new ClassPathResource("static/images/" + entry.getValue()));
+                }
+            }
         } catch (MessagingException e) {
             throw EmailException.EMAIL_MESSAGE_CREATION_FAILED;
         }

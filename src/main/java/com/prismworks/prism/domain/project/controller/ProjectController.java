@@ -96,6 +96,7 @@ public class ProjectController {
     @GetMapping("/summary/detail/{projectId}")
     public ApiSuccessResponse getProjectDetail(@PathVariable int projectId) {
         ProjectDetailDto projectDetail = projectService.getProjectDetailInRetrieve(projectId);
+        projectDetail.setMostCommonTraits("적극성"); //특정 프로젝트에 포함된 팀원들의 특징 중 지표가 높은 것? 추가 필드
         return new ApiSuccessResponse(HttpStatus.OK.value(), projectDetail);
     }
 
@@ -108,9 +109,13 @@ public class ProjectController {
     }
 
     //mypage에서 visibility 설정 하는 api
-    @PutMapping("/visibility")
-    public ApiSuccessResponse updateProjectVisibility(@RequestBody ProjectVisibilityUpdateDto request) {
-        ProjectVisibilityUpdateDto projectVisibilityUpdateDto = projectService.updateProjectVisibility(request.getProjectId(), request.isVisibility());
+    @PutMapping("/anonyVisibility")
+    public ApiSuccessResponse updateProjectVisibility(@CurrentUser UserContext userContext,@RequestBody ProjectAnonyVisibilityUpdateDto request) {
+        ProjectAnonyVisibilityUpdateDto projectVisibilityUpdateDto = projectService.updateProjectUserJoinVisibility(
+                request.getProjectId(),
+                userContext.getEmail(),
+                request.isAnonyVisibility()
+        );
         return new ApiSuccessResponse(HttpStatus.OK.value(), projectVisibilityUpdateDto);
     }
 }

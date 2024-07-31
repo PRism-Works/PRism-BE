@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
 import java.util.Map;
 
 @Builder
@@ -16,7 +17,7 @@ public class EmailSendRequest {
     private String fromEmail;
 
     @NotEmpty
-    private String toEmail;
+    private List<String> toEmails;
 
     @NotNull
     private EmailTemplate template;

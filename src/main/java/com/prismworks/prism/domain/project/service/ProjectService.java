@@ -1,8 +1,11 @@
 package com.prismworks.prism.domain.project.service;
 
 import com.prismworks.prism.domain.auth.model.UserContext;
+import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
+import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRepository;
 import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
+import com.prismworks.prism.domain.project.Repository.ProjectUserJoinRepository;
 import com.prismworks.prism.domain.project.dto.*;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +37,10 @@ public class ProjectService {
     private UserRepository userRepository;
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private ProjectUserJoinRepository projectUserJoinRepository;
+    @Autowired
+    private PeerReviewTotalResultRepository peerReviewTotalResultRepository;
 
     @Transactional
     public Category saveCategoryTransactional(String name) {
@@ -100,6 +108,7 @@ public class ProjectService {
             join.setEmail(memberDto.getEmail());
             join.setRoles(memberDto.getRoles());
             join.setAnonyVisibility(true);
+            join.setPeerReviewDone(false);
             foundUser.ifPresentOrElse(join::setUser, () -> {;});
             return join;
         }).collect(Collectors.toList());
@@ -179,24 +188,46 @@ public class ProjectService {
 
     @Transactional
     public void updateProjectMembers(Project project, List<MemberDto> memberDtos) {
+
+        List<ProjectUserJoin> newMembers = memberDtos.stream()
+                .map(memberDto -> {
+                    ProjectUserJoin projectUserJoin = projectUserJoinRepository.findByEmailAndProjectId(memberDto.getEmail() ,project.getProjectId());
+                    Optional<Users> foundUser = userRepository.findByEmail(memberDto.getEmail());
+
+                    ProjectUserJoin join = new ProjectUserJoin();
+                    if(projectUserJoin == null) {
+                        join.setProject(project);
+                        join.setName(memberDto.getName());
+                        join.setEmail(memberDto.getEmail());
+                        join.setRoles(memberDto.getRoles());
+                        join.setAnonyVisibility(true);
+                        join.setPeerReviewDone(false);
+                    }else {
+                        if (foundUser.isPresent()) {
+                            join.setProject(project);
+                            join.setUser(foundUser.get());
+                            join.setName(projectUserJoin.getName());
+                            join.setEmail(projectUserJoin.getEmail());
+                            join.setRoles(memberDto.getRoles());
+                            join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
+                            join.setPeerReviewDone(false);
+                        }else{
+                            join.setProject(project);
+                            join.setName(memberDto.getName());
+                            join.setEmail(memberDto.getEmail());
+                            join.setRoles(memberDto.getRoles());
+                            join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
+                            join.setPeerReviewDone(false);
+                        }
+                    }
+                    return join;
+                })
+                .collect(Collectors.toList());
+
         if (project.getMembers() != null) {
             project.getMembers().clear();
             projectRepository.flush();
         }
-
-        List<ProjectUserJoin> newMembers = memberDtos.stream()
-                .map(memberDto -> {
-                    Optional<Users> foundUser = userRepository.findByEmail(memberDto.getEmail());
-                    ProjectUserJoin join = new ProjectUserJoin();
-                    join.setProject(project);
-                    join.setName(memberDto.getName());
-                    join.setEmail(memberDto.getEmail());
-                    join.setRoles(memberDto.getRoles());
-                    join.setAnonyVisibility(memberDto.isAnonyVisibility());
-                    foundUser.ifPresent(join::setUser);
-                    return join;
-                })
-                .collect(Collectors.toList());
 
         project.getMembers().addAll(newMembers);
     }
@@ -216,6 +247,7 @@ public class ProjectService {
                     join.setEmail(memberDto.getEmail());
                     join.setRoles(memberDto.getRoles());
                     join.setProject(project);
+                    join.setPeerReviewDone(false);
                     return join;
                 })
                 .orElseThrow(() -> new ProjectException("Member not found with email: " + memberDto.getEmail(), ProjectErrorCode.USER_NOT_FOUND));
@@ -258,13 +290,48 @@ public class ProjectService {
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getMeInvolvedProjects(String myEmail) {
         List<Project> projects = projectRepository.findByMemberEmail(myEmail);
-        return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
+
+        return projects.stream()
+                .map(project -> convertToSummaryDtoForGetMeInvolvedProjects(myEmail, project))
+                .collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getWhoInvolvedProjects(String userId) {
         List<Project> projects = projectRepository.findByMemberUserId(userId);
-        return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
+
+        return projects.stream()
+                .map(project -> convertToSummaryDtoForWhoInvolvedProjects(userId,project))
+                .collect(Collectors.toList());
+
+        //return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
+    private SummaryProjectDto convertToSummaryDtoForWhoInvolvedProjects(String userId,Project project) {
+        PeerReviewTotalResult peerReviewTotalResult = peerReviewTotalResultRepository.findByProjectIdAndUserIdAndPrismType(
+                project.getProjectId(), userId, "each"
+        );
+
+        String evaluation = "";
+
+        if(peerReviewTotalResult == null){
+            //throw new ProjectException("PeerReviewTotalResult Not Exists", ProjectErrorCode.PEER_REVIEW_TOTAL_RESULT_NOT_EXISTS);
+            evaluation = "총평 데이터 없음";
+        }else{
+            evaluation = peerReviewTotalResult.getEvalution();
+        }
+
+        return SummaryProjectDto.builder()
+                .projectId(project.getProjectId())
+                .projectName(project.getProjectName())
+                .organizationName(project.getOrganizationName())
+                .startDate(formatDate(project.getStartDate()))
+                .endDate(formatDate(project.getEndDate()))
+                .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
+                .urlVisibility(project.getUrlVisibility())
+                .userEvaluation(evaluation)
+                .surveyParticipants(0)
+                .build();
+    }
+
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getMeRegisteredProjects(String myEmail) {
         List<Project> projects = projectRepository.findByOwnerEmail(myEmail);
@@ -282,6 +349,36 @@ public class ProjectService {
                 .urlVisibility(project.getUrlVisibility())
                 .userEvaluation("Sample Evaluation")
                 .surveyParticipants(0)
+                .build();
+    }
+
+    private SummaryProjectDto convertToSummaryDtoForGetMeInvolvedProjects(String myEmail, Project project) {
+        boolean anonyVisibility = projectRepository.findByAnonyVisibility(project.getProjectId(), myEmail);
+        PeerReviewTotalResult peerReviewTotalResult = peerReviewTotalResultRepository.findByProjectIdAndEmailAndPrismType(
+                project.getProjectId(), myEmail, "each"
+        );
+        String evaluation = "";
+
+        if(peerReviewTotalResult == null){
+            //throw new ProjectException("PeerReviewTotalResult Not Exists", ProjectErrorCode.PEER_REVIEW_TOTAL_RESULT_NOT_EXISTS);
+            evaluation = "총평 데이터 없음";
+        }else{
+            evaluation = peerReviewTotalResult.getEvalution();
+        }
+
+        return SummaryProjectDto.builder()
+                .projectId(project.getProjectId())
+                .projectName(project.getProjectName())
+                .organizationName(project.getOrganizationName())
+                .startDate(formatDate(project.getStartDate()))
+                .endDate(formatDate(project.getEndDate()))
+                .categories(project.getCategories().stream()
+                        .map(c -> c.getCategory().getName())
+                        .collect(Collectors.toList()))
+                .urlVisibility(project.getUrlVisibility())
+                .userEvaluation(evaluation)
+                .surveyParticipants(0)
+                .anonyVisibility(anonyVisibility)
                 .build();
     }
 
@@ -326,7 +423,9 @@ public class ProjectService {
                 .startDate(formatDate(project.getStartDate()))
                 .endDate(formatDate(project.getEndDate()))
                 .projectUrlLink(project.getProjectUrlLink())
+                .urlVisibility(project.getUrlVisibility())
                 .projectDescription(project.getProjectDescription())
+                .mostCommonTraits("계산로직 미구현 하드코딩")
                 .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
                 .skills(project.getSkills())
                 .members(memberDetails)
@@ -368,7 +467,9 @@ public class ProjectService {
                 .startDate(formatDate(project.getStartDate()))
                 .endDate(formatDate(project.getEndDate()))
                 .projectUrlLink(project.getProjectUrlLink())
+                .urlVisibility(project.getUrlVisibility())
                 .projectDescription(project.getProjectDescription())
+                .mostCommonTraits("계산로직 미구현 하드코딩")
                 .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
                 .skills(project.getSkills())
                 .members(memberDetails)
@@ -436,21 +537,61 @@ public class ProjectService {
 
 
     @Transactional
-    public ProjectVisibilityUpdateDto updateProjectVisibility(int projectId, boolean visibility) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalStateException("Project not found"));
+    public ProjectAnonyVisibilityUpdateDto updateProjectUserJoinVisibility(int projectId, String email, boolean anonyVisibility) {
+        ProjectUserJoin projectUserJoin = projectUserJoinRepository.findByEmailAndProjectId(email, projectId);
 
-        project.setUrlVisibility(visibility);
-        projectRepository.save(project);
+        projectUserJoin.setAnonyVisibility(anonyVisibility);
+        projectUserJoinRepository.save(projectUserJoin); // 변경 사항을 DB에 저장
 
-        return ProjectVisibilityUpdateDto.builder()
-                .projectId(project.getProjectId())
-                .visibility(project.getUrlVisibility())
+        return ProjectAnonyVisibilityUpdateDto.builder()
+                .projectId(projectUserJoin.getProject().getProjectId())
+                .anonyVisibility(projectUserJoin.getAnonyVisibility()) // projectUserJoin의 anonyVisibility 반환
                 .build();
     }
 
     @Transactional(readOnly = true)
     public Long countUserInProject(Integer projectId) {
         return projectRepository.countUserByProjectId(projectId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProjectUserJoin> getAllMemberInProject(Integer projectId) {
+        return projectRepository.findAllMemberByProjectId(projectId);
+    }
+
+    @Transactional(readOnly = true)
+    public Project getProjectByOwner(Integer projectId, String email) {
+        return projectRepository.findByProjectIdAndCreatedBy(projectId, email)
+                .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
+    }
+
+    @Transactional(readOnly = true)
+    public ProjectPeerReviewEmailInfoDto getProjectPeerReviewEmailInfo(Integer projectId, String ownerEmail) {
+        Project project = this.getProjectByOwner(projectId, ownerEmail);
+
+        String ownerName = "";
+        List<String> notReviewingMemberEmails = new ArrayList<>();
+        for(ProjectUserJoin member: project.getMembers()) {
+            if(!member.isPeerReviewDone()) {
+                notReviewingMemberEmails.add(member.getEmail());
+            }
+
+            if(member.getEmail().equals(ownerEmail)) {
+                ownerName = member.getName();
+            }
+        }
+
+        return ProjectPeerReviewEmailInfoDto.builder()
+                .projectId(projectId)
+                .projectName(project.getProjectName())
+                .ownerName(ownerName)
+                .notReviewingMemberEmails(notReviewingMemberEmails)
+                .build();
+    }
+
+    @Transactional
+    public void memberDonePeerReview(Integer projectId, String reviewerEmail) {
+        ProjectUserJoin member = projectUserJoinRepository.findByEmailAndProjectId(reviewerEmail, projectId);
+        member.doneReview();
     }
 }

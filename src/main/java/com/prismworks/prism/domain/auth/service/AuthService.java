@@ -23,6 +23,7 @@ import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -52,7 +53,7 @@ public class AuthService {
     }
 
     public void sendAuthCode(SendCodeRequest dto) {
-        if(AuthType.SIGNUP.equals(dto.getAuthType()) || AuthType.LOAD_PROJECT.equals(dto.getAuthType())) {
+        if(AuthType.SIGNUP.equals(dto.getAuthType())) {
             checkAlreadySignup(dto.getEmail());
         }
 
@@ -60,12 +61,12 @@ public class AuthService {
                 emailAuthCodeService.createEmailAuthCode(dto.getEmail(), dto.getAuthType(), dto.getRequestAt());
 
         EmailSendRequest emailSendRequest = EmailSendRequest.builder()
-                .toEmail(emailAuthCode.getEmail())
+                .toEmails(List.of(emailAuthCode.getEmail()))
                 .template(EmailTemplate.valueOf(emailAuthCode.getAuthType().getValue()))
                 .templateVariables(Map.of("code", emailAuthCode.getCode()))
                 .build();
 
-         emailSendService.sendEmail(emailSendRequest);
+         emailSendService.sendEmailAsync(emailSendRequest);
     }
 
     @Transactional

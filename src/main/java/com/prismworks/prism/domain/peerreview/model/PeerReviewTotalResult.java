@@ -31,25 +31,49 @@ public class PeerReviewTotalResult {
     @Column(name = "email")
     public String email;
 
-    @Column(name = "responsibility_score")
-    public Float responsibilityScore;
+    @Column(name = "reliability_score")
+    public Float reliabilityScore;
 
     @Column(name = "teamwork_score")
     public Float teamworkScore;
 
     @Column(name = "leadership_score")
-    public Float leadership_score;
+    public Float leadershipScore;
 
     @Convert(converter = StringToListConverter.class)
     @Column(name = "keywords")
     List<String> keywords;
 
-    @Column(name = "total_feedback")
-    public String totalFeedback;
+    @Column(name = "evalution")
+    String evalution;
 
+    @Builder.Default
     @Column(name = "created_at")
-    public LocalDateTime createdAt;
+    public LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updatedAt")
     public LocalDateTime updatedAt;
+
+    @Column(name = "prism_type")
+    public String prismType;
+
+    public void updateResult(PrismData prismData) {
+        this.reliabilityScore = prismData.getReliabilityScore();
+        this.teamworkScore = prismData.getTeamworkScore();
+        this.leadershipScore = prismData.getLeadershipScore();
+        this.keywords = prismData.getPrismSummaryData().getKeywords();
+        this.evalution = prismData.getPrismSummaryData().getReviewSummary();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void updateResult(float reliabilityScore, float teamworkScore, float leadershipScore, List<String> keywords,
+                             String evalution)
+    {
+        this.reliabilityScore = reliabilityScore;
+        this.teamworkScore = teamworkScore;
+        this.leadershipScore = leadershipScore;
+        this.keywords = keywords;
+        this.evalution = evalution;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

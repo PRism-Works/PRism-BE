@@ -1,6 +1,7 @@
 package com.prismworks.prism.domain.peerreview.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 
@@ -32,6 +33,11 @@ public enum QuestionType {
 
     QuestionType(String value) {
         this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
     }
 
     @JsonCreator
