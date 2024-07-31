@@ -20,18 +20,23 @@ AWS Lambda conveniently had a snapshot feature, and we determined that the cold 
 During the month and a half of development, there were no costs associated with using the AWS infrastructure, resulting in significant cost savings compared to using EC2 for development. Although there were basic costs for ACM renewal and API Gateway, these were much lower than the costs of keeping EC2 instances running continuously.
 
 ### 1. DB ERD Image
-![DB ERD](path_to_your_image.png)
-<!-- 위에 실제 이미지 경로를 넣어주세요 -->
+![img](https://github.com/user-attachments/assets/83ce6049-f74e-4108-801f-e423465adfc7)
 
 ### 2. Explanation of the Database Design
-Describe how the database was designed here. For example, explain the role of each table and the key relationships.
+When we started development, the database was simple. As development progressed, there were many factors we needed to consider. We had to figure out how to handle anonymous users and JWT login tokens. Initially, when creating entities using JPA, we designed some tables with @CollectionTable, only to later discover that they could not use querydsl. Because of this, we had to redesign all the tables as entities and redevelop them.
 
-## Technologies Used
+## Technologies Used AND Reasons for Choosing the Technology Stack
+We wanted our service to be sustainable over a long period of time and took a practical approach. To maintain the service for an extended duration, we had to implement a low-cost, high-performance server using an efficient architecture.
+
+We used Oracle Cloud's free instance for our database, implementing a permanently free DB with 1GB of RAM and 50GB of storage. Additionally, we utilized AWS infrastructure to implement a Serverless architecture and purchased a domain from Gabia at approximately $7 per year. AWS Lambda supports up to 1 million free invocations per month, and AWS ApiGateway only requires a basic payment of about $3. Logging is managed via CloudWatch, and we set up a Serverless CI/CD environment using the SAM CLI. A significant convenience was that, unlike using Jenkins, there was no need to set up a separate server, and unlike AWS CodeSeries, complex .yml files were not required. Moreover, unlike traditional CI/CD, deployments could occur rapidly from any branch without targeting specific events, which was possible because our two backend developers could deploy from any branch at any time. Deploying a Spring Boot Server on AWS Lambda resolved issues like manual autoscaling in CD that were present when using Jenkins, as AWS Lambda automatically handles autoscaling. Issues of server crashes and the lack of automatic rollback when using Jenkins were also resolved with AWS CloudFormation's stack rollback. Although AWS CodeSeries also supports rollback, the ease of using SAM CLI, which combines the advantages of both, continuously impressed us.
+
+Additionally, during the initial launch of our service, we increased the log level, resulting in a significant accumulation of logs that needed to be managed. By using CloudWatch, we no longer had to worry about running out of hard drive capacity for logging or the system resources required for storing logs in real time.
 
 ### List of Technologies Used
-- Technology 1
-- Technology 2
-- Technology 3
-
-### Reasons for Choosing the Technology Stack
-Describe the reasons for choosing the technology stack here. For example, explain why specific technologies were selected and how they contributed to the project.
+- AWS Lambda
+- AWS ApiGateWay
+- AWS CloudFormation
+- AWS CloudWatch
+- SAM CLI
+- Spring Boot
+- ...
