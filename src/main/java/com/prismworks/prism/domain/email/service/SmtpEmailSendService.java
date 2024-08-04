@@ -38,6 +38,7 @@ public class SmtpEmailSendService implements EmailSendService{
     @Override
     public void sendEmail(EmailSendRequest sendRequest) { // todo: async
         MimeMessage mimeMessage = this.generateEmailMessage(sendRequest);
+        log.info("######## send email");
         try {
             javaMailSender.send(mimeMessage);
         } catch (Exception e) {
@@ -56,7 +57,7 @@ public class SmtpEmailSendService implements EmailSendService{
     @Override
     public void sendEmailAsync(EmailSendRequest sendRequest) {
         MimeMessage mimeMessage = this.generateEmailMessage(sendRequest);
-
+        log.info("######## send email async");
         CompletableFuture.runAsync(() -> javaMailSender.send(mimeMessage), emailExecutor)
                 .thenApply(v -> {
                     emailSendLogService.saveEmailSendLog(sendRequest, EmailSendResult.createSendResult());

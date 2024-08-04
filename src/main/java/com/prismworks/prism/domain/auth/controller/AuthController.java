@@ -70,4 +70,10 @@ public class AuthController {
 
         return ApiSuccessResponse.defaultOk();
     }
+
+    @PostMapping("/code/async")
+    public ApiSuccessResponse sendVerificationCodeAsync(@RequestBody @Valid AuthDto.SendCodeRequest request) {
+        authService.sendAuthCodeAsync(request);
+        return ApiSuccessResponse.defaultOk();
+    }
 }

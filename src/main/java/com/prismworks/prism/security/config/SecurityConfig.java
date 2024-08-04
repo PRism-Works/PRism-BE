@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/prism/*","/api/v1/prism/*/*").permitAll()
                         .requestMatchers("/api/v1/auth/email/exists", "/api/v1/auth/code",
                                 "/api/v1/auth/code/verification", "/api/v1/auth/signup", "/api/v1/auth/password",
-                                "/api/v1/auth/refresh-token", "/api/v1/auth/login").permitAll()
+                                "/api/v1/auth/refresh-token", "/api/v1/auth/login", "/api/v1/auth/code/async").permitAll()
 
                         .requestMatchers("/api/v1/users/*/profile").permitAll()
 

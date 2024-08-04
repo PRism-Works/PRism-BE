@@ -64,7 +64,7 @@ public class PeerReviewService {
                     .templateVariables(emailTemplateVariables)
                     .build();
 
-            emailSendService.sendEmailAsync(emailSendRequest);
+            emailSendService.sendEmail(emailSendRequest);
         }
     }
 
