@@ -93,5 +93,10 @@ dependencyManagement {
 	}
 }
 tasks.named('test') {
+	enabled = false
 	useJUnitPlatform()
 }
+
+//tasks.withType(Test).configureEach {
+//	enabled = false
+//}

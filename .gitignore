@@ -41,3 +41,6 @@ src/main/resources/application.yml
 
 ### Aws SAM ###
 .aws-sam
+
+### QClass ###
+src/main/generated
