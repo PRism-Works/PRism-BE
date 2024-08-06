@@ -2,6 +2,7 @@ package com.prismworks.prism.domain.project.service;
 
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
+import com.prismworks.prism.domain.peerreview.repository.PeerReviewResponseHistoryRepository;
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRepository;
 import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
@@ -303,17 +304,16 @@ public class ProjectService {
                 .map(project -> convertToSummaryDtoForWhoInvolvedProjects(userId,project))
                 .collect(Collectors.toList());
 
-        //return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
     private SummaryProjectDto convertToSummaryDtoForWhoInvolvedProjects(String userId,Project project) {
         PeerReviewTotalResult peerReviewTotalResult = peerReviewTotalResultRepository.findByProjectIdAndUserIdAndPrismType(
                 project.getProjectId(), userId, "each"
         );
+        int surveyParticipant = projectUserJoinRepository.getSurveyParticipant(project.getProjectId());
 
         String evaluation = "";
 
         if(peerReviewTotalResult == null){
-            //throw new ProjectException("PeerReviewTotalResult Not Exists", ProjectErrorCode.PEER_REVIEW_TOTAL_RESULT_NOT_EXISTS);
             evaluation = "총평 데이터 없음";
         }else{
             evaluation = peerReviewTotalResult.getEvalution();
@@ -328,7 +328,7 @@ public class ProjectService {
                 .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
                 .urlVisibility(project.getUrlVisibility())
                 .userEvaluation(evaluation)
-                .surveyParticipants(0)
+                .surveyParticipants(surveyParticipant)
                 .build();
     }
 
@@ -339,6 +339,8 @@ public class ProjectService {
     }
 
     private SummaryProjectDto convertToSummaryDto(Project project) {
+        int surveyParticipant = projectUserJoinRepository.getSurveyParticipant(project.getProjectId());
+
         return SummaryProjectDto.builder()
                 .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
@@ -348,7 +350,7 @@ public class ProjectService {
                 .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
                 .urlVisibility(project.getUrlVisibility())
                 .userEvaluation("Sample Evaluation")
-                .surveyParticipants(0)
+                .surveyParticipants(surveyParticipant)
                 .build();
     }
 
@@ -357,10 +359,11 @@ public class ProjectService {
         PeerReviewTotalResult peerReviewTotalResult = peerReviewTotalResultRepository.findByProjectIdAndEmailAndPrismType(
                 project.getProjectId(), myEmail, "each"
         );
+        int surveyParticipant = projectUserJoinRepository.getSurveyParticipant(project.getProjectId());
+
         String evaluation = "";
 
         if(peerReviewTotalResult == null){
-            //throw new ProjectException("PeerReviewTotalResult Not Exists", ProjectErrorCode.PEER_REVIEW_TOTAL_RESULT_NOT_EXISTS);
             evaluation = "총평 데이터 없음";
         }else{
             evaluation = peerReviewTotalResult.getEvalution();
@@ -377,7 +380,7 @@ public class ProjectService {
                         .collect(Collectors.toList()))
                 .urlVisibility(project.getUrlVisibility())
                 .userEvaluation(evaluation)
-                .surveyParticipants(0)
+                .surveyParticipants(surveyParticipant)
                 .anonyVisibility(anonyVisibility)
                 .build();
     }
