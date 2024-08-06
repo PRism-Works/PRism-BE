@@ -72,7 +72,7 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://prism-fe.vercel.app"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000", "https://prism-fe.vercel.app", "https://prism.swygbro.com"));g
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
         corsConfiguration.setAllowedMethods(List.of("GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         corsConfiguration.setMaxAge(3600L);
