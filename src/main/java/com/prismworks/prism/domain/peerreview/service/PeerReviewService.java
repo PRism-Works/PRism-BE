@@ -210,6 +210,7 @@ public class PeerReviewService {
 
         String answer               = callLLM(prompt.toString());
         String keywordSection       = answer.substring(answer.indexOf('k') + 1, answer.lastIndexOf('k'));
+        keywordSection              = keywordSection.replace("k","");
 
         List<String> keywordsList   = new ArrayList<>(Arrays.asList(keywordSection.split(",")));
 
