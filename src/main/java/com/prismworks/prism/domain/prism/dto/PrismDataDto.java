@@ -6,6 +6,6 @@ import java.util.Map;
 
 @Data
 public class PrismDataDto {
-    private Map<String, Float> prismData;
+    private Map<String, Integer> prismData;
     private RadialDataDto radialData;
 }

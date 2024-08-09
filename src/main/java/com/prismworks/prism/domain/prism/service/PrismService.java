@@ -35,19 +35,18 @@ public class PrismService {
         PrismDataDto dto = aggregateResults(results);
         totalResult.ifPresent(tr -> {
             RadialDataDto radialData = new RadialDataDto();
-            /*
             radialData.setLeadership(tr.getLeadershipScore() != null ? Math.round(tr.getLeadershipScore()) : 0);
             radialData.setReliability(tr.getReliabilityScore() != null ? Math.round(tr.getReliabilityScore()) : 0);
             radialData.setTeamwork(tr.getTeamworkScore() != null ? Math.round(tr.getTeamworkScore()) : 0);
             radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
             radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
-            */
-            //radialData.setLeadership(tr.getLeadershipScore() != null ? (float) (Math.floor(tr.getLeadershipScore() * 10) / 10.0) : 0.0f);
+            /*
             radialData.setLeadership(tr.getLeadershipScore() != null ? (float) (Math.floor(tr.getLeadershipScore() * 10) / 10.0) : 0.0f);
             radialData.setReliability(tr.getReliabilityScore() != null ? (float) (Math.floor(tr.getReliabilityScore() * 10) / 10.0) : 0.0f);
             radialData.setTeamwork(tr.getTeamworkScore() != null ? (float) (Math.floor(tr.getTeamworkScore() * 10) / 10.0) : 0.0f);
             radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
             radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
+            */
             dto.setRadialData(radialData);
         });
 
@@ -65,19 +64,18 @@ public class PrismService {
         PrismDataDto dto = aggregateResults(results);
         totalResult.ifPresent(tr -> {
             RadialDataDto radialData = new RadialDataDto();
-            /*
             radialData.setLeadership(tr.getLeadershipScore() != null ? Math.round(tr.getLeadershipScore()) : 0);
             radialData.setReliability(tr.getReliabilityScore() != null ? Math.round(tr.getReliabilityScore()) : 0);
             radialData.setTeamwork(tr.getTeamworkScore() != null ? Math.round(tr.getTeamworkScore()) : 0);
             radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
             radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
-            */
-            //(float) (Math.floor(originalValue * 10) / 10.0)
+            /*
             radialData.setLeadership(tr.getLeadershipScore() != null ? (float) (Math.floor(tr.getLeadershipScore() * 10) / 10.0) : 0.0f);
             radialData.setReliability(tr.getReliabilityScore() != null ? (float) (Math.floor(tr.getReliabilityScore() * 10) / 10.0) : 0.0f);
             radialData.setTeamwork(tr.getTeamworkScore() != null ? (float) (Math.floor(tr.getTeamworkScore() * 10) / 10.0) : 0.0f);
             radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
             radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
+            */
             dto.setRadialData(radialData);
         });
 
@@ -272,20 +270,19 @@ public class PrismService {
     }
 
     private PrismDataDto aggregateResults(Optional<PeerReviewResult> peerReviewResult) {
-        Map<String, Float> prismData = Map.of(
-                /*
+        Map<String, Integer> prismData = Map.of(
                 "communication", Math.round(peerReviewResult.get().getCommunicationScore()),
                 "proactivity", Math.round(peerReviewResult.get().getInitiativeScore()),
                 "problemSolving", Math.round(peerReviewResult.get().getProblemSolvingAbilityScore()),
                 "responsibility", Math.round(peerReviewResult.get().getResponsibilityScore()),
                 "cooperation", Math.round(peerReviewResult.get().getCooperationScore())
-                */
-                //(float) (Math.floor(tr.getLeadershipScore() * 10) / 10.0) : 0.0f
+                /*
                 "communication", (float) (Math.floor(peerReviewResult.get().getCommunicationScore() * 10) / 10.0),
                 "proactivity", (float) (Math.floor(peerReviewResult.get().getInitiativeScore() * 10) / 10.0),
                 "problemSolving", (float) (Math.floor(peerReviewResult.get().getProblemSolvingAbilityScore() * 10) / 10.0),
                 "responsibility", (float) (Math.floor(peerReviewResult.get().getResponsibilityScore() * 10) / 10.0),
                 "cooperation", (float) (Math.floor(peerReviewResult.get().getCooperationScore() * 10) / 10.0)
+                 */
         );
         PrismDataDto dto = new PrismDataDto();
         dto.setPrismData(prismData);
