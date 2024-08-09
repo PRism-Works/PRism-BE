@@ -203,6 +203,7 @@ public class ProjectService {
                         join.setRoles(memberDto.getRoles());
                         join.setAnonyVisibility(true);
                         join.setPeerReviewDone(false);
+                        //join.setPeerReviewDone(projectUserJoin.isPeerReviewDone());
                     }else {
                         if (foundUser.isPresent()) {
                             join.setProject(project);
@@ -211,14 +212,16 @@ public class ProjectService {
                             join.setEmail(projectUserJoin.getEmail());
                             join.setRoles(memberDto.getRoles());
                             join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
-                            join.setPeerReviewDone(false);
+                            //join.setPeerReviewDone(false);
+                            join.setPeerReviewDone(projectUserJoin.isPeerReviewDone());
                         }else{
                             join.setProject(project);
                             join.setName(memberDto.getName());
                             join.setEmail(memberDto.getEmail());
                             join.setRoles(memberDto.getRoles());
                             join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
-                            join.setPeerReviewDone(false);
+                            //join.setPeerReviewDone(false);
+                            join.setPeerReviewDone(projectUserJoin.isPeerReviewDone());
                         }
                     }
                     return join;
