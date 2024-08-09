@@ -270,6 +270,7 @@ public class PrismService {
     }
 
     private PrismDataDto aggregateResults(Optional<PeerReviewResult> peerReviewResult) {
+        int versionControll = 1;
         Map<String, Integer> prismData = Map.of(
                 "communication", Math.round(peerReviewResult.get().getCommunicationScore()),
                 "proactivity", Math.round(peerReviewResult.get().getInitiativeScore()),
