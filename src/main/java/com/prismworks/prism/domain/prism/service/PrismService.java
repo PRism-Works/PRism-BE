@@ -35,9 +35,16 @@ public class PrismService {
         PrismDataDto dto = aggregateResults(results);
         totalResult.ifPresent(tr -> {
             RadialDataDto radialData = new RadialDataDto();
+            /*
             radialData.setLeadership(tr.getLeadershipScore() != null ? Math.round(tr.getLeadershipScore()) : 0);
             radialData.setReliability(tr.getReliabilityScore() != null ? Math.round(tr.getReliabilityScore()) : 0);
             radialData.setTeamwork(tr.getTeamworkScore() != null ? Math.round(tr.getTeamworkScore()) : 0);
+            radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
+            radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
+            */
+            radialData.setLeadership(tr.getLeadershipScore() != null ? tr.getLeadershipScore() : 0.0f);
+            radialData.setReliability(tr.getReliabilityScore() != null ? tr.getReliabilityScore() : 0.0f);
+            radialData.setTeamwork(tr.getTeamworkScore() != null ? tr.getTeamworkScore() : 0.0f);
             radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
             radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
             dto.setRadialData(radialData);
@@ -57,9 +64,16 @@ public class PrismService {
         PrismDataDto dto = aggregateResults(results);
         totalResult.ifPresent(tr -> {
             RadialDataDto radialData = new RadialDataDto();
+            /*
             radialData.setLeadership(tr.getLeadershipScore() != null ? Math.round(tr.getLeadershipScore()) : 0);
             radialData.setReliability(tr.getReliabilityScore() != null ? Math.round(tr.getReliabilityScore()) : 0);
             radialData.setTeamwork(tr.getTeamworkScore() != null ? Math.round(tr.getTeamworkScore()) : 0);
+            radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
+            radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
+            */
+            radialData.setLeadership(tr.getLeadershipScore() != null ? tr.getLeadershipScore() : 0.0f);
+            radialData.setReliability(tr.getReliabilityScore() != null ? tr.getReliabilityScore() : 0.0f);
+            radialData.setTeamwork(tr.getTeamworkScore() != null ? tr.getTeamworkScore() : 0.0f);
             radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
             radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
             dto.setRadialData(radialData);

@@ -5,9 +5,9 @@ import java.util.List;
 
 @Data
 public class RadialDataDto {
-    private int leadership;
-    private int reliability;
-    private int teamwork;
+    private float leadership;
+    private float reliability;
+    private float teamwork;
     private List<String> keywords;
     private String evaluation;
 
