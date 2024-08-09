@@ -42,9 +42,10 @@ public class PrismService {
             radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
             radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
             */
-            radialData.setLeadership(tr.getLeadershipScore() != null ? tr.getLeadershipScore() : 0.0f);
-            radialData.setReliability(tr.getReliabilityScore() != null ? tr.getReliabilityScore() : 0.0f);
-            radialData.setTeamwork(tr.getTeamworkScore() != null ? tr.getTeamworkScore() : 0.0f);
+            //radialData.setLeadership(tr.getLeadershipScore() != null ? (float) (Math.floor(tr.getLeadershipScore() * 10) / 10.0) : 0.0f);
+            radialData.setLeadership(tr.getLeadershipScore() != null ? (float) (Math.floor(tr.getLeadershipScore() * 10) / 10.0) : 0.0f);
+            radialData.setReliability(tr.getReliabilityScore() != null ? (float) (Math.floor(tr.getReliabilityScore() * 10) / 10.0) : 0.0f);
+            radialData.setTeamwork(tr.getTeamworkScore() != null ? (float) (Math.floor(tr.getTeamworkScore() * 10) / 10.0) : 0.0f);
             radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
             radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
             dto.setRadialData(radialData);
@@ -71,9 +72,10 @@ public class PrismService {
             radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
             radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
             */
-            radialData.setLeadership(tr.getLeadershipScore() != null ? tr.getLeadershipScore() : 0.0f);
-            radialData.setReliability(tr.getReliabilityScore() != null ? tr.getReliabilityScore() : 0.0f);
-            radialData.setTeamwork(tr.getTeamworkScore() != null ? tr.getTeamworkScore() : 0.0f);
+            //(float) (Math.floor(originalValue * 10) / 10.0)
+            radialData.setLeadership(tr.getLeadershipScore() != null ? (float) (Math.floor(tr.getLeadershipScore() * 10) / 10.0) : 0.0f);
+            radialData.setReliability(tr.getReliabilityScore() != null ? (float) (Math.floor(tr.getReliabilityScore() * 10) / 10.0) : 0.0f);
+            radialData.setTeamwork(tr.getTeamworkScore() != null ? (float) (Math.floor(tr.getTeamworkScore() * 10) / 10.0) : 0.0f);
             radialData.setKeywords(tr.getKeywords() != null ? tr.getKeywords() : Collections.emptyList());
             radialData.setEvaluation(tr.getEvalution() != null ? tr.getEvalution() : "");
             dto.setRadialData(radialData);
@@ -278,11 +280,12 @@ public class PrismService {
                 "responsibility", Math.round(peerReviewResult.get().getResponsibilityScore()),
                 "cooperation", Math.round(peerReviewResult.get().getCooperationScore())
                 */
-                "communication", peerReviewResult.get().getCommunicationScore(),
-                "proactivity", peerReviewResult.get().getInitiativeScore(),
-                "problemSolving", peerReviewResult.get().getProblemSolvingAbilityScore(),
-                "responsibility", peerReviewResult.get().getResponsibilityScore(),
-                "cooperation",peerReviewResult.get().getCooperationScore()
+                //(float) (Math.floor(tr.getLeadershipScore() * 10) / 10.0) : 0.0f
+                "communication", (float) (Math.floor(peerReviewResult.get().getCommunicationScore() * 10) / 10.0),
+                "proactivity", (float) (Math.floor(peerReviewResult.get().getInitiativeScore() * 10) / 10.0),
+                "problemSolving", (float) (Math.floor(peerReviewResult.get().getProblemSolvingAbilityScore() * 10) / 10.0),
+                "responsibility", (float) (Math.floor(peerReviewResult.get().getResponsibilityScore() * 10) / 10.0),
+                "cooperation", (float) (Math.floor(peerReviewResult.get().getCooperationScore() * 10) / 10.0)
         );
         PrismDataDto dto = new PrismDataDto();
         dto.setPrismData(prismData);
