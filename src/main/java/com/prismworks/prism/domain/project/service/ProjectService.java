@@ -212,7 +212,6 @@ public class ProjectService {
                             join.setEmail(projectUserJoin.getEmail());
                             join.setRoles(memberDto.getRoles());
                             join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
-                            //join.setPeerReviewDone(false);
                             join.setPeerReviewDone(projectUserJoin.isPeerReviewDone());
                         }else{
                             join.setProject(project);
@@ -220,7 +219,6 @@ public class ProjectService {
                             join.setEmail(memberDto.getEmail());
                             join.setRoles(memberDto.getRoles());
                             join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
-                            //join.setPeerReviewDone(false);
                             join.setPeerReviewDone(projectUserJoin.isPeerReviewDone());
                         }
                     }

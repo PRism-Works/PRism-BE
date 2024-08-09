@@ -19,7 +19,7 @@ Resources:
       Handler: com.prismworks.prism.StreamLambdaHandler::handleRequest
       Runtime: java17
       CodeUri: .
-      MemorySize: 1024
+      MemorySize: 512
       Timeout: 60
       Architectures:
         - x86_64
