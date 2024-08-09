@@ -270,12 +270,19 @@ public class PrismService {
     }
 
     private PrismDataDto aggregateResults(Optional<PeerReviewResult> peerReviewResult) {
-        Map<String, Integer> prismData = Map.of(
+        Map<String, Float> prismData = Map.of(
+                /*
                 "communication", Math.round(peerReviewResult.get().getCommunicationScore()),
                 "proactivity", Math.round(peerReviewResult.get().getInitiativeScore()),
                 "problemSolving", Math.round(peerReviewResult.get().getProblemSolvingAbilityScore()),
                 "responsibility", Math.round(peerReviewResult.get().getResponsibilityScore()),
                 "cooperation", Math.round(peerReviewResult.get().getCooperationScore())
+                */
+                "communication", peerReviewResult.get().getCommunicationScore(),
+                "proactivity", peerReviewResult.get().getInitiativeScore(),
+                "problemSolving", peerReviewResult.get().getProblemSolvingAbilityScore(),
+                "responsibility", peerReviewResult.get().getResponsibilityScore(),
+                "cooperation",peerReviewResult.get().getCooperationScore()
         );
         PrismDataDto dto = new PrismDataDto();
         dto.setPrismData(prismData);
