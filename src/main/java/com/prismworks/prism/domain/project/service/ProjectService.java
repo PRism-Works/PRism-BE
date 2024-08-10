@@ -1,8 +1,10 @@
 package com.prismworks.prism.domain.project.service;
 
 import com.prismworks.prism.domain.auth.model.UserContext;
+import com.prismworks.prism.domain.peerreview.model.PeerReviewResult;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewResponseHistoryRepository;
+import com.prismworks.prism.domain.peerreview.repository.PeerReviewResultRepository;
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRepository;
 import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
@@ -40,6 +42,8 @@ public class ProjectService {
     private ProjectRepository projectRepository;
     @Autowired
     private ProjectUserJoinRepository projectUserJoinRepository;
+    @Autowired
+    private PeerReviewResultRepository peerReviewResultRepository;
     @Autowired
     private PeerReviewTotalResultRepository peerReviewTotalResultRepository;
 
@@ -486,10 +490,39 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ProjectException("Project not found", ProjectErrorCode.PROJECT_NOT_FOUND));
 
+        Optional<PeerReviewResult> optionalPeerReviewResult = peerReviewResultRepository.findByEmailAndPrismType(userContext.getEmail(), "each");
+        if (optionalPeerReviewResult.isPresent()) {
+            PeerReviewResult peerReviewResult = optionalPeerReviewResult.get();
+            peerReviewResult.setUserId(userContext.getUserId());
+            peerReviewResultRepository.save(peerReviewResult);
+        }
+
+        optionalPeerReviewResult = peerReviewResultRepository.findByEmailAndPrismType(userContext.getEmail(), "total");
+        if (optionalPeerReviewResult.isPresent()) {
+            PeerReviewResult peerReviewResult = optionalPeerReviewResult.get();
+            peerReviewResult.setUserId(userContext.getUserId());
+            peerReviewResultRepository.save(peerReviewResult);
+        }
+
+        Optional<PeerReviewTotalResult> optionalPeerReviewTotalResult = peerReviewTotalResultRepository.findByEmailAndPrismType(userContext.getEmail(), "each");
+        if (optionalPeerReviewTotalResult.isPresent()) {
+            PeerReviewTotalResult peerReviewTotalResult = optionalPeerReviewTotalResult.get();
+            peerReviewTotalResult.setUserId(userContext.getUserId());
+            peerReviewTotalResultRepository.save(peerReviewTotalResult);
+        }
+
+        optionalPeerReviewTotalResult = peerReviewTotalResultRepository.findByEmailAndPrismType(userContext.getEmail(), "total");
+        if (optionalPeerReviewTotalResult.isPresent()) {
+            PeerReviewTotalResult peerReviewTotalResult = optionalPeerReviewTotalResult.get();
+            peerReviewTotalResult.setUserId(userContext.getUserId());
+            peerReviewTotalResultRepository.save(peerReviewTotalResult);
+        }
+
         ProjectUserJoin updatedMember = project.getMembers().stream()
                 .filter(member -> member.getEmail().equals(anonymousEmail))
                 .findFirst()
                 .orElseThrow(() -> new ProjectException("Anonymous member not found", ProjectErrorCode.NO_MEMBER));
+
 
         updatedMember.setEmail(userContext.getEmail());
         userRepository.findById(userContext.getUserId())
