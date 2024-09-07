@@ -6,7 +6,6 @@ import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.project.dto.*;
 import com.prismworks.prism.domain.project.service.ProjectService;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.QueryParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -73,7 +72,7 @@ public class ProjectController {
 
     //굳이 내가 아니라 다른사람 프로필 검색할 때 프로젝트 리스트 뿌려주는 api
     @GetMapping("/who-involved-projects")
-    public ApiSuccessResponse getWhoInvolvedProjects(@QueryParam("userId") String userId) {
+    public ApiSuccessResponse getWhoInvolvedProjects(@RequestParam("userId") String userId) {
         List<SummaryProjectDto> whosProjects = projectService.getWhoInvolvedProjects(userId);
         return new ApiSuccessResponse(HttpStatus.OK.value(), whosProjects);
     }

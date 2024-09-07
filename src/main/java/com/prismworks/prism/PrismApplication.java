@@ -15,13 +15,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 @SpringBootApplication
 @Import({IndexController.class})
 public class PrismApplication {
-    @Bean
-    public ObjectMapper getObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return objectMapper;
-    }
-
     public static void main(String[] args) {
         SpringApplication.run(PrismApplication.class, args);
     }
