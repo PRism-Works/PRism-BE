@@ -3,7 +3,6 @@ package com.prismworks.prism.domain.project.service;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResult;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
-import com.prismworks.prism.domain.peerreview.repository.PeerReviewResponseHistoryRepository;
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewResultRepository;
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRepository;
 import com.prismworks.prism.domain.project.Repository.CategoryRepository;
@@ -28,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -114,7 +114,7 @@ public class ProjectService {
             join.setRoles(memberDto.getRoles());
             join.setAnonyVisibility(true);
             join.setPeerReviewDone(false);
-            foundUser.ifPresentOrElse(join::setUser, () -> {;});
+            foundUser.ifPresentOrElse(join::setUser, () -> {});
             return join;
         }).collect(Collectors.toList());
 
@@ -295,11 +295,27 @@ public class ProjectService {
     }
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getMeInvolvedProjects(String myEmail) {
-        List<Project> projects = projectRepository.findByMemberEmail(myEmail);
+        List<Project> projects = projectRepository.findProjectsWithCategoriesAndMembersByEmail(myEmail);
+
+        List<Integer> projectIds = projects.stream()
+            .map(Project::getProjectId)
+            .toList();
+
+        List<PeerReviewTotalResult> peerReviewResults = peerReviewTotalResultRepository.findPeerReviewResultsByProjectIdsAndEmail(projectIds, myEmail, "each");
+
+        Map<Integer, PeerReviewTotalResult> peerReviewResultsMap = peerReviewResults.stream()
+            .collect(Collectors.toMap(PeerReviewTotalResult::getProjectId, pr -> pr));
+
+        Map<Integer, Integer> surveyParticipantsMap = projectUserJoinRepository.findSurveyParticipantsByProjectIds(projectIds);
 
         return projects.stream()
-                .map(project -> convertToSummaryDtoForGetMeInvolvedProjects(myEmail, project))
-                .collect(Collectors.toList());
+            .map(project -> convertToSummaryDtoForGetMeInvolvedProjects(
+                myEmail,
+                project,
+                peerReviewResultsMap.get(project.getProjectId()),
+                surveyParticipantsMap.getOrDefault(project.getProjectId(), 0)
+            ))
+            .collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getWhoInvolvedProjects(String userId) {
@@ -330,7 +346,9 @@ public class ProjectService {
                 .organizationName(project.getOrganizationName())
                 .startDate(formatDate(project.getStartDate()))
                 .endDate(formatDate(project.getEndDate()))
-                .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
+                .categories(project.getCategories().stream()
+                    .map(c -> c.getCategory().getName())
+                    .collect(Collectors.toList()))
                 .urlVisibility(project.getUrlVisibility())
                 .userEvaluation(evaluation)
                 .surveyParticipants(surveyParticipant)
@@ -359,20 +377,10 @@ public class ProjectService {
                 .build();
     }
 
-    private SummaryProjectDto convertToSummaryDtoForGetMeInvolvedProjects(String myEmail, Project project) {
+    private SummaryProjectDto convertToSummaryDtoForGetMeInvolvedProjects(String myEmail, Project project, PeerReviewTotalResult peerReviewTotalResult, int surveyParticipant) {
         boolean anonyVisibility = projectRepository.findByAnonyVisibility(project.getProjectId(), myEmail);
-        PeerReviewTotalResult peerReviewTotalResult = peerReviewTotalResultRepository.findByProjectIdAndEmailAndPrismType(
-                project.getProjectId(), myEmail, "each"
-        );
-        int surveyParticipant = projectUserJoinRepository.getSurveyParticipant(project.getProjectId());
 
-        String evaluation = "";
-
-        if(peerReviewTotalResult == null){
-            evaluation = "총평 데이터 없음";
-        }else{
-            evaluation = peerReviewTotalResult.getEvalution();
-        }
+        String evaluation = (peerReviewTotalResult == null) ? "총평 데이터 없음" : peerReviewTotalResult.getEvalution();
 
         return SummaryProjectDto.builder()
                 .projectId(project.getProjectId())
