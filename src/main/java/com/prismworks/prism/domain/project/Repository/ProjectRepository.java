@@ -29,6 +29,14 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, Proj
     @Query("SELECT p FROM Project p WHERE p.createdBy = :email")
     List<Project> findByOwnerEmail(String email);
 
+    @Query("SELECT DISTINCT p FROM Project p " +
+        "LEFT JOIN FETCH p.categories pcj " +
+        "LEFT JOIN FETCH pcj.category c " +
+        "LEFT JOIN FETCH p.members puj " +
+        "LEFT JOIN FETCH puj.user u " +
+        "WHERE p.createdBy = :email")
+    List<Project> findProjectsWithCategoriesAndMembersByRegister(String email);
+
     Optional<Project> findByProjectIdAndCreatedBy(Integer projectId, String createdBy);
 
     @Query("SELECT p.anonyVisibility FROM ProjectUserJoin p WHERE p.email = :myEmail AND p.project.projectId = :projectId")
