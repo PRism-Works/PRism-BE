@@ -295,27 +295,7 @@ public class ProjectService {
     }
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getMeInvolvedProjects(String myEmail) {
-        List<Project> projects = projectRepository.findProjectsWithCategoriesAndMembersByEmail(myEmail);
-
-        List<Integer> projectIds = projects.stream()
-            .map(Project::getProjectId)
-            .toList();
-
-        List<PeerReviewTotalResult> peerReviewResults = peerReviewTotalResultRepository.findPeerReviewResultsByProjectIdsAndEmail(projectIds, myEmail, "each");
-
-        Map<Integer, PeerReviewTotalResult> peerReviewResultsMap = peerReviewResults.stream()
-            .collect(Collectors.toMap(PeerReviewTotalResult::getProjectId, pr -> pr));
-
-        Map<Integer, Integer> surveyParticipantsMap = projectUserJoinRepository.findSurveyParticipantsByProjectIds(projectIds);
-
-        return projects.stream()
-            .map(project -> convertToSummaryDtoForGetMeInvolvedProjects(
-                myEmail,
-                project,
-                peerReviewResultsMap.get(project.getProjectId()),
-                surveyParticipantsMap.getOrDefault(project.getProjectId(), 0)
-            ))
-            .collect(Collectors.toList());
+        return getProjectsSummary(myEmail, projectRepository.findProjectsWithCategoriesAndMembersByEmail(myEmail));
     }
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getWhoInvolvedProjects(String userId) {
@@ -357,8 +337,29 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getMeRegisteredProjects(String myEmail) {
-        List<Project> projects = projectRepository.findByOwnerEmail(myEmail);
-        return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
+        return getProjectsSummary(myEmail, projectRepository.findProjectsWithCategoriesAndMembersByRegister(myEmail));
+    }
+
+    private List<SummaryProjectDto> getProjectsSummary(String myEmail, List<Project> projects) {
+        List<Integer> projectIds = projects.stream()
+            .map(Project::getProjectId)
+            .toList();
+
+        List<PeerReviewTotalResult> peerReviewResults = peerReviewTotalResultRepository.findPeerReviewResultsByProjectIdsAndEmail(projectIds, myEmail, "each");
+
+        Map<Integer, PeerReviewTotalResult> peerReviewResultsMap = peerReviewResults.stream()
+            .collect(Collectors.toMap(PeerReviewTotalResult::getProjectId, pr -> pr));
+
+        Map<Integer, Integer> surveyParticipantsMap = projectUserJoinRepository.findSurveyParticipantsByProjectIds(projectIds);
+
+        return projects.stream()
+            .map(project -> convertToProjectSummaryDto(
+                myEmail,
+                project,
+                peerReviewResultsMap.get(project.getProjectId()),
+                surveyParticipantsMap.getOrDefault(project.getProjectId(), 0)
+            ))
+            .collect(Collectors.toList());
     }
 
     private SummaryProjectDto convertToSummaryDto(Project project) {
@@ -377,10 +378,8 @@ public class ProjectService {
                 .build();
     }
 
-    private SummaryProjectDto convertToSummaryDtoForGetMeInvolvedProjects(String myEmail, Project project, PeerReviewTotalResult peerReviewTotalResult, int surveyParticipant) {
+    private SummaryProjectDto convertToProjectSummaryDto(String myEmail, Project project, PeerReviewTotalResult peerReviewTotalResult, int surveyParticipant) {
         boolean anonyVisibility = projectRepository.findByAnonyVisibility(project.getProjectId(), myEmail);
-
-        String evaluation = (peerReviewTotalResult == null) ? "총평 데이터 없음" : peerReviewTotalResult.getEvalution();
 
         return SummaryProjectDto.builder()
                 .projectId(project.getProjectId())
@@ -392,7 +391,7 @@ public class ProjectService {
                         .map(c -> c.getCategory().getName())
                         .collect(Collectors.toList()))
                 .urlVisibility(project.getUrlVisibility())
-                .userEvaluation(evaluation)
+                .userEvaluation((peerReviewTotalResult == null) ? "총평 데이터 없음" : peerReviewTotalResult.getEvalution())
                 .surveyParticipants(surveyParticipant)
                 .anonyVisibility(anonyVisibility)
                 .build();
