@@ -21,7 +21,6 @@ import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class ProjectService {
@@ -302,41 +303,12 @@ public class ProjectService {
         return getProjectsSummary(myEmail, projectPage.getContent());
     }
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getWhoInvolvedProjects(String userId) {
-        List<Project> projects = projectRepository.findByMemberUserId(userId);
+    public List<SummaryProjectDto> getWhoInvolvedProjects(String userId, int page, int size) {
+        Page<Project> projectPage = projectRepository.findByMemberUserId(userId, PageRequest.of(page, size));
+        Users user = userRepository.findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException("user not found by id : " + userId));
 
-        return projects.stream()
-                .map(project -> convertToSummaryDtoForWhoInvolvedProjects(userId,project))
-                .collect(Collectors.toList());
-
-    }
-    private SummaryProjectDto convertToSummaryDtoForWhoInvolvedProjects(String userId,Project project) {
-        PeerReviewTotalResult peerReviewTotalResult = peerReviewTotalResultRepository.findByProjectIdAndUserIdAndPrismType(
-                project.getProjectId(), userId, "each"
-        );
-        int surveyParticipant = projectUserJoinRepository.getSurveyParticipant(project.getProjectId());
-
-        String evaluation = "";
-
-        if(peerReviewTotalResult == null){
-            evaluation = "총평 데이터 없음";
-        }else{
-            evaluation = peerReviewTotalResult.getEvalution();
-        }
-
-        return SummaryProjectDto.builder()
-                .projectId(project.getProjectId())
-                .projectName(project.getProjectName())
-                .organizationName(project.getOrganizationName())
-                .startDate(formatDate(project.getStartDate()))
-                .endDate(formatDate(project.getEndDate()))
-                .categories(project.getCategories().stream()
-                    .map(c -> c.getCategory().getName())
-                    .collect(Collectors.toList()))
-                .urlVisibility(project.getUrlVisibility())
-                .userEvaluation(evaluation)
-                .surveyParticipants(surveyParticipant)
-                .build();
+        return getProjectsSummary(user.getEmail(), projectPage.getContent());
     }
 
     @Transactional(readOnly = true)

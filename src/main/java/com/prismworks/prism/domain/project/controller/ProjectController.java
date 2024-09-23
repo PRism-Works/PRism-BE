@@ -76,8 +76,12 @@ public class ProjectController {
 
     //굳이 내가 아니라 다른사람 프로필 검색할 때 프로젝트 리스트 뿌려주는 api
     @GetMapping("/who-involved-projects")
-    public ApiSuccessResponse getWhoInvolvedProjects(@RequestParam("userId") String userId) {
-        List<SummaryProjectDto> whosProjects = projectService.getWhoInvolvedProjects(userId);
+    public ApiSuccessResponse getWhoInvolvedProjects(
+        @RequestParam("userId") String userId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        List<SummaryProjectDto> whosProjects = projectService.getWhoInvolvedProjects(userId, page, size);
         return new ApiSuccessResponse(HttpStatus.OK.value(), whosProjects);
     }
 

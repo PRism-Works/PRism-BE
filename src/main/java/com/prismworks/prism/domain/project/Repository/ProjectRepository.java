@@ -26,8 +26,12 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, Proj
     @Query("SELECT p FROM Project p JOIN p.members m WHERE m.email = :email")
     List<Project> findByMemberEmail(String email);
 
-    @Query("SELECT p FROM Project p JOIN p.members m WHERE m.user.userId = :userId")
-    List<Project> findByMemberUserId(String userId);
+    @Query("SELECT DISTINCT p FROM Project p " +
+        "LEFT JOIN p.categories c " +
+        "LEFT JOIN c.category " +
+        "LEFT JOIN p.members m " +
+        "WHERE m.user.userId = :userId")
+    Page<Project> findByMemberUserId(String userId, Pageable pageable);
 
     @Query("SELECT p FROM Project p WHERE p.createdBy = :email")
     List<Project> findByOwnerEmail(String email);
