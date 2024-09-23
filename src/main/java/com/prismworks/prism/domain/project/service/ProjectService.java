@@ -19,6 +19,9 @@ import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.repository.UserRepository;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -294,8 +297,9 @@ public class ProjectService {
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getMeInvolvedProjects(String myEmail) {
-        return getProjectsSummary(myEmail, projectRepository.findProjectsWithCategoriesAndMembersByEmail(myEmail));
+    public List<SummaryProjectDto> getMeInvolvedProjects(String myEmail, int page, int size) {
+        Page<Project> projectPage = projectRepository.findProjectsWithCategoriesAndMembersByEmail(myEmail, PageRequest.of(page, size));
+        return getProjectsSummary(myEmail, projectPage.getContent());
     }
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getWhoInvolvedProjects(String userId) {
@@ -336,8 +340,9 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getMeRegisteredProjects(String myEmail) {
-        return getProjectsSummary(myEmail, projectRepository.findProjectsWithCategoriesAndMembersByRegister(myEmail));
+    public List<SummaryProjectDto> getMeRegisteredProjects(String myEmail, int page, int size) {
+        Page<Project> projectPage = projectRepository.findProjectsWithCategoriesAndMembersByRegister(myEmail, PageRequest.of(page, size));
+        return getProjectsSummary(myEmail, projectPage.getContent());
     }
 
     private List<SummaryProjectDto> getProjectsSummary(String myEmail, List<Project> projects) {

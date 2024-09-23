@@ -3,6 +3,9 @@ package com.prismworks.prism.domain.project.Repository;
 import com.prismworks.prism.domain.project.Repository.custom.ProjectCustomRepository;
 import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -30,12 +33,12 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, Proj
     List<Project> findByOwnerEmail(String email);
 
     @Query("SELECT DISTINCT p FROM Project p " +
-        "LEFT JOIN FETCH p.categories pcj " +
-        "LEFT JOIN FETCH pcj.category c " +
-        "LEFT JOIN FETCH p.members puj " +
-        "LEFT JOIN FETCH puj.user u " +
+        "LEFT JOIN p.categories pcj " +
+        "LEFT JOIN pcj.category c " +
+        "LEFT JOIN p.members puj " +
+        "LEFT JOIN puj.user u " +
         "WHERE p.createdBy = :email")
-    List<Project> findProjectsWithCategoriesAndMembersByRegister(String email);
+    Page<Project> findProjectsWithCategoriesAndMembersByRegister(String email, Pageable pageable);
 
     Optional<Project> findByProjectIdAndCreatedBy(Integer projectId, String createdBy);
 
@@ -46,10 +49,10 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, Proj
     ProjectUserJoin findByMyEmailAndProjectId(Integer projectId,String myEmail);
 
     @Query("SELECT DISTINCT p FROM Project p " +
-        "LEFT JOIN FETCH p.categories c " +
-        "LEFT JOIN FETCH c.category " +
-        "LEFT JOIN FETCH p.members m " +
+        "LEFT JOIN p.categories c " +
+        "LEFT JOIN c.category " +
+        "LEFT JOIN p.members m " +
         "WHERE m.email = :email")
-    List<Project> findProjectsWithCategoriesAndMembersByEmail(String email);
+    Page<Project> findProjectsWithCategoriesAndMembersByEmail(String email, Pageable pageable);
 
 }

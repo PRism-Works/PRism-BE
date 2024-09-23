@@ -64,9 +64,13 @@ public class ProjectController {
     }
 
     @GetMapping("/me-involved-projects")
-    public ApiSuccessResponse getMeInvolvedProjects(@CurrentUser UserContext userContext) {
+    public ApiSuccessResponse getMeInvolvedProjects(
+        @CurrentUser UserContext userContext,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
         String myEmail = userContext.getEmail();
-        List<SummaryProjectDto> myProjects = projectService.getMeInvolvedProjects(myEmail);
+        List<SummaryProjectDto> myProjects = projectService.getMeInvolvedProjects(myEmail, page, size);
         return new ApiSuccessResponse(HttpStatus.OK.value(), myProjects);
     }
 
@@ -78,9 +82,13 @@ public class ProjectController {
     }
 
     @GetMapping("/me-registered-projects")
-    public ApiSuccessResponse getMyRegisteredProjects(@CurrentUser UserContext userContext) {
+    public ApiSuccessResponse getMyRegisteredProjects(
+        @CurrentUser UserContext userContext,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
         String myEmail = userContext.getEmail();
-        List<SummaryProjectDto> myRegisteredProjects = projectService.getMeRegisteredProjects(myEmail);
+        List<SummaryProjectDto> myRegisteredProjects = projectService.getMeRegisteredProjects(myEmail, page, size);
         return new ApiSuccessResponse(HttpStatus.OK.value(), myRegisteredProjects);
     }
 
