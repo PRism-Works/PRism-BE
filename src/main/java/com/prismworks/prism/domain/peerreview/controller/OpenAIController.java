@@ -1,4 +1,5 @@
 package com.prismworks.prism.domain.peerreview.controller;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -6,6 +7,7 @@ import org.springframework.ai.chat.metadata.ChatResponseMetadata;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.web.bind.annotation.*;
 
+@Hidden
 @Slf4j
 @RequiredArgsConstructor
 @RestController
