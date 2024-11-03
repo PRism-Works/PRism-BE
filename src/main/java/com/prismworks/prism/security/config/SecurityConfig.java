@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/healthcheck").permitAll()
+                        .requestMatchers("swagger-ui.html", "/swagger-ui/**", "/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/prism/*","/api/v1/prism/*/*").permitAll()
                         .requestMatchers("/api/v1/auth/email/exists", "/api/v1/auth/code",
                                 "/api/v1/auth/code/verification", "/api/v1/auth/signup", "/api/v1/auth/password",
@@ -57,7 +58,6 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/peer-reviews/link").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/peer-reviews/projects/*").permitAll()
-                        .requestMatchers("/ai/call").permitAll() // todo: 제거
 
                         .anyRequest().authenticated()
                 );
