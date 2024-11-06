@@ -298,26 +298,26 @@ public class ProjectService {
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getMeInvolvedProjects(String myEmail, int page, int size) {
+    public Page<SummaryProjectDto> getMeInvolvedProjects(String myEmail, int page, int size) {
         Page<Project> projectPage = projectRepository.findProjectsWithCategoriesAndMembersByEmail(myEmail, PageRequest.of(page, size));
-        return getProjectsSummary(myEmail, projectPage.getContent());
+        return getProjectsSummary(myEmail, projectPage);
     }
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getWhoInvolvedProjects(String userId, int page, int size) {
+    public Page<SummaryProjectDto> getWhoInvolvedProjects(String userId, int page, int size) {
         Page<Project> projectPage = projectRepository.findByMemberUserId(userId, PageRequest.of(page, size));
         Users user = userRepository.findById(userId)
             .orElseThrow(() -> new EntityNotFoundException("user not found by id : " + userId));
 
-        return getProjectsSummary(user.getEmail(), projectPage.getContent());
+        return getProjectsSummary(user.getEmail(), projectPage);
     }
 
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getMeRegisteredProjects(String myEmail, int page, int size) {
+    public Page<SummaryProjectDto> getMeRegisteredProjects(String myEmail, int page, int size) {
         Page<Project> projectPage = projectRepository.findProjectsWithCategoriesAndMembersByRegister(myEmail, PageRequest.of(page, size));
-        return getProjectsSummary(myEmail, projectPage.getContent());
+        return getProjectsSummary(myEmail, projectPage);
     }
 
-    private List<SummaryProjectDto> getProjectsSummary(String myEmail, List<Project> projects) {
+    private Page<SummaryProjectDto> getProjectsSummary(String myEmail, Page<Project> projects) {
         List<Integer> projectIds = projects.stream()
             .map(Project::getProjectId)
             .toList();
@@ -329,14 +329,13 @@ public class ProjectService {
 
         Map<Integer, Integer> surveyParticipantsMap = projectUserJoinRepository.findSurveyParticipantsByProjectIds(projectIds);
 
-        return projects.stream()
+        return projects
             .map(project -> convertToProjectSummaryDto(
                 myEmail,
                 project,
                 peerReviewResultsMap.get(project.getProjectId()),
                 surveyParticipantsMap.getOrDefault(project.getProjectId(), 0)
-            ))
-            .collect(Collectors.toList());
+            ));
     }
 
     private SummaryProjectDto convertToSummaryDto(Project project) {

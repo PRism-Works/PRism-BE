@@ -7,6 +7,7 @@ import com.prismworks.prism.domain.project.dto.*;
 import com.prismworks.prism.domain.project.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -70,7 +71,7 @@ public class ProjectController {
         @RequestParam(defaultValue = "10") int size
     ) {
         String myEmail = userContext.getEmail();
-        List<SummaryProjectDto> myProjects = projectService.getMeInvolvedProjects(myEmail, page, size);
+        Page<SummaryProjectDto> myProjects = projectService.getMeInvolvedProjects(myEmail, page, size);
         return new ApiSuccessResponse(HttpStatus.OK.value(), myProjects);
     }
 
@@ -81,7 +82,7 @@ public class ProjectController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
-        List<SummaryProjectDto> whosProjects = projectService.getWhoInvolvedProjects(userId, page, size);
+        Page<SummaryProjectDto> whosProjects = projectService.getWhoInvolvedProjects(userId, page, size);
         return new ApiSuccessResponse(HttpStatus.OK.value(), whosProjects);
     }
 
@@ -92,7 +93,7 @@ public class ProjectController {
         @RequestParam(defaultValue = "10") int size
     ) {
         String myEmail = userContext.getEmail();
-        List<SummaryProjectDto> myRegisteredProjects = projectService.getMeRegisteredProjects(myEmail, page, size);
+        Page<SummaryProjectDto> myRegisteredProjects = projectService.getMeRegisteredProjects(myEmail, page, size);
         return new ApiSuccessResponse(HttpStatus.OK.value(), myRegisteredProjects);
     }
 
