@@ -1,8 +1,8 @@
-package com.prismworks.prism.domain.community.controller;
+package com.prismworks.prism.domain.post.controller;
 
 import com.prismworks.prism.common.response.ApiSuccessResponse;
-import com.prismworks.prism.domain.community.dto.CommunityDto.CreateRecruitmentPostRequest;
-import com.prismworks.prism.domain.community.dto.CommunityDto.CreateRecruitmentPostResponse;
+import com.prismworks.prism.domain.post.dto.PostDto.CreateProjectPostRequest;
+import com.prismworks.prism.domain.post.dto.PostDto.CreateProjectPostResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,21 +10,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/community")
+@RequestMapping("/api/v1/posts")
 @RestController
-public class CommunityController {
+public class PostController {
 
-    @PostMapping("/team-recruitment")
-    public ApiSuccessResponse createRecruitmentPost(@RequestBody CreateRecruitmentPostRequest request) {
-        return ApiSuccessResponse.defaultOk(CreateRecruitmentPostResponse.builder()
-            .recruitmentStartAt(request.getRecruitmentStartAt())
-            .recruitmentEndAt(request.getRecruitmentEndAt())
+    @PostMapping("/project")
+    public ApiSuccessResponse createProjectPost(@RequestBody CreateProjectPostRequest request) {
+        return ApiSuccessResponse.defaultOk(CreateProjectPostResponse.builder()
+            .recruitStartAt(request.getRecruitStartAt())
+            .recruitEndAt(request.getRecruitEndAt())
             .contactMethod(request.getContactMethod())
             .contactInfo(request.getContactInfo())
             .applyMethod(request.getApplyMethod())
             .applyInfo(request.getApplyInfo())
             .projectProcessMethod(request.getProjectProcessMethod())
-            .recruitmentPositions(request.getRecruitmentPositions())
+            .recruitPositions(request.getRecruitPositions())
             .title(request.getTitle())
             .content(request.getContent())
             .build());
