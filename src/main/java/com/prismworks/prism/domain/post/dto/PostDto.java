@@ -8,21 +8,23 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 public class PostDto {
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateProjectPostRequest {
-        private final LocalDateTime recruitStartAt;
-        private final LocalDateTime recruitEndAt;
-        private final ContactMethod contactMethod;
-        private final String contactInfo;
-        private final ContactMethod applyMethod;
-        private final String applyInfo;
-        private final ProjectProcessMethod projectProcessMethod;
-        private final List<RecruitPositionItem> recruitPositions;
-        private final String title;
-        private final String content;
+        private LocalDateTime recruitStartAt;
+        private LocalDateTime recruitEndAt;
+        private ContactMethod contactMethod;
+        private String contactInfo;
+        private ContactMethod applyMethod;
+        private String applyInfo;
+        private ProjectProcessMethod projectProcessMethod;
+        private List<RecruitPositionItem> recruitPositions;
+        private String title;
+        private String content;
     }
 
     @Getter
@@ -47,5 +49,17 @@ public class PostDto {
         private final List<RecruitPositionItem> recruitPositions;
         private final String title;
         private final String content;
+    }
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class GetMyProjectPostsResponse {
+        private final Long postId;
+        private final List<ProjectPosition> positions;
+        private final String title;
+        private final List<String> categories;
+        private final LocalDateTime recruitEndAt;
+        private final int viewCount;
     }
 }
