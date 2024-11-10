@@ -10,8 +10,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum RecruitmentStatus {
-    RECRUITING("모집중"),
-    CLOSED("모집완료");
+    RECRUITING("recuriting"),
+    CLOSED("closed");
 
     private final String description;
 

@@ -1,14 +1,8 @@
 package com.prismworks.prism.domain.community.controller;
 
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.Function;
 
-import com.prismworks.prism.common.dto.PageResponse;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.community.dto.CommunityDto;
 import com.prismworks.prism.domain.community.dto.CommunityDto.CreateRecruitmentPostRequest;
@@ -17,17 +11,10 @@ import com.prismworks.prism.domain.community.model.ContactMethod;
 import com.prismworks.prism.domain.community.model.ProjectPosition;
 import com.prismworks.prism.domain.community.model.ProjectProcessMethod;
 import com.prismworks.prism.domain.community.model.RecruitmentStatus;
-import com.prismworks.prism.domain.project.Repository.custom.projection.ProjectProjection;
-import com.prismworks.prism.domain.project.dto.MemberDetailDto;
 import com.prismworks.prism.domain.project.dto.MemberDto;
-import com.prismworks.prism.domain.user.dto.UserDto;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,7 +50,7 @@ public class CommunityController {
             .recruitmentStatus(RecruitmentStatus.RECRUITING)
             .title("스위그 Prism 모집중")
             .writer("눈꽃")
-            .view_count(20)
+            .viewCount(20)
             .projectUrlLink("https://prism-space.vercel.app/")
             .projectDescription("이 프로젝트는 알게 모르게 침투한 영역에 대한 ㅇㅇㅇㅇ")
             .categories(Arrays.asList("금융", "생산성"))
