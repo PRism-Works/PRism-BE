@@ -3,8 +3,18 @@ package com.prismworks.prism.domain.community.dto;
 import com.prismworks.prism.domain.community.model.ContactMethod;
 import com.prismworks.prism.domain.community.model.ProjectPosition;
 import com.prismworks.prism.domain.community.model.ProjectProcessMethod;
+import com.prismworks.prism.domain.community.model.RecruitmentStatus;
+import com.prismworks.prism.domain.project.dto.MemberDetailDto;
+import com.prismworks.prism.domain.project.dto.MemberDto;
+import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
+import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
+import com.prismworks.prism.domain.user.dto.UserDto;
+
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,5 +56,28 @@ public class CommunityDto {
         private final List<RecruitmentPositionItem> recruitmentPositions;
         private final String title;
         private final String content;
+    }
+
+    @Getter
+    @Builder
+    public class RecruitmentPostDetailResponse {
+        private final RecruitmentStatus recruitmentStatus;
+        private final String title;
+        private final String content;
+        private final String writer;
+        private final int view_count;
+        private final String projectUrlLink;
+        private final String projectDescription;
+        private final List<String> categories;
+        private final List<String> skills;
+        private final LocalDateTime recruitmentStartAt;
+        private final LocalDateTime recruitmentEndAt;
+        private final ProjectProcessMethod projectProcessMethod;
+        private final List<RecruitmentPositionItem> recruitmentPositions;
+        private final ContactMethod contactMethod;
+        private final String contactInfo;
+        private final ContactMethod applicationMethod;
+        private final String applicationInfo;
+        private final List<MemberDto.MemberDetailDto> teamMembers;
     }
 }
