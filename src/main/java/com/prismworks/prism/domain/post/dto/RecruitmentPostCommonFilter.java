@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProjectPostCommonFilter {
+public class RecruitmentPostCommonFilter {
     private ProjectPosition position;
     private String category;
     private ProjectProcessMethod processMethod;

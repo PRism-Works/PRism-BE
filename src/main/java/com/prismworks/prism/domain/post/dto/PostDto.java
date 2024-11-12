@@ -14,7 +14,7 @@ public class PostDto {
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CreateProjectPostRequest {
+    public static class CreateRecruitmentPostRequest {
         private LocalDateTime recruitStartAt;
         private LocalDateTime recruitEndAt;
         private ContactMethod contactMethod;
@@ -37,7 +37,7 @@ public class PostDto {
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class CreateProjectPostResponse { // todo: response에 id 추가
+    public static class CreateRecruitmentPostResponse { // todo: response에 id 추가
         private final Long postId;
         private final LocalDateTime recruitStartAt;
         private final LocalDateTime recruitEndAt;
@@ -54,7 +54,7 @@ public class PostDto {
     @Getter
     @Builder
     @AllArgsConstructor
-    public static class GetMyProjectPostsResponse {
+    public static class GetMyRecruitmentPostsResponse {
         private final Long postId;
         private final List<ProjectPosition> positions;
         private final String title;

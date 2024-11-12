@@ -2,10 +2,10 @@ package com.prismworks.prism.domain.post.controller;
 
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.post.dto.MyPostCommonFilter;
-import com.prismworks.prism.domain.post.dto.PostDto.CreateProjectPostRequest;
-import com.prismworks.prism.domain.post.dto.PostDto.CreateProjectPostResponse;
-import com.prismworks.prism.domain.post.dto.PostDto.GetMyProjectPostsResponse;
-import com.prismworks.prism.domain.post.dto.ProjectPostCommonFilter;
+import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest;
+import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostResponse;
+import com.prismworks.prism.domain.post.dto.PostDto.GetMyRecruitmentPostsResponse;
+import com.prismworks.prism.domain.post.dto.RecruitmentPostCommonFilter;
 import com.prismworks.prism.domain.post.model.ProjectPosition;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PostController {
 
-    @PostMapping("/project")
-    public ApiSuccessResponse createProjectPost(@RequestBody CreateProjectPostRequest request) {
-        return ApiSuccessResponse.defaultOk(CreateProjectPostResponse.builder()
+    @PostMapping("/recruitment")
+    public ApiSuccessResponse createRecruitmentPost(@RequestBody CreateRecruitmentPostRequest request) {
+        return ApiSuccessResponse.defaultOk(CreateRecruitmentPostResponse.builder()
             .recruitStartAt(request.getRecruitStartAt())
             .recruitEndAt(request.getRecruitEndAt())
             .contactMethod(request.getContactMethod())
@@ -38,11 +38,11 @@ public class PostController {
             .build());
     }
 
-    @GetMapping("/project/my")
-    public ApiSuccessResponse getMyProjectPosts(
-        @RequestParam(required = false) ProjectPostCommonFilter projectPostCommonFilter,
+    @GetMapping("/recruitment/my")
+    public ApiSuccessResponse getMyRecruitmentPosts(
+        @RequestParam(required = false) RecruitmentPostCommonFilter recruitmentPostCommonFilter,
         @RequestParam MyPostCommonFilter type) {
-        return ApiSuccessResponse.defaultOk(GetMyProjectPostsResponse.builder()
+        return ApiSuccessResponse.defaultOk(GetMyRecruitmentPostsResponse.builder()
             .postId(1L)
             .positions(List.of(ProjectPosition.values()))
             .title("post title")
