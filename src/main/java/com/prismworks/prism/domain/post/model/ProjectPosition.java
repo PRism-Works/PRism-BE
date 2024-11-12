@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.community.model;
+package com.prismworks.prism.domain.post.model;
 
 import java.util.Arrays;
 
