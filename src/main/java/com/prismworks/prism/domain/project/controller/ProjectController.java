@@ -7,6 +7,7 @@ import com.prismworks.prism.domain.project.dto.*;
 import com.prismworks.prism.domain.project.service.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -64,23 +65,35 @@ public class ProjectController {
     }
 
     @GetMapping("/me-involved-projects")
-    public ApiSuccessResponse getMeInvolvedProjects(@CurrentUser UserContext userContext) {
+    public ApiSuccessResponse getMeInvolvedProjects(
+        @CurrentUser UserContext userContext,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
         String myEmail = userContext.getEmail();
-        List<SummaryProjectDto> myProjects = projectService.getMeInvolvedProjects(myEmail);
+        Page<SummaryProjectDto> myProjects = projectService.getMeInvolvedProjects(myEmail, page, size);
         return new ApiSuccessResponse(HttpStatus.OK.value(), myProjects);
     }
 
     //굳이 내가 아니라 다른사람 프로필 검색할 때 프로젝트 리스트 뿌려주는 api
     @GetMapping("/who-involved-projects")
-    public ApiSuccessResponse getWhoInvolvedProjects(@RequestParam("userId") String userId) {
-        List<SummaryProjectDto> whosProjects = projectService.getWhoInvolvedProjects(userId);
+    public ApiSuccessResponse getWhoInvolvedProjects(
+        @RequestParam("userId") String userId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        Page<SummaryProjectDto> whosProjects = projectService.getWhoInvolvedProjects(userId, page, size);
         return new ApiSuccessResponse(HttpStatus.OK.value(), whosProjects);
     }
 
     @GetMapping("/me-registered-projects")
-    public ApiSuccessResponse getMyRegisteredProjects(@CurrentUser UserContext userContext) {
+    public ApiSuccessResponse getMyRegisteredProjects(
+        @CurrentUser UserContext userContext,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+    ) {
         String myEmail = userContext.getEmail();
-        List<SummaryProjectDto> myRegisteredProjects = projectService.getMeRegisteredProjects(myEmail);
+        Page<SummaryProjectDto> myRegisteredProjects = projectService.getMeRegisteredProjects(myEmail, page, size);
         return new ApiSuccessResponse(HttpStatus.OK.value(), myRegisteredProjects);
     }
 

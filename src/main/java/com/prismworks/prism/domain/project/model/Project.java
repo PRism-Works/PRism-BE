@@ -6,6 +6,8 @@ import lombok.Data;
 
 import java.util.*;
 
+import org.hibernate.annotations.BatchSize;
+
 @Data
 @Entity
 @Table(name = "project")
@@ -32,6 +34,7 @@ public class Project {
     private List<String> hashTags;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @BatchSize(size = 100)
     @JsonManagedReference
     private Set<ProjectCategoryJoin> categories = new HashSet<>();
 
@@ -47,6 +50,7 @@ public class Project {
     private Date endDate;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 100)
     private List<ProjectUserJoin> members = new ArrayList<>();
     /*
     @Column(nullable = true)
