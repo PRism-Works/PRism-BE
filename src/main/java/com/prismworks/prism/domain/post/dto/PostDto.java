@@ -3,6 +3,8 @@ package com.prismworks.prism.domain.post.dto;
 import com.prismworks.prism.domain.post.model.ContactMethod;
 import com.prismworks.prism.domain.post.model.ProjectPosition;
 import com.prismworks.prism.domain.post.model.ProjectProcessMethod;
+import com.prismworks.prism.domain.post.model.RecruitmentStatus;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -61,5 +63,27 @@ public class PostDto {
         private final List<String> categories;
         private final LocalDateTime recruitEndAt;
         private final int viewCount;
+    }
+
+    @Getter
+    @Builder
+    public static class RecruitmentPostDetailDto {
+        private final RecruitmentStatus recruitmentStatus;
+        private final String title;
+        private final String content;
+        private final String writer;
+        private final int viewCount;
+        private final String projectUrlLink;
+        private final String projectDescription;
+        private final List<String> categories;
+        private final List<String> skills;
+        private final LocalDateTime recruitmentStartAt;
+        private final LocalDateTime recruitmentEndAt;
+        private final ProjectProcessMethod projectProcessMethod;
+        private final List<RecruitPositionItem> recruitmentPositions;
+        private final ContactMethod contactMethod;
+        private final String contactInfo;
+        private final ContactMethod applicationMethod;
+        private final String applicationInfo;
     }
 }
