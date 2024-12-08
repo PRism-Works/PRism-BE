@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/projects")
 @Validated
-public class ProjectController {
+public class ProjectController implements ProjectControllerDocs {
     @Autowired
     private ProjectService projectService;
 
