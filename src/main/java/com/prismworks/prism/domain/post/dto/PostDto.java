@@ -86,4 +86,15 @@ public class PostDto {
         private final ContactMethod applicationMethod;
         private final String applicationInfo;
     }
+
+    @Getter
+    @Builder
+    public static class RecruitmentPostResponseDto {
+        private final Long postId;
+        private final String content;
+        private final List<RecruitPositionItem> positions;
+        private final List<String> categories;
+        private final LocalDateTime recruitmentEndAt;
+        private final int viewCount;
+    }
 }

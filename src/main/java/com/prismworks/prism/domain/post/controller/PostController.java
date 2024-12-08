@@ -6,6 +6,8 @@ import com.prismworks.prism.domain.post.dto.PostDto;
 import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest;
 import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostResponse;
 import com.prismworks.prism.domain.post.dto.PostDto.GetMyRecruitmentPostsResponse;
+import com.prismworks.prism.domain.post.dto.PostDto.RecruitmentPostResponseDto;
+import com.prismworks.prism.domain.post.dto.PostDto.RecruitPositionItem;
 import com.prismworks.prism.domain.post.dto.RecruitmentPostCommonFilter;
 import com.prismworks.prism.domain.post.model.ContactMethod;
 import com.prismworks.prism.domain.post.model.ProjectPosition;
@@ -13,9 +15,15 @@ import com.prismworks.prism.domain.post.model.ProjectProcessMethod;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -84,5 +92,61 @@ public class PostController {
             .build();
 
         return ApiSuccessResponse.defaultOk(response);
+    }
+
+    @GetMapping("/recruitments")
+    public ResponseEntity<Map<String, Object>> getRecruitmentList(
+        @RequestParam(required = false) String positions,
+        @RequestParam(required = false) String categories,
+        @RequestParam(required = false) ContactMethod contactMethod,
+        @RequestParam(required = false) List<String> skills,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size)
+    {
+        // Mock 데이터 생성
+        List<RecruitmentPostResponseDto> teamBuildingList = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            RecruitmentPostResponseDto dto = RecruitmentPostResponseDto.builder()
+                .postId((long) (i + 1 + (page * size)))
+                .content("팀 빌딩 내용 " + (i + 1))
+                .positions(List.of(
+                    new RecruitPositionItem(ProjectPosition.DESIGNER, 2),
+                    new RecruitPositionItem(ProjectPosition.PLANNER, 1)
+                ))
+                .categories(List.of("카테고리1", "카테고리2"))
+                .recruitmentEndAt(LocalDateTime.now().plusDays(30))
+                .viewCount((i + 1) * 100)
+                .build();
+            teamBuildingList.add(dto);
+        }
+
+        // 페이징 데이터
+        Map<String, Object> pageable = new HashMap<>();
+        pageable.put("pageNumber", page);
+        pageable.put("pageSize", size);
+        pageable.put("sort", Map.of(
+            "empty", true,
+            "sorted", false,
+            "unsorted", true
+        ));
+        pageable.put("offset", page * size);
+        pageable.put("paged", true);
+        pageable.put("unpaged", false);
+
+        // 응답값 조립
+        Map<String, Object> data = new HashMap<>();
+        data.put("content", teamBuildingList);
+        data.put("pageable", pageable);
+        data.put("last", true);
+        data.put("totalElements", size);
+        data.put("totalPages", 1);
+        data.put("numberOfElements", teamBuildingList.size());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("status", 200);
+        response.put("data", data);
+
+        return ResponseEntity.ok(response);
     }
 }
