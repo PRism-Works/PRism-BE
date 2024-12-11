@@ -130,7 +130,7 @@ public class ProjectController {
                 .introduction("어떻게 줘야하나")
                 .roles(Arrays.asList("개발자", "기획자"))
                 .strengths(Arrays.asList("배려", "사고력"))
-                .interestDomains(Arrays.asList("금융", "생산성"))
+                .categories(Arrays.asList("금융", "생산성"))
                 .joinsProject(3)
                 .build()
             ,MemberDto.MemberDetailDto.builder()
@@ -140,7 +140,7 @@ public class ProjectController {
                 .introduction("3년차/재직중")
                 .roles(Arrays.asList("백엔드", "프론트"))
                 .strengths(Arrays.asList("친화력", "도전정신"))
-                .interestDomains(Arrays.asList("통신", "보안"))
+                .categories(Arrays.asList("통신", "보안"))
                 .joinsProject(3)
                 .build()
         );

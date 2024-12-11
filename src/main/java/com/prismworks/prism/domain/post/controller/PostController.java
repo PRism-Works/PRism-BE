@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -96,10 +97,7 @@ public class PostController {
 
     @GetMapping("/recruitments")
     public ResponseEntity<Map<String, Object>> getRecruitmentList(
-        @RequestParam(required = false) String positions,
-        @RequestParam(required = false) String categories,
-        @RequestParam(required = false) ContactMethod contactMethod,
-        @RequestParam(required = false) List<String> skills,
+        @ModelAttribute PostDto.RecruitmentPostRequestDto request,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size)
     {

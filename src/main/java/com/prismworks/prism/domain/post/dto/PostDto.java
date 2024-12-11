@@ -7,6 +7,9 @@ import com.prismworks.prism.domain.post.model.RecruitmentStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.springframework.web.bind.annotation.RequestParam;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -96,5 +99,13 @@ public class PostDto {
         private final List<String> categories;
         private final LocalDateTime recruitmentEndAt;
         private final int viewCount;
+    }
+
+    @Builder
+    public static class RecruitmentPostRequestDto {
+        String positions;
+        List<String> categories;
+        ContactMethod contactMethod;
+        List<String> skills;
     }
 }

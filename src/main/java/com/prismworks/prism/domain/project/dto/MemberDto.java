@@ -29,7 +29,7 @@ public class MemberDto {
         private String introduction;
         private List<String> roles;
         private List<String> strengths;
-        private List<String> interestDomains;
+        private List<String> categories;
         private int joinsProject;
         private boolean anonyVisibility;
     }
