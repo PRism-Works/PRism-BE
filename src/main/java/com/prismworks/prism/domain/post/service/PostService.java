@@ -1,6 +1,7 @@
 package com.prismworks.prism.domain.post.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.prismworks.prism.domain.post.dto.PostDto.RecruitmentPostDetailDto;
 import com.prismworks.prism.domain.post.repository.PostRepository;
@@ -20,6 +21,7 @@ public class PostService {
 		this.recruitmentRepository = recruitmentRepository;
 	}
 
+	@Transactional
 	public RecruitmentPostDetailDto getRecruitmentDetail(Long postId) {
 		Post post = postRepository.findById(postId)
 			.orElseThrow(() -> new EntityNotFoundException("Post not found for ID: " + postId));
