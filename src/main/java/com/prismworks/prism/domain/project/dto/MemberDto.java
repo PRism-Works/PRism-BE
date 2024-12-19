@@ -1,6 +1,7 @@
 package com.prismworks.prism.domain.project.dto;
 
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,4 +18,19 @@ public class MemberDto {
     @NotEmpty
     private List<String> roles;
     private boolean anonyVisibility;
+
+    @Data
+    @AllArgsConstructor
+    @Builder
+    public static class MemberDetailDto {
+        private String userId;
+        private String name;
+        private String email;
+        private String introduction;
+        private List<String> roles;
+        private List<String> strengths;
+        private List<String> categories;
+        private int joinsProject;
+        private boolean anonyVisibility;
+    }
 }
