@@ -12,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -116,5 +117,34 @@ public class ProjectController {
                 request.isAnonyVisibility()
         );
         return new ApiSuccessResponse(HttpStatus.OK.value(), projectVisibilityUpdateDto);
+    }
+
+    @GetMapping("/{projectId}/members")
+    public ApiSuccessResponse getProjectMembers(@PathVariable int projectId) {
+
+        List<MemberDto.MemberDetailDto> result = Arrays.asList(
+            MemberDto.MemberDetailDto.builder()
+                .userId("아이디")
+                .name("일지영")
+                .email("이메일이래용")
+                .introduction("어떻게 줘야하나")
+                .roles(Arrays.asList("개발자", "기획자"))
+                .strengths(Arrays.asList("배려", "사고력"))
+                .interestDomains(Arrays.asList("금융", "생산성"))
+                .joinsProject(3)
+                .build()
+            ,MemberDto.MemberDetailDto.builder()
+                .userId("아이디")
+                .name("이지영")
+                .email("email")
+                .introduction("3년차/재직중")
+                .roles(Arrays.asList("백엔드", "프론트"))
+                .strengths(Arrays.asList("친화력", "도전정신"))
+                .interestDomains(Arrays.asList("통신", "보안"))
+                .joinsProject(3)
+                .build()
+        );
+
+        return ApiSuccessResponse.defaultOk(result);
     }
 }
