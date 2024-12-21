@@ -14,7 +14,7 @@ public class PostViewCountAspect {
 
 	private final PostRepository postRepository;
 
-	@Before("execution(* com.prismworks.prism.domain.post.service.PostService.get*Detail(..)) && args(postId, ..)")
+	@Before("execution(* com.prismworks.prism.domain.post.application.PostFacade.viewPost()) && args(postId, ..)")
 	public void incrementViewCount(Long postId) {
 		postRepository.incrementViewCountById(postId);
 	}

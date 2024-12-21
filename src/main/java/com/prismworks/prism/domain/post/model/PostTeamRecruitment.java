@@ -16,13 +16,16 @@ public class PostTeamRecruitment {
 
 	@Id
 	@Column(name = "post_team_recruitment_id")
-	private Integer postTeamRecruitmentId;
+	private Long postTeamRecruitmentId;
 
 	@Column(name = "post_id")
 	private Long postId;
 
 	@Column(name = "project_id")
-	private Integer projectId;
+	private Long projectId;
+
+	@Column(name = "recruitment_status")
+	private RecruitmentStatus recruitmentStatus;
 
 	@Column(name = "contact_method")
 	private String contactMethod;

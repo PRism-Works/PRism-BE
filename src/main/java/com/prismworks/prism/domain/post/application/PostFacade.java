@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.post.application;
 
+import com.prismworks.prism.domain.post.dto.PostDto;
 import com.prismworks.prism.domain.post.service.PostService;
 import com.prismworks.prism.domain.project.service.ProjectService;
 import com.prismworks.prism.domain.user.service.UserService;
@@ -13,7 +14,13 @@ public class PostFacade {
     private final UserService userService;
     private final ProjectService projectService;
 
-    public void viewPost(Long postId) { // 게시글 상세조회
-        // todo: implement
+    public PostDto.RecruitmentPostDetailDto viewPost(Long postId) {
+
+        PostDto.RecruitmentPostDetailDto post = postService.getRecruitmentDetail(postId);
+
+        //TODO post.projectId를 통해서 프로젝트 가져오기
+        //TODO post.getPostTeamRecruitmentId() 를 이용하여 RecruitmentPosition 데이터 가져오기
+
+        return null;
     }
 }

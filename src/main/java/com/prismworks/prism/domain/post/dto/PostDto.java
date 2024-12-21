@@ -4,6 +4,7 @@ import com.prismworks.prism.domain.post.model.ApplicationMethod;
 import com.prismworks.prism.domain.post.model.ContactMethod;
 import com.prismworks.prism.domain.post.model.ProjectPosition;
 import com.prismworks.prism.domain.post.model.ProjectProcessMethod;
+import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
 import com.prismworks.prism.domain.post.model.Post;
 import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
@@ -74,6 +75,8 @@ public class PostDto {
     @Builder
     public static class RecruitmentPostDetailDto {
         private Long postId;
+        private Long projectId;
+        private Long postTeamRecruitmentId;
         private final RecruitmentStatus recruitmentStatus;
         private final String title;
         private final String content;
@@ -83,31 +86,32 @@ public class PostDto {
         private final LocalDateTime recruitmentStart;
         private final LocalDateTime recruitmentEnd;
         private final ProjectProcessMethod processMethod;
-        private final List<RecruitPositionItem> recruitmentPositions;
+        private final List<RecruitmentPosition> recruitmentPositions;
         private final ContactMethod contactMethod;
         private final String contactInfo;
         private final ApplicationMethod applicationMethod;
         private final String applicationInfo;
 
-        public static RecruitmentPostDetailDto of(Post post, PostTeamRecruitment recruitment) {
+        public static RecruitmentPostDetailDto of(Post post, PostTeamRecruitment recruitment, List<RecruitmentPosition> recruitmentPositions) {
             return RecruitmentPostDetailDto.builder()
                 .postId(post.getPostId())
+                .projectId(recruitment.getProjectId())
+                .postTeamRecruitmentId(recruitment.getPostTeamRecruitmentId())
+                .recruitmentStatus(recruitment.getRecruitmentStatus())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .writer(post.getWriter())
+                .writer(post.getUserId())
                 .viewCount(post.getViewCount())
                 .createdAt(post.getCreatedAt())
-                .recruitmentStart(recruitment.getRecruitmentStart())
-                .recruitmentEnd(recruitment.getRecruitmentEnd())
+                .recruitmentStart(recruitment.getRecruitmentStartAt())
+                .recruitmentEnd(recruitment.getRecruitmentEndAt())
                 .contactMethod(ContactMethod.from(recruitment.getContactMethod().toString()))
                 .contactInfo(recruitment.getContactInfo())
-                .applicationMethod(ApplicationMethod.from(recruitment.getApplicationMethod().toString()))
-                .applicationInfo(recruitment.getApplicationInfo())
+                .applicationMethod(ApplicationMethod.from(recruitment.getApplyMethod().toString()))
+                .applicationInfo(recruitment.getApplyInfo())
                 .processMethod(ProjectProcessMethod.from(recruitment.getProcessMethod().toString()))
                 .recruitmentPositions(
-                    recruitment.getRecruitmentPositions().stream()
-                        .map(position -> new RecruitPositionItem(ProjectPosition.from(position.getPosition()), position.getPositionSize()))
-                        .collect(Collectors.toList())
+                    recruitmentPositions
                 )
                 .build();
         }

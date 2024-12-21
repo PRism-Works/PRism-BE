@@ -1,6 +1,7 @@
 package com.prismworks.prism.domain.post.controller;
 
 import com.prismworks.prism.common.response.ApiSuccessResponse;
+import com.prismworks.prism.domain.post.application.PostFacade;
 import com.prismworks.prism.domain.post.dto.MyPostCommonFilter;
 import com.prismworks.prism.domain.post.dto.PostDto;
 import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest;
@@ -32,8 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PostController {
 
-    @Autowired
     private final PostService service;
+    private final PostFacade facade;
 
     @PostMapping("/recruitment")
     public ApiSuccessResponse createRecruitmentPost(@RequestBody CreateRecruitmentPostRequest request) {
@@ -68,6 +69,7 @@ public class PostController {
     @GetMapping("/recruitment/detail/{postId}")
     public ApiSuccessResponse getRecruitmentPostDetail(@PathVariable long postId) {
         PostDto.RecruitmentPostDetailDto response = service.getRecruitmentDetail(postId);
+        PostDto.RecruitmentPostDetailDto responses = facade.viewPost(postId);
 
         return ApiSuccessResponse.defaultOk(response);
     }
