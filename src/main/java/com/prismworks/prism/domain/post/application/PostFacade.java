@@ -2,6 +2,7 @@ package com.prismworks.prism.domain.post.application;
 
 import com.prismworks.prism.domain.post.dto.PostDto;
 import com.prismworks.prism.domain.post.service.PostService;
+import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.service.ProjectService;
 import com.prismworks.prism.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,9 @@ public class PostFacade {
 
         PostDto.RecruitmentPostDetailDto post = postService.getRecruitmentDetail(postId);
 
-        //TODO post.projectId를 통해서 프로젝트 가져오기
-        //TODO post.getPostTeamRecruitmentId() 를 이용하여 RecruitmentPosition 데이터 가져오기
+        Project project = projectService.getProjectDetails(post.getProjectId());
+
+        //TODO 프로젝트 멤버 데이터 가져오기
 
         return null;
     }

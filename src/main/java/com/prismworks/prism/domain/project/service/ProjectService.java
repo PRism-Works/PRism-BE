@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class ProjectService {
 
@@ -624,6 +626,12 @@ public class ProjectService {
                 .ownerName(ownerName)
                 .notReviewingMemberEmails(notReviewingMemberEmails)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public Project getProjectDetails(Integer projectId) {
+        return projectRepository.findById(projectId)
+            .orElseThrow(() -> new EntityNotFoundException("Project with ID " + projectId + " not found."));
     }
 
     @Transactional

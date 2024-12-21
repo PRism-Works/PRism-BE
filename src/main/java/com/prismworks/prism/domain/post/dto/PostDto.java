@@ -75,7 +75,7 @@ public class PostDto {
     @Builder
     public static class RecruitmentPostDetailDto {
         private Long postId;
-        private Long projectId;
+        private Integer projectId;
         private Long postTeamRecruitmentId;
         private final RecruitmentStatus recruitmentStatus;
         private final String title;

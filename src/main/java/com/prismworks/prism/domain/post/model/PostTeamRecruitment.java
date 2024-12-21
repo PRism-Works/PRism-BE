@@ -22,7 +22,7 @@ public class PostTeamRecruitment {
 	private Long postId;
 
 	@Column(name = "project_id")
-	private Long projectId;
+	private Integer projectId;
 
 	@Column(name = "recruitment_status")
 	private RecruitmentStatus recruitmentStatus;
