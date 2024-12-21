@@ -1,10 +1,12 @@
 package com.prismworks.prism.domain.post.application;
 
+import java.util.List;
+
 import com.prismworks.prism.domain.post.dto.PostDto;
 import com.prismworks.prism.domain.post.service.PostService;
-import com.prismworks.prism.domain.project.model.Project;
+import com.prismworks.prism.domain.project.dto.MemberDetailDto;
+import com.prismworks.prism.domain.project.dto.ProjectSummaryDto;
 import com.prismworks.prism.domain.project.service.ProjectService;
-import com.prismworks.prism.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,17 +14,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class PostFacade {
     private final PostService postService;
-    private final UserService userService;
     private final ProjectService projectService;
 
-    public PostDto.RecruitmentPostDetailDto viewPost(Long postId) {
+    public PostDto.ViewPostDto viewPost(Long postId) {
 
         PostDto.RecruitmentPostDetailDto post = postService.getRecruitmentDetail(postId);
 
-        Project project = projectService.getProjectDetails(post.getProjectId());
+        ProjectSummaryDto project = projectService.getProjectSummary(post.getProjectId());
 
-        //TODO 프로젝트 멤버 데이터 가져오기
+        List<MemberDetailDto> projectMembers = projectService.getProjectMembers(post.getProjectId());
 
-        return null;
+        return PostDto.ViewPostDto.builder()
+            .recruitmentPostDetail(post)
+            .projectSummary(project)
+            .projectMembers(projectMembers)
+            .build();
     }
 }

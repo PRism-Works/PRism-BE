@@ -8,10 +8,11 @@ import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
 import com.prismworks.prism.domain.post.model.Post;
 import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
+import com.prismworks.prism.domain.project.dto.MemberDetailDto;
+import com.prismworks.prism.domain.project.dto.ProjectSummaryDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -105,15 +106,22 @@ public class PostDto {
                 .createdAt(post.getCreatedAt())
                 .recruitmentStart(recruitment.getRecruitmentStartAt())
                 .recruitmentEnd(recruitment.getRecruitmentEndAt())
-                .contactMethod(ContactMethod.from(recruitment.getContactMethod().toString()))
+                .contactMethod(ContactMethod.from(recruitment.getContactMethod()))
                 .contactInfo(recruitment.getContactInfo())
-                .applicationMethod(ApplicationMethod.from(recruitment.getApplyMethod().toString()))
+                .applicationMethod(ApplicationMethod.from(recruitment.getApplyMethod()))
                 .applicationInfo(recruitment.getApplyInfo())
-                .processMethod(ProjectProcessMethod.from(recruitment.getProcessMethod().toString()))
+                .processMethod(ProjectProcessMethod.from(recruitment.getProcessMethod()))
                 .recruitmentPositions(
                     recruitmentPositions
                 )
                 .build();
         }
+    }
+
+    @Builder
+    public static class ViewPostDto {
+        private RecruitmentPostDetailDto recruitmentPostDetail;
+        private ProjectSummaryDto projectSummary;
+        private List<MemberDetailDto> projectMembers;
     }
 }

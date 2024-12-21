@@ -8,18 +8,12 @@ import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest
 import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostResponse;
 import com.prismworks.prism.domain.post.dto.PostDto.GetMyRecruitmentPostsResponse;
 import com.prismworks.prism.domain.post.dto.RecruitmentPostCommonFilter;
-import com.prismworks.prism.domain.post.model.ContactMethod;
 import com.prismworks.prism.domain.post.model.ProjectPosition;
-import com.prismworks.prism.domain.post.model.ProjectProcessMethod;
-import com.prismworks.prism.domain.post.model.RecruitmentStatus;
-import com.prismworks.prism.domain.post.service.PostService;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PostController {
 
-    private final PostService service;
     private final PostFacade facade;
 
     @PostMapping("/recruitment")
@@ -68,8 +61,7 @@ public class PostController {
 
     @GetMapping("/recruitment/detail/{postId}")
     public ApiSuccessResponse getRecruitmentPostDetail(@PathVariable long postId) {
-        PostDto.RecruitmentPostDetailDto response = service.getRecruitmentDetail(postId);
-        PostDto.RecruitmentPostDetailDto responses = facade.viewPost(postId);
+        PostDto.ViewPostDto response = facade.viewPost(postId);
 
         return ApiSuccessResponse.defaultOk(response);
     }

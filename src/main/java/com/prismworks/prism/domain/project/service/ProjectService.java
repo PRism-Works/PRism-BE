@@ -3,7 +3,6 @@ package com.prismworks.prism.domain.project.service;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResult;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
-import com.prismworks.prism.domain.peerreview.repository.PeerReviewResponseHistoryRepository;
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewResultRepository;
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRepository;
 import com.prismworks.prism.domain.project.Repository.CategoryRepository;
@@ -18,8 +17,8 @@ import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.repository.UserRepository;
+
 import org.hibernate.Hibernate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,22 +31,18 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class ProjectService {
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ProjectRepository projectRepository;
-    @Autowired
-    private ProjectUserJoinRepository projectUserJoinRepository;
-    @Autowired
-    private PeerReviewResultRepository peerReviewResultRepository;
-    @Autowired
-    private PeerReviewTotalResultRepository peerReviewTotalResultRepository;
+    private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
+    private final ProjectUserJoinRepository projectUserJoinRepository;
+    private final PeerReviewResultRepository peerReviewResultRepository;
+    private final PeerReviewTotalResultRepository peerReviewTotalResultRepository;
 
     @Transactional
     public Category saveCategoryTransactional(String name) {
@@ -116,7 +111,7 @@ public class ProjectService {
             join.setRoles(memberDto.getRoles());
             join.setAnonyVisibility(true);
             join.setPeerReviewDone(false);
-            foundUser.ifPresentOrElse(join::setUser, () -> {;});
+            foundUser.ifPresentOrElse(join::setUser, () -> {});
             return join;
         }).collect(Collectors.toList());
 
@@ -230,7 +225,7 @@ public class ProjectService {
                     }
                     return join;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         if (project.getMembers() != null) {
             project.getMembers().clear();
@@ -403,7 +398,7 @@ public class ProjectService {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
 
-        if (!project.getMembers().stream().anyMatch(member -> member.getEmail().equals(myEmail))) {
+        if (project.getMembers().stream().noneMatch(member -> member.getEmail().equals(myEmail))) {
             throw new ProjectException("You are not a member of this project", ProjectErrorCode.UNAUTHORIZED);
         }
 
@@ -528,9 +523,7 @@ public class ProjectService {
 
         updatedMember.setEmail(userContext.getEmail());
         userRepository.findById(userContext.getUserId())
-                .ifPresentOrElse(user -> {
-                    updatedMember.setUser(user);
-                }, () -> {
+                .ifPresentOrElse(updatedMember::setUser, () -> {
                     throw new ProjectException("User not found with given ID", ProjectErrorCode.USER_NOT_FOUND);
                 });
 
@@ -629,9 +622,28 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public Project getProjectDetails(Integer projectId) {
-        return projectRepository.findById(projectId)
+    public ProjectSummaryDto getProjectSummary(Integer projectId) {
+        Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new EntityNotFoundException("Project with ID " + projectId + " not found."));
+
+        return ProjectSummaryDto.builder()
+            .projectName(project.getProjectName())
+            .categories(project.getCategories()
+                .stream()
+                .map(category -> category.getCategory().getName())
+                .collect(
+                Collectors.toSet())
+            )
+            .skills(project.getSkills())
+            .projectUrlLink(project.getProjectUrlLink())
+            .startDate(project.getStartDate())
+            .endDate(project.getEndDate())
+            .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberDetailDto> getProjectMembers(Integer projectId) {
+        return projectUserJoinRepository.findProjectMemberDetails(projectId);
     }
 
     @Transactional
