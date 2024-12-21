@@ -1,12 +1,17 @@
 package com.prismworks.prism.domain.post.dto;
 
+import com.prismworks.prism.domain.post.model.ApplicationMethod;
 import com.prismworks.prism.domain.post.model.ContactMethod;
 import com.prismworks.prism.domain.post.model.ProjectPosition;
 import com.prismworks.prism.domain.post.model.ProjectProcessMethod;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
+import com.prismworks.prism.domain.post.model.Post;
+import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -68,22 +73,43 @@ public class PostDto {
     @Getter
     @Builder
     public static class RecruitmentPostDetailDto {
+        private Long postId;
         private final RecruitmentStatus recruitmentStatus;
         private final String title;
         private final String content;
         private final String writer;
         private final int viewCount;
-        private final String projectUrlLink;
-        private final String projectDescription;
-        private final List<String> categories;
-        private final List<String> skills;
-        private final LocalDateTime recruitmentStartAt;
-        private final LocalDateTime recruitmentEndAt;
-        private final ProjectProcessMethod projectProcessMethod;
+        private LocalDateTime createdAt;
+        private final LocalDateTime recruitmentStart;
+        private final LocalDateTime recruitmentEnd;
+        private final ProjectProcessMethod processMethod;
         private final List<RecruitPositionItem> recruitmentPositions;
         private final ContactMethod contactMethod;
         private final String contactInfo;
-        private final ContactMethod applicationMethod;
+        private final ApplicationMethod applicationMethod;
         private final String applicationInfo;
+
+        public static RecruitmentPostDetailDto of(Post post, PostTeamRecruitment recruitment) {
+            return RecruitmentPostDetailDto.builder()
+                .postId(post.getPostId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .writer(post.getWriter())
+                .viewCount(post.getViewCount())
+                .createdAt(post.getCreatedAt())
+                .recruitmentStart(recruitment.getRecruitmentStart())
+                .recruitmentEnd(recruitment.getRecruitmentEnd())
+                .contactMethod(ContactMethod.from(recruitment.getContactMethod().toString()))
+                .contactInfo(recruitment.getContactInfo())
+                .applicationMethod(ApplicationMethod.from(recruitment.getApplicationMethod().toString()))
+                .applicationInfo(recruitment.getApplicationInfo())
+                .processMethod(ProjectProcessMethod.from(recruitment.getProcessMethod().toString()))
+                .recruitmentPositions(
+                    recruitment.getRecruitmentPositions().stream()
+                        .map(position -> new RecruitPositionItem(ProjectPosition.from(position.getPosition()), position.getPositionSize()))
+                        .collect(Collectors.toList())
+                )
+                .build();
+        }
     }
 }
