@@ -1,23 +1,19 @@
 package com.prismworks.prism.domain.post.model;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
+@NoArgsConstructor
 @Table(name = "post")
+@Entity
 public class Post {
 
 	@Id
@@ -25,30 +21,24 @@ public class Post {
 	@Column(name = "post_id")
 	private Long postId;
 
-	@Column(name = "writer", nullable = false, length = 50)
-	private String writer;
+	@Column(name = "user_id")
+	private String userId;
 
-	@Column(name = "view_count", nullable = false)
+	@Column(name = "view_count")
 	private Integer viewCount;
 
-	@Column(name = "title", nullable = false, length = 50)
+	@Column(name = "title")
 	private String title;
 
-	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
+	@Column(name = "content")
 	private String content;
 
-	@Column(name = "created_at", nullable = false, updatable = false)
+	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 
-	@Column(name = "updated_at", nullable = false)
+	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
-
-	@OneToOne(mappedBy = "post", cascade = CascadeType.ALL)
-	private PostTeamRecruitment postTeamRecruitment;
-
-	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-	private List<Comment> comments = new ArrayList<>();
 }

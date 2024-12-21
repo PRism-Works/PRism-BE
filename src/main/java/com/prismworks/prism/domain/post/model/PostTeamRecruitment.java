@@ -1,68 +1,56 @@
 package com.prismworks.prism.domain.post.model;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
+@NoArgsConstructor
 @Table(name = "post_team_recruitment")
+@Entity
 public class PostTeamRecruitment {
 
 	@Id
-	@Column(name = "post_id")
-	private Integer postId;
+	@Column(name = "post_team_recruitment_id")
+	private Integer postTeamRecruitmentId;
 
-	@OneToOne
-	@MapsId
-	@JoinColumn(name = "post_id")
-	private Post post;
+	@Column(name = "post_id")
+	private Long postId;
 
 	@Column(name = "project_id")
 	private Integer projectId;
 
-	@Column(name = "recruitment_start", nullable = false)
-	private LocalDateTime recruitmentStart;
+	@Column(name = "contact_method")
+	private String contactMethod;
 
-	@Column(name = "recruitment_end")
-	private LocalDateTime recruitmentEnd;
-
-	@Column(name = "contact_method", nullable = false)
-	private Integer contactMethod;
-
-	@Column(name = "contact_info", length = 255)
+	@Column(name = "contact_info")
 	private String contactInfo;
 
-	@Column(name = "application_method", nullable = false, length = 255)
-	private Integer applicationMethod;
+	@Column(name = "apply_method")
+	private String applyMethod;
 
-	@Column(name = "application_info", length = 255)
-	private String applicationInfo;
+	@Column(name = "apply_info")
+	private String applyInfo;
 
-	@Column(name = "process_method", length = 255)
+	@Column(name = "process_method")
 	private String processMethod;
 
-	@Column(name = "created_at", nullable = false, updatable = false)
+	@Column(name = "recruitment_start_at")
+	private LocalDateTime recruitmentStartAt;
+
+	@Column(name = "recruitment_end_at")
+	private LocalDateTime recruitmentEndAt;
+
+	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 
-	@Column(name = "updated_at", nullable = false)
+	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
-
-	@OneToMany(mappedBy = "postTeamRecruitment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-	private List<RecruitmentPosition> recruitmentPositions = new ArrayList<>();
 }

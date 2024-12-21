@@ -1,42 +1,39 @@
 package com.prismworks.prism.domain.post.model;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Entity
 @Getter
+@NoArgsConstructor
 @Table(name = "recruitment_position")
+@Entity
 public class RecruitmentPosition {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "position_id")
-	private Integer positionId;
+	private Long positionId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id", nullable = false)
-	private PostTeamRecruitment postTeamRecruitment;
+	@Column(name = "post_team_recruitment_id")
+	private Long postTeamRecruitmentId;
 
-	@Column(name = "position", nullable = false, length = 255)
+	@Column(name = "position")
 	private String position;
 
-	@Column(name = "position_size", nullable = false)
+	@Column(name = "position_size")
 	private Integer positionSize;
 
-	@Column(name = "created_at", nullable = false, updatable = false)
+	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 
-	@Column(name = "updated_at", nullable = false)
+	@Column(name = "updated_at")
 	private LocalDateTime updatedAt;
 
 	@Column(name = "deleted_at")
