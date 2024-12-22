@@ -21,14 +21,14 @@ public class PostService {
 		this.recruitmentRepository = recruitmentRepository;
 	}
 
-	@Transactional
-	public RecruitmentPostDetailDto getRecruitmentDetail(Long postId) {
-		Post post = postRepository.findById(postId)
-			.orElseThrow(() -> new EntityNotFoundException("Post not found for ID: " + postId));
-
-		PostTeamRecruitment recruitment = recruitmentRepository.findById(postId)
-			.orElseThrow(() -> new EntityNotFoundException("Recruitment not found for Post ID: " + postId));
-
-		return RecruitmentPostDetailDto.of(post, recruitment);
-	}
+//	@Transactional
+//	public RecruitmentPostDetailDto getRecruitmentDetail(Long postId) {
+//		Post post = postRepository.findById(postId)
+//			.orElseThrow(() -> new EntityNotFoundException("Post not found for ID: " + postId));
+//
+//		PostTeamRecruitment recruitment = recruitmentRepository.findById(postId)
+//			.orElseThrow(() -> new EntityNotFoundException("Recruitment not found for Post ID: " + postId));
+//
+//		return RecruitmentPostDetailDto.of(post, recruitment);
+//	}
 }

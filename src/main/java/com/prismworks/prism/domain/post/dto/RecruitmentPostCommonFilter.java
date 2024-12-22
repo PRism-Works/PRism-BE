@@ -1,7 +1,7 @@
 package com.prismworks.prism.domain.post.dto;
 
-import com.prismworks.prism.domain.post.model.ProjectPosition;
-import com.prismworks.prism.domain.post.model.ProjectProcessMethod;
+import com.prismworks.prism.domain.post.model.ProcessMethod;
+import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RecruitmentPostCommonFilter {
-    private ProjectPosition position;
+    private RecruitmentPosition position;
     private String category;
-    private ProjectProcessMethod processMethod;
+    private ProcessMethod processMethod;
     private String skill;
 }

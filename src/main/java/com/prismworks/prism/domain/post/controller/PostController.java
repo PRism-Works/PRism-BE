@@ -7,17 +7,11 @@ import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest
 import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostResponse;
 import com.prismworks.prism.domain.post.dto.PostDto.GetMyRecruitmentPostsResponse;
 import com.prismworks.prism.domain.post.dto.RecruitmentPostCommonFilter;
-import com.prismworks.prism.domain.post.model.ContactMethod;
-import com.prismworks.prism.domain.post.model.ProjectPosition;
-import com.prismworks.prism.domain.post.model.ProjectProcessMethod;
-import com.prismworks.prism.domain.post.model.RecruitmentStatus;
+import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.service.PostService;
-
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,7 +38,7 @@ public class PostController {
             .contactInfo(request.getContactInfo())
             .applyMethod(request.getApplyMethod())
             .applyInfo(request.getApplyInfo())
-            .projectProcessMethod(request.getProjectProcessMethod())
+            .processMethod(request.getProcessMethod())
             .recruitPositions(request.getRecruitPositions())
             .title(request.getTitle())
             .content(request.getContent())
@@ -57,7 +51,7 @@ public class PostController {
         @RequestParam MyPostCommonFilter type) {
         return ApiSuccessResponse.defaultOk(GetMyRecruitmentPostsResponse.builder()
             .postId(1L)
-            .positions(List.of(ProjectPosition.values()))
+            .positions(List.of(RecruitmentPosition.values()))
             .title("post title")
             .categories(List.of("category1", "category2"))
             .recruitEndAt(LocalDateTime.now())
@@ -65,10 +59,10 @@ public class PostController {
             .build());
     }
 
-    @GetMapping("/recruitment/detail/{postId}")
-    public ApiSuccessResponse getRecruitmentPostDetail(@PathVariable long postId) {
-        PostDto.RecruitmentPostDetailDto response = service.getRecruitmentDetail(postId);
-
-        return ApiSuccessResponse.defaultOk(response);
-    }
+//    @GetMapping("/recruitment/detail/{postId}")
+//    public ApiSuccessResponse getRecruitmentPostDetail(@PathVariable long postId) {
+//        PostDto.RecruitmentPostDetailDto response = service.getRecruitmentDetail(postId);
+//
+//        return ApiSuccessResponse.defaultOk(response);
+//    }
 }

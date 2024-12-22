@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum ApplicationMethod {
+public enum ApplyMethod {
     KAKAO_TALK("kakaoTalk"),
     EMAIL("email"),
     GOOGLE_FORM("googleForm");
@@ -17,9 +17,9 @@ public enum ApplicationMethod {
     private final String value;
 
     @JsonCreator
-    public static ApplicationMethod from(String value) {
-        return Arrays.stream(ApplicationMethod.values())
-            .filter(applicationMethod -> applicationMethod.value.equals(value))
+    public static ApplyMethod from(String value) {
+        return Arrays.stream(ApplyMethod.values())
+            .filter(applyMethod -> applyMethod.value.equals(value))
             .findFirst()
             .orElseThrow(() -> new RuntimeException("ApplicationMethod not match")); //todo: custom Exception
     }
