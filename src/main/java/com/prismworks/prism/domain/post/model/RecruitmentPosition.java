@@ -12,22 +12,22 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@Table(name = "recruitment_position")
+@Table(name = "team_recruitment_position")
 @Entity
 public class RecruitmentPosition {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "position_id")
+	@Column(name = "team_recruitment_position_id")
 	private Long positionId;
 
 	@Column(name = "post_team_recruitment_id")
 	private Long postTeamRecruitmentId;
 
-	@Column(name = "position")
+	@Column(name = "recruitment_position")
 	private String position;
 
-	@Column(name = "position_size")
+	@Column(name = "recruitment_count")
 	private Integer positionSize;
 
 	@Column(name = "created_at")

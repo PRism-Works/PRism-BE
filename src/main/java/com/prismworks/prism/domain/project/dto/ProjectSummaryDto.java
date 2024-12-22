@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Set;
 
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
+@Getter
 public class ProjectSummaryDto {
 	private String projectName;
 	private String organizationName;

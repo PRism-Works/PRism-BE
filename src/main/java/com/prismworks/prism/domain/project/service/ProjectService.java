@@ -15,8 +15,10 @@ import com.prismworks.prism.domain.project.model.Category;
 import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
+import com.prismworks.prism.domain.user.dto.UserDto;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.repository.UserRepository;
+import com.prismworks.prism.domain.user.service.UserService;
 
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ public class ProjectService {
 
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final ProjectRepository projectRepository;
     private final ProjectUserJoinRepository projectUserJoinRepository;
     private final PeerReviewResultRepository peerReviewResultRepository;
@@ -641,9 +644,32 @@ public class ProjectService {
             .build();
     }
 
-    @Transactional(readOnly = true)
     public List<MemberDetailDto> getProjectMembers(Integer projectId) {
-        return projectUserJoinRepository.findProjectMemberDetails(projectId);
+        List<ProjectUserJoin> projectUserJoins = projectUserJoinRepository.findByProjectId(projectId);
+
+        projectUserJoins.forEach(join -> {
+            Hibernate.initialize(join.getRoles());
+        });
+
+        return projectUserJoins.stream()
+            .map(join -> {
+
+                UserDto.UserProfileDetail userProfileDetail = userService.getUserProfileDetail(join.getUser().getUserId());
+
+                return MemberDetailDto.builder()
+                    .name(userProfileDetail.getUsername())
+                    .email(userProfileDetail.getEmail())
+                    .interestDomains(userProfileDetail.getInterestJobs())
+                    .introduction(userProfileDetail.getIntroduction())
+                    .roles(join.getRoles()) // 역할 정보 설정
+                    .projectCount(getProjectCount(join.getUser().getUserId())) // 프로젝트 수 계산
+                    .build();
+            })
+            .collect(Collectors.toList());
+    }
+
+    private int getProjectCount(String userId) {
+        return projectUserJoinRepository.countByUserId(userId);
     }
 
     @Transactional

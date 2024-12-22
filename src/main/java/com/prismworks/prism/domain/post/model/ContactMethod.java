@@ -17,8 +17,8 @@ public enum ContactMethod {
     @JsonCreator
     public static ContactMethod from(String value) {
         return Arrays.stream(ContactMethod.values())
-                .filter(contactMethod -> contactMethod.value.equals(value))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("ContactMethod not match")); //todo: custom Exception
+            .filter(contactMethod -> contactMethod.value.equals(value))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("ContactMethod not match"));
     }
 }

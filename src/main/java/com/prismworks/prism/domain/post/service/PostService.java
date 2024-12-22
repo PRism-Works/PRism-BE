@@ -40,4 +40,8 @@ public class PostService {
 
 		return RecruitmentPostDetailDto.of(post, recruitment, recruitmentPositions);
 	}
+
+	public void incrementViewCount(Long postId) {
+		postRepository.incrementViewCountById(postId);
+	}
 }
