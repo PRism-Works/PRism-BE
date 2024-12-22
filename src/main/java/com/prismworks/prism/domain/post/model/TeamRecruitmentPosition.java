@@ -14,47 +14,24 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@Table(name = "post_team_recruitment")
+@Table(name = "team_recruitment_position")
 @Entity
-public class PostTeamRecruitment {
+public class TeamRecruitmentPosition {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "team_recruitment_position_id")
+	private Long positionId;
+
 	@Column(name = "post_team_recruitment_id")
 	private Long postTeamRecruitmentId;
 
-	@Column(name = "post_id")
-	private Long postId;
-
-	@Column(name = "project_id")
-	private Integer projectId;
-
 	@Enumerated(EnumType.STRING)
-	@Column(name = "contact_method")
-	private ContactMethod contactMethod;
+	@Column(name = "recruitment_position")
+	private RecruitmentPosition position;
 
-	@Column(name = "contact_info")
-	private String contactInfo;
-
-	@Enumerated(EnumType.STRING)
-	@Column(name = "apply_method")
-	private ApplyMethod applyMethod;
-
-	@Column(name = "apply_info")
-	private String applyInfo;
-
-	@Enumerated(EnumType.STRING)
-	@Column(name = "process_method")
-	private ProcessMethod processMethod;
-
-	@Column(name = "is_open_until_recruited")
-	private boolean isOpenUntilRecruited;
-
-	@Column(name = "recruitment_start_at")
-	private LocalDateTime recruitmentStartAt;
-
-	@Column(name = "recruitment_end_at")
-	private LocalDateTime recruitmentEndAt;
+	@Column(name = "recruitment_count")
+	private Integer recruitmentCount;
 
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;

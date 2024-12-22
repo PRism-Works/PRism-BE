@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum ProjectProcessMethod {
+public enum ProcessMethod {
     ONLINE("online"),
     OFFLINE("offline"),
     ONLINE_AND_OFFLINE("onlineAndOffline");
@@ -15,8 +15,8 @@ public enum ProjectProcessMethod {
     private final String value;
 
     @JsonCreator
-    public static ProjectProcessMethod from(String value) {
-        return Arrays.stream(ProjectProcessMethod.values())
+    public static ProcessMethod from(String value) {
+        return Arrays.stream(ProcessMethod.values())
             .filter(projectProcessMethod -> projectProcessMethod.value.equals(value))
             .findFirst()
             .orElseThrow(() -> new RuntimeException("ProcessMethod not match")); //todo: custom Exception
