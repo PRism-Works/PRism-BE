@@ -8,8 +8,8 @@ import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest
 import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostResponse;
 import com.prismworks.prism.domain.post.dto.PostDto.GetMyRecruitmentPostsResponse;
 import com.prismworks.prism.domain.post.dto.RecruitmentPostCommonFilter;
-import com.prismworks.prism.domain.post.model.ProjectPosition;
 
+import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +37,7 @@ public class PostController {
             .contactInfo(request.getContactInfo())
             .applyMethod(request.getApplyMethod())
             .applyInfo(request.getApplyInfo())
-            .projectProcessMethod(request.getProjectProcessMethod())
+            .processMethod(request.getProcessMethod())
             .recruitPositions(request.getRecruitPositions())
             .title(request.getTitle())
             .content(request.getContent())
@@ -50,7 +50,7 @@ public class PostController {
         @RequestParam MyPostCommonFilter type) {
         return ApiSuccessResponse.defaultOk(GetMyRecruitmentPostsResponse.builder()
             .postId(1L)
-            .positions(List.of(ProjectPosition.values()))
+            .positions(List.of(RecruitmentPosition.values()))
             .title("post title")
             .categories(List.of("category1", "category2"))
             .recruitEndAt(LocalDateTime.now())

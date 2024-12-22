@@ -3,11 +3,11 @@ package com.prismworks.prism.domain.post.dto;
 import com.prismworks.prism.domain.post.model.ApplyMethod;
 import com.prismworks.prism.domain.post.model.ContactMethod;
 import com.prismworks.prism.domain.post.model.ProcessMethod;
-import com.prismworks.prism.domain.post.model.ProjectPosition;
 import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.model.Post;
 import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
+import com.prismworks.prism.domain.post.model.TeamRecruitmentPosition;
 import com.prismworks.prism.domain.project.dto.MemberDetailDto;
 import com.prismworks.prism.domain.project.dto.ProjectSummaryDto;
 
@@ -30,7 +30,7 @@ public class PostDto {
         private String contactInfo;
         private ContactMethod applyMethod;
         private String applyInfo;
-        private ProcessMethod projectProcessMethod;
+        private ProcessMethod processMethod;
         private List<RecruitPositionItem> recruitPositions;
         private String title;
         private String content;
@@ -39,7 +39,7 @@ public class PostDto {
     @Getter
     @AllArgsConstructor
     public static class RecruitPositionItem {
-        private final ProjectPosition position;
+        private final RecruitmentPosition position;
         private final int count;
     }
 
@@ -54,7 +54,7 @@ public class PostDto {
         private final String contactInfo;
         private final ContactMethod applyMethod;
         private final String applyInfo;
-        private final ProcessMethod projectProcessMethod;
+        private final ProcessMethod processMethod;
         private final List<RecruitPositionItem> recruitPositions;
         private final String title;
         private final String content;
@@ -65,7 +65,7 @@ public class PostDto {
     @AllArgsConstructor
     public static class GetMyRecruitmentPostsResponse {
         private final Long postId;
-        private final List<ProjectPosition> positions;
+        private final List<RecruitmentPosition> positions;
         private final String title;
         private final List<String> categories;
         private final LocalDateTime recruitEndAt;
@@ -87,13 +87,13 @@ public class PostDto {
         private final LocalDateTime recruitmentStart;
         private final LocalDateTime recruitmentEnd;
         private final ProcessMethod processMethod;
-        private final List<RecruitmentPosition> recruitmentPositions;
+        private final List<TeamRecruitmentPosition> recruitmentPositions;
         private final ContactMethod contactMethod;
         private final String contactInfo;
         private final ApplyMethod applicationMethod;
         private final String applicationInfo;
 
-        public static RecruitmentPostDetailDto of(Post post, PostTeamRecruitment recruitment, List<RecruitmentPosition> recruitmentPositions) {
+        public static RecruitmentPostDetailDto of(Post post, PostTeamRecruitment recruitment, List<TeamRecruitmentPosition> recruitmentPositions) {
             return RecruitmentPostDetailDto.builder()
                 .postId(post.getPostId())
                 .projectId(recruitment.getProjectId())
