@@ -10,17 +10,17 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ApplyMethod {
-    KAKAO_TALK("kakaoTalk"),
-    EMAIL("email"),
-    GOOGLE_FORM("googleForm");
+	KAKAO_TALK("kakaoTalk"),
+	EMAIL("email"),
+	GOOGLE_FORM("googleForm");
 
-    private final String value;
+	private final String value;
 
-    @JsonCreator
-    public static ApplyMethod from(String value) {
-        return Arrays.stream(ApplyMethod.values())
-            .filter(applyMethod -> applyMethod.value.equals(value))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("ApplicationMethod not match")); //todo: custom Exception
-    }
+	@JsonCreator
+	public static ApplyMethod from(String value) {
+		return Arrays.stream(ApplyMethod.values())
+			.filter(applyMethod -> applyMethod.value.equals(value))
+			.findFirst()
+			.orElseThrow(() -> new RuntimeException("ApplicationMethod not match")); //todo: custom Exception
+	}
 }

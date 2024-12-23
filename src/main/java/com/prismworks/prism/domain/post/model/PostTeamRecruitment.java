@@ -33,6 +33,10 @@ public class PostTeamRecruitment {
 	@Column(name = "contact_method")
 	private ContactMethod contactMethod;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "recruitment_status")
+	private RecruitmentStatus recruitmentStatus;
+
 	@Column(name = "contact_info")
 	private String contactInfo;
 

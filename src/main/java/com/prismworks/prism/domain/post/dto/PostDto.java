@@ -4,9 +4,16 @@ import com.prismworks.prism.domain.post.model.ApplyMethod;
 import com.prismworks.prism.domain.post.model.ContactMethod;
 import com.prismworks.prism.domain.post.model.ProcessMethod;
 import com.prismworks.prism.domain.post.model.RecruitmentPosition;
+import com.prismworks.prism.domain.post.model.Post;
+import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
+import com.prismworks.prism.domain.post.model.TeamRecruitmentPosition;
+import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
+import com.prismworks.prism.domain.user.dto.UserDto;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -69,42 +76,61 @@ public class PostDto {
     @Builder
     public static class RecruitmentPostDetailDto {
         private Long postId;
+        private Integer projectId;
+        private Long postTeamRecruitmentId;
         private final RecruitmentStatus recruitmentStatus;
         private final String title;
         private final String content;
-        private final String writer;
+        private final String userId;
+        private UserDto.UserProfileDetail writer;
         private final int viewCount;
         private LocalDateTime createdAt;
         private final LocalDateTime recruitmentStart;
         private final LocalDateTime recruitmentEnd;
         private final ProcessMethod processMethod;
-        private final List<RecruitPositionItem> recruitmentPositions;
+        private final List<TeamRecruitmentPosition> recruitmentPositions;
         private final ContactMethod contactMethod;
         private final String contactInfo;
         private final ApplyMethod applicationMethod;
         private final String applicationInfo;
 
-//        public static RecruitmentPostDetailDto of(Post post, PostTeamRecruitment recruitment) {
-//            return RecruitmentPostDetailDto.builder()
-//                .postId(post.getPostId())
-//                .title(post.getTitle())
-//                .content(post.getContent())
-//                .writer(post.getWriter())
-//                .viewCount(post.getViewCount())
-//                .createdAt(post.getCreatedAt())
-//                .recruitmentStart(recruitment.getRecruitmentStart())
-//                .recruitmentEnd(recruitment.getRecruitmentEnd())
-//                .contactMethod(ContactMethod.from(recruitment.getContactMethod().toString()))
-//                .contactInfo(recruitment.getContactInfo())
-//                .applicationMethod(ApplicationMethod.from(recruitment.getApplicationMethod().toString()))
-//                .applicationInfo(recruitment.getApplicationInfo())
-//                .processMethod(ProcessMethod.from(recruitment.getProcessMethod().toString()))
-//                .recruitmentPositions(
-//                    recruitment.getRecruitmentPositions().stream()
-//                        .map(position -> new RecruitPositionItem(ProjectPosition.from(position.getPosition()), position.getPositionSize()))
-//                        .collect(Collectors.toList())
-//                )
-//                .build();
-//        }
+        public static RecruitmentPostDetailDto of(
+            Post post,
+            PostTeamRecruitment recruitment,
+            List<TeamRecruitmentPosition> recruitmentPositions
+        ) {
+            return RecruitmentPostDetailDto.builder()
+                .postId(post.getPostId())
+                .projectId(recruitment.getProjectId())
+                .postTeamRecruitmentId(recruitment.getPostTeamRecruitmentId())
+                .recruitmentStatus(recruitment.getRecruitmentStatus())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .userId(post.getUserId())
+                .viewCount(post.getViewCount())
+                .createdAt(post.getCreatedAt())
+                .recruitmentStart(recruitment.getRecruitmentStartAt())
+                .recruitmentEnd(recruitment.getRecruitmentEndAt())
+                .contactMethod(recruitment.getContactMethod())
+                .contactInfo(recruitment.getContactInfo())
+                .applicationMethod(recruitment.getApplyMethod())
+                .applicationInfo(recruitment.getApplyInfo())
+                .processMethod(recruitment.getProcessMethod())
+                .recruitmentPositions(
+                    recruitmentPositions
+                )
+                .build();
+        }
+
+        public void setWriter(UserDto.UserProfileDetail writer) {
+            this.writer = writer;
+        }
+    }
+
+    @Builder
+    @Getter
+    public static class ViewPostDto {
+        private RecruitmentPostDetailDto recruitmentPostDetail;
+        private ProjectDetailDto projectDetailDto;
     }
 }

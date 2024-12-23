@@ -8,17 +8,17 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ProcessMethod {
-    ONLINE("online"),
-    OFFLINE("offline"),
-    ONLINE_AND_OFFLINE("onlineAndOffline");
+	ONLINE("online"),
+	OFFLINE("offline"),
+	ONLINE_AND_OFFLINE("onlineAndOffline");
 
-    private final String value;
+	private final String value;
 
-    @JsonCreator
-    public static ProcessMethod from(String value) {
-        return Arrays.stream(ProcessMethod.values())
-            .filter(projectProcessMethod -> projectProcessMethod.value.equals(value))
-            .findFirst()
-            .orElseThrow(() -> new RuntimeException("ProcessMethod not match")); //todo: custom Exception
-    }
+	@JsonCreator
+	public static ProcessMethod from(String value) {
+		return Arrays.stream(ProcessMethod.values())
+			.filter(projectProcessMethod -> projectProcessMethod.value.equals(value))
+			.findFirst()
+			.orElseThrow(() -> new RuntimeException("ProcessMethod not match")); //todo: custom Exception
+	}
 }
