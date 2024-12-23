@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.post.model;
 
+import com.prismworks.prism.domain.post.dto.command.PostTeamRecruitmentCommand.CreatePostTeamRecruitment;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -64,4 +65,18 @@ public class PostTeamRecruitment {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
+
+	public PostTeamRecruitment(CreatePostTeamRecruitment command) {
+		this.postId = command.getPostId();
+		this.projectId = command.getProjectId();
+		this.contactMethod = command.getContactMethod();
+		this.contactInfo = command.getContactInfo();
+		this.applyMethod = command.getApplyMethod();
+		this.applyInfo = command.getApplyInfo();
+		this.processMethod = command.getProcessMethod();
+		this.isOpenUntilRecruited = command.isOpenUntilRecruited();
+		this.recruitmentStartAt = command.getRecruitmentStartAt();
+		this.recruitmentEndAt = command.getRecruitmentEndAt();
+		this.createdAt = LocalDateTime.now();
+	}
 }
