@@ -81,7 +81,8 @@ public class PostDto {
         private final RecruitmentStatus recruitmentStatus;
         private final String title;
         private final String content;
-        private final UserDto.UserProfileDetail writer;
+        private final String userId;
+        private UserDto.UserProfileDetail writer;
         private final int viewCount;
         private LocalDateTime createdAt;
         private final LocalDateTime recruitmentStart;
@@ -96,7 +97,6 @@ public class PostDto {
         public static RecruitmentPostDetailDto of(
             Post post,
             PostTeamRecruitment recruitment,
-            UserDto.UserProfileDetail writer,
             List<TeamRecruitmentPosition> recruitmentPositions
         ) {
             return RecruitmentPostDetailDto.builder()
@@ -106,7 +106,7 @@ public class PostDto {
                 .recruitmentStatus(recruitment.getRecruitmentStatus())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .writer(writer)
+                .userId(post.getUserId())
                 .viewCount(post.getViewCount())
                 .createdAt(post.getCreatedAt())
                 .recruitmentStart(recruitment.getRecruitmentStartAt())
@@ -120,6 +120,10 @@ public class PostDto {
                     recruitmentPositions
                 )
                 .build();
+        }
+
+        public void setWriter(UserDto.UserProfileDetail writer) {
+            this.writer = writer;
         }
     }
 

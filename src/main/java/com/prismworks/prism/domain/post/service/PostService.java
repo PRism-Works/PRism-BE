@@ -12,7 +12,6 @@ import com.prismworks.prism.domain.post.repository.PostTeamRecruitmentRepository
 import com.prismworks.prism.domain.post.model.Post;
 import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
 import com.prismworks.prism.domain.post.repository.TeamRecruitmentPositionRepository;
-import com.prismworks.prism.domain.user.service.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ public class PostService {
 	private final PostRepository postRepository;
 	private final PostTeamRecruitmentRepository recruitmentRepository;
 	private final TeamRecruitmentPositionRepository teamRecruitmentPositionRepository;
-	private final UserService userService;
 
 	@Transactional
 	public RecruitmentPostDetailDto getRecruitmentDetail(Long postId) {
@@ -39,7 +37,6 @@ public class PostService {
 		return RecruitmentPostDetailDto.of(
 			post,
 			recruitment,
-			userService.getUserProfileDetail(post.getUserId()),
 			recruitmentPositions
 		);
 	}
