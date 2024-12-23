@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -270,17 +269,17 @@ public class ProjectService {
 
         projectRepository.delete(project);
         return ProjectResponseDto.builder()
-                .projectId(project.getProjectId())
-                .projectName(project.getProjectName())
-                .projectDescription(project.getProjectDescription())
-                .organizationName(project.getOrganizationName())
-                .memberCount(project.getMemberCount())
-                .categories(project.getCategories())
-                .skills(project.getSkills())
-                .startDate(project.getStartDate())
-                .endDate(project.getEndDate())
-                .projectUrlLink(project.getProjectUrlLink())
-                .build();
+            .projectId(project.getProjectId())
+            .projectName(project.getProjectName())
+            .projectDescription(project.getProjectDescription())
+            .organizationName(project.getOrganizationName())
+            .memberCount(project.getMemberCount())
+            .categories(project.getCategories())
+            .skills(project.getSkills())
+            .startDate(project.getStartDate())
+            .endDate(project.getEndDate())
+            .projectUrlLink(project.getProjectUrlLink())
+            .build();
     }
 
     @Transactional(readOnly = true)
@@ -366,7 +365,7 @@ public class ProjectService {
         );
         int surveyParticipant = projectUserJoinRepository.getSurveyParticipant(project.getProjectId());
 
-        String evaluation = "";
+        String evaluation;
 
         if(peerReviewTotalResult == null){
             evaluation = "총평 데이터 없음";
@@ -462,7 +461,16 @@ public class ProjectService {
                         // 로깅, 오류 처리 또는 기본값 설정
                         return new MemberDetailDto("-1", member.getName(), member.getEmail(), member.getRoles(), member.getAnonyVisibility());
                     } else {
-                        return new MemberDetailDto(member.getUser().getUserId(), member.getName(), member.getEmail(), member.getRoles(), member.getAnonyVisibility());
+                        UserDto.UserProfileDetail userProfileDetail = userService.getUserProfileDetail(member.getUser().getUserId());
+
+                        return MemberDetailDto.builder()
+                            .name(userProfileDetail.getUsername())
+                            .email(userProfileDetail.getEmail())
+                            .interestDomains(userProfileDetail.getInterestJobs())
+                            .introduction(userProfileDetail.getIntroduction())
+                            .roles(member.getRoles()) // 역할 정보 설정
+                            .projectCount(getProjectCount(member.getUser().getUserId())) // 프로젝트 수 계산
+                            .build();
                     }
                 })
                 .collect(Collectors.toList());
@@ -477,7 +485,7 @@ public class ProjectService {
                 .projectUrlLink(project.getProjectUrlLink())
                 .urlVisibility(project.getUrlVisibility())
                 .projectDescription(project.getProjectDescription())
-                .mostCommonTraits("계산로직 미구현 하드코딩")
+                .mostCommonTraits("")
                 .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
                 .skills(project.getSkills())
                 .members(memberDetails)
@@ -624,26 +632,6 @@ public class ProjectService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
-    public ProjectSummaryDto getProjectSummary(Integer projectId) {
-        Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new EntityNotFoundException("Project with ID " + projectId + " not found."));
-
-        return ProjectSummaryDto.builder()
-            .projectName(project.getProjectName())
-            .categories(project.getCategories()
-                .stream()
-                .map(category -> category.getCategory().getName())
-                .collect(
-                Collectors.toSet())
-            )
-            .skills(project.getSkills())
-            .projectUrlLink(project.getProjectUrlLink())
-            .startDate(project.getStartDate())
-            .endDate(project.getEndDate())
-            .build();
-    }
-
     public List<MemberDetailDto> getProjectMembers(Integer projectId) {
         List<ProjectUserJoin> projectUserJoins = projectUserJoinRepository.findByProjectId(projectId);
 
@@ -661,8 +649,8 @@ public class ProjectService {
                     .email(userProfileDetail.getEmail())
                     .interestDomains(userProfileDetail.getInterestJobs())
                     .introduction(userProfileDetail.getIntroduction())
-                    .roles(join.getRoles()) // 역할 정보 설정
-                    .projectCount(getProjectCount(join.getUser().getUserId())) // 프로젝트 수 계산
+                    .roles(join.getRoles())
+                    .projectCount(getProjectCount(join.getUser().getUserId()))
                     .build();
             })
             .collect(Collectors.toList());

@@ -12,20 +12,18 @@ import com.prismworks.prism.domain.post.repository.PostTeamRecruitmentRepository
 import com.prismworks.prism.domain.post.model.Post;
 import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
 import com.prismworks.prism.domain.post.repository.TeamRecruitmentPositionRepository;
+import com.prismworks.prism.domain.user.service.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class PostService {
 	private final PostRepository postRepository;
 	private final PostTeamRecruitmentRepository recruitmentRepository;
 	private final TeamRecruitmentPositionRepository teamRecruitmentPositionRepository;
-
-	public PostService(PostRepository postRepository, PostTeamRecruitmentRepository recruitmentRepository, TeamRecruitmentPositionRepository teamRecruitmentPositionRepository) {
-		this.postRepository = postRepository;
-		this.recruitmentRepository = recruitmentRepository;
-		this.teamRecruitmentPositionRepository = teamRecruitmentPositionRepository;
-	}
+	private final UserService userService;
 
 	@Transactional
 	public RecruitmentPostDetailDto getRecruitmentDetail(Long postId) {
@@ -38,7 +36,12 @@ public class PostService {
 		List<TeamRecruitmentPosition> recruitmentPositions = teamRecruitmentPositionRepository.findByPostTeamRecruitmentId(
 			recruitment.getPostTeamRecruitmentId());
 
-		return RecruitmentPostDetailDto.of(post, recruitment, recruitmentPositions);
+		return RecruitmentPostDetailDto.of(
+			post,
+			recruitment,
+			userService.getUserProfileDetail(post.getUserId()),
+			recruitmentPositions
+		);
 	}
 
 	public void incrementViewCount(Long postId) {

@@ -8,8 +8,8 @@ import com.prismworks.prism.domain.post.model.Post;
 import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
 import com.prismworks.prism.domain.post.model.TeamRecruitmentPosition;
-import com.prismworks.prism.domain.project.dto.MemberDetailDto;
-import com.prismworks.prism.domain.project.dto.ProjectSummaryDto;
+import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
+import com.prismworks.prism.domain.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -81,7 +81,7 @@ public class PostDto {
         private final RecruitmentStatus recruitmentStatus;
         private final String title;
         private final String content;
-        private final String writer;
+        private final UserDto.UserProfileDetail writer;
         private final int viewCount;
         private LocalDateTime createdAt;
         private final LocalDateTime recruitmentStart;
@@ -93,7 +93,12 @@ public class PostDto {
         private final ApplyMethod applicationMethod;
         private final String applicationInfo;
 
-        public static RecruitmentPostDetailDto of(Post post, PostTeamRecruitment recruitment, List<TeamRecruitmentPosition> recruitmentPositions) {
+        public static RecruitmentPostDetailDto of(
+            Post post,
+            PostTeamRecruitment recruitment,
+            UserDto.UserProfileDetail writer,
+            List<TeamRecruitmentPosition> recruitmentPositions
+        ) {
             return RecruitmentPostDetailDto.builder()
                 .postId(post.getPostId())
                 .projectId(recruitment.getProjectId())
@@ -101,7 +106,7 @@ public class PostDto {
                 .recruitmentStatus(recruitment.getRecruitmentStatus())
                 .title(post.getTitle())
                 .content(post.getContent())
-                .writer(post.getUserId())
+                .writer(writer)
                 .viewCount(post.getViewCount())
                 .createdAt(post.getCreatedAt())
                 .recruitmentStart(recruitment.getRecruitmentStartAt())
@@ -122,7 +127,6 @@ public class PostDto {
     @Getter
     public static class ViewPostDto {
         private RecruitmentPostDetailDto recruitmentPostDetail;
-        private ProjectSummaryDto projectSummary;
-        private List<MemberDetailDto> projectMembers;
+        private ProjectDetailDto projectDetailDto;
     }
 }
