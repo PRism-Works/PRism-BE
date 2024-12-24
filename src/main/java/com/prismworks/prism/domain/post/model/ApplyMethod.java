@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.post.model;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -15,6 +16,11 @@ public enum ApplyMethod {
     GOOGLE_FORM("googleForm");
 
     private final String value;
+
+    @JsonValue
+    public String getValue() {
+        return this.value;
+    }
 
     @JsonCreator
     public static ApplyMethod from(String value) {

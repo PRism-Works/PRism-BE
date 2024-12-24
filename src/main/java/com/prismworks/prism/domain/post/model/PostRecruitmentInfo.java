@@ -1,5 +1,8 @@
 package com.prismworks.prism.domain.post.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.prismworks.prism.utils.DateUtil;
+import com.prismworks.prism.utils.DateUtil.DatePattern;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Getter;
@@ -50,8 +53,14 @@ public class PostRecruitmentInfo {
             .toList();
     }
 
+    @Getter
     public static class RecruitmentPositionInfo {
         private RecruitmentPosition position;
         private Integer recruitmentCount;
+    }
+
+    @JsonProperty("createdAt")
+    public String getCreatedAt() {
+        return DateUtil.formatDate(createdAt, DatePattern.DATE);
     }
 }

@@ -1,6 +1,7 @@
 package com.prismworks.prism.domain.post.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +14,11 @@ public enum ContactMethod {
     GOOGLE_FORM("googleForm");
 
     private final String value;
+
+    @JsonValue
+    public String getValue() {
+        return this.value;
+    }
 
     @JsonCreator
     public static ContactMethod from(String value) {
