@@ -5,6 +5,7 @@ import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.post.application.PostFacade;
 import com.prismworks.prism.domain.post.dto.MyPostCommonFilter;
+import com.prismworks.prism.domain.post.dto.PostDto;
 import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest;
 import com.prismworks.prism.domain.post.dto.PostDto.GetMyRecruitmentPostsResponse;
 import com.prismworks.prism.domain.post.dto.RecruitmentPostCommonFilter;

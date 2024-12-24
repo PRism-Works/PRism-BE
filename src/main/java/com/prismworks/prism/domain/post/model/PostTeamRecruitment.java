@@ -31,12 +31,12 @@ public class PostTeamRecruitment {
 	private Integer projectId;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "contact_method")
-	private ContactMethod contactMethod;
-
-	@Enumerated(EnumType.STRING)
 	@Column(name = "recruitment_status")
 	private RecruitmentStatus recruitmentStatus;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "contact_method")
+	private ContactMethod contactMethod;
 
 	@Column(name = "contact_info")
 	private String contactInfo;

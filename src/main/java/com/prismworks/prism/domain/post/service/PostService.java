@@ -1,6 +1,7 @@
 package com.prismworks.prism.domain.post.service;
 
 import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest;
+import com.prismworks.prism.domain.post.dto.PostDto.RecruitmentPostDetailDto;
 import com.prismworks.prism.domain.post.dto.command.PostCommand.CreatePost;
 import com.prismworks.prism.domain.post.dto.command.PostTeamRecruitmentCommand.CreatePostTeamRecruitment;
 import com.prismworks.prism.domain.post.dto.command.TeamRecruitmentPositionCommand.CreateTeamRecruitmentPosition;
@@ -11,7 +12,9 @@ import com.prismworks.prism.domain.post.model.TeamRecruitmentPosition;
 import com.prismworks.prism.domain.post.repository.PostRepository;
 import com.prismworks.prism.domain.post.repository.PostTeamRecruitmentRepository;
 import com.prismworks.prism.domain.post.repository.TeamRecruitmentPositionRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostService {
 	private final PostRepository postRepository;
 	private final PostTeamRecruitmentRepository recruitmentRepository;
-	private final TeamRecruitmentPositionRepository recruitmentPositionRepository;
+	private final TeamRecruitmentPositionRepository teamRecruitmentPositionRepository;
 
 	@Transactional
 	public PostRecruitmentInfo createRecruitmentPost(CreateRecruitmentPostRequest req, String userId) {
@@ -37,7 +40,7 @@ public class PostService {
 		List<TeamRecruitmentPosition> positions = createTeamRecruitmentPositionCommand.stream()
 			.map(TeamRecruitmentPosition::new)
 			.toList();
-		recruitmentPositionRepository.saveAll(positions);
+		teamRecruitmentPositionRepository.saveAll(positions);
 
 		return new PostRecruitmentInfo(post, postTeamRecruitment, positions);
 	}
@@ -47,7 +50,7 @@ public class PostService {
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new EntityNotFoundException("Post not found for ID: " + postId));
 
-        PostTeamRecruitment recruitment = recruitmentRepository.findById(postId)
+        PostTeamRecruitment recruitment = recruitmentRepository.findByPostId(postId)
             .orElseThrow(() -> new EntityNotFoundException("Recruitment not found for Post ID: " + postId));
 
         List<TeamRecruitmentPosition> recruitmentPositions = teamRecruitmentPositionRepository.findByPostTeamRecruitmentId(
