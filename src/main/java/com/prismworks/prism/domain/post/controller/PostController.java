@@ -1,19 +1,20 @@
 package com.prismworks.prism.domain.post.controller;
 
+import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
+import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.post.application.PostFacade;
 import com.prismworks.prism.domain.post.dto.MyPostCommonFilter;
-import com.prismworks.prism.domain.post.dto.PostDto;
 import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest;
-import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostResponse;
 import com.prismworks.prism.domain.post.dto.PostDto.GetMyRecruitmentPostsResponse;
 import com.prismworks.prism.domain.post.dto.RecruitmentPostCommonFilter;
+import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
 
 import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,22 +27,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PostController {
 
-    private final PostFacade facade;
+    @Autowired
+    private final PostFacade postFacade;
 
     @PostMapping("/recruitment")
-    public ApiSuccessResponse createRecruitmentPost(@RequestBody CreateRecruitmentPostRequest request) {
-        return ApiSuccessResponse.defaultOk(CreateRecruitmentPostResponse.builder()
-            .recruitStartAt(request.getRecruitStartAt())
-            .recruitEndAt(request.getRecruitEndAt())
-            .contactMethod(request.getContactMethod())
-            .contactInfo(request.getContactInfo())
-            .applyMethod(request.getApplyMethod())
-            .applyInfo(request.getApplyInfo())
-            .processMethod(request.getProcessMethod())
-            .recruitPositions(request.getRecruitPositions())
-            .title(request.getTitle())
-            .content(request.getContent())
-            .build());
+    public ApiSuccessResponse createRecruitmentPost(@CurrentUser UserContext userContext,
+        @RequestBody CreateRecruitmentPostRequest request) {
+
+        PostRecruitmentInfo recruitmentPostInfo = postFacade.writePost(request,
+            userContext.getUserId());
+
+        return ApiSuccessResponse.defaultOk(recruitmentPostInfo);
     }
 
     @GetMapping("/recruitment/my")
@@ -60,7 +56,7 @@ public class PostController {
 
     @GetMapping("/recruitment/detail")
     public ApiSuccessResponse getRecruitmentPostDetail(@RequestParam("postId") Long postId) {
-        PostDto.ViewPostDto response = facade.viewPost(postId);
+        PostDto.ViewPostDto response = postFacade.viewPost(postId);
 
         return ApiSuccessResponse.defaultOk(response);
     }

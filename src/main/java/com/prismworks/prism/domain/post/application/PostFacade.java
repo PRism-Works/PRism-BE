@@ -1,9 +1,13 @@
 package com.prismworks.prism.domain.post.application;
 
 import com.prismworks.prism.domain.post.dto.PostDto;
+import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest;
+import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
+import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest;
 import com.prismworks.prism.domain.post.service.PostService;
 import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
 import com.prismworks.prism.domain.project.service.ProjectService;
+import com.prismworks.prism.domain.user.dto.UserDto.UserDetail;
 import com.prismworks.prism.domain.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +23,11 @@ public class PostFacade {
     private final PostService postService;
     private final ProjectService projectService;
     private final UserService userService;
+
+    @Transactional
+    public PostRecruitmentInfo writePost(CreateRecruitmentPostRequest req, String userId) {
+        return postService.createRecruitmentPost(req, userId);
+    }
 
     @Transactional
     public PostDto.ViewPostDto viewPost(Long postId) {

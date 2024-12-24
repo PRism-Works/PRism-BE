@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.post.model;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -16,11 +17,16 @@ public enum ApplyMethod {
 
 	private final String value;
 
-	@JsonCreator
-	public static ApplyMethod from(String value) {
-		return Arrays.stream(ApplyMethod.values())
-			.filter(applyMethod -> applyMethod.value.equals(value))
-			.findFirst()
-			.orElseThrow(() -> new RuntimeException("ApplicationMethod not match")); //todo: custom Exception
-	}
+    @JsonValue
+    public String getValue() {
+        return this.value;
+    }
+
+    @JsonCreator
+    public static ApplyMethod from(String value) {
+        return Arrays.stream(ApplyMethod.values())
+            .filter(applyMethod -> applyMethod.value.equals(value))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("ApplicationMethod not match")); //todo: custom Exception
+    }
 }
