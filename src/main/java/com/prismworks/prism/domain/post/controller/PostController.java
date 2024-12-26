@@ -12,11 +12,14 @@ import com.prismworks.prism.domain.post.dto.RecruitmentPostCommonFilter;
 import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
 
 import com.prismworks.prism.domain.post.model.RecruitmentPosition;
+import com.prismworks.prism.domain.post.service.PostService;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +33,7 @@ public class PostController {
 
     @Autowired
     private final PostFacade postFacade;
+    private final PostService postService;
 
     @PostMapping("/recruitment")
     public ApiSuccessResponse createRecruitmentPost(@CurrentUser UserContext userContext,
@@ -60,5 +64,10 @@ public class PostController {
         PostDto.ViewPostDto response = postFacade.viewPost(postId);
 
         return ApiSuccessResponse.defaultOk(response);
+    }
+
+    @PostMapping("/bookmarks/{postId}")
+    public ApiSuccessResponse bookmark(@CurrentUser UserContext user, @PathVariable Long postId) {
+        return ApiSuccessResponse.defaultOk(postService.bookmark(user.getUserId(), postId));
     }
 }

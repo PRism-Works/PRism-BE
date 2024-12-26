@@ -9,11 +9,16 @@ import com.prismworks.prism.domain.post.model.Post;
 import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
 import com.prismworks.prism.domain.post.model.TeamRecruitmentPosition;
+import com.prismworks.prism.domain.post.model.UserPostBookmark;
 import com.prismworks.prism.domain.post.repository.PostRepository;
 import com.prismworks.prism.domain.post.repository.PostTeamRecruitmentRepository;
 import com.prismworks.prism.domain.post.repository.TeamRecruitmentPositionRepository;
+import com.prismworks.prism.domain.post.repository.UserPostBookmarkRepository;
+
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +29,7 @@ public class PostService {
 	private final PostRepository postRepository;
 	private final PostTeamRecruitmentRepository recruitmentRepository;
 	private final TeamRecruitmentPositionRepository teamRecruitmentPositionRepository;
+	private final UserPostBookmarkRepository userPostBookmarkRepository;
 
 	@Transactional
 	public PostRecruitmentInfo createRecruitmentPost(CreateRecruitmentPostRequest req, String userId) {
@@ -65,5 +71,21 @@ public class PostService {
 
 	public void incrementViewCount(Long postId) {
 		postRepository.incrementViewCountById(postId);
+	}
+
+	public UserPostBookmark bookmark(String userId, Long postId) {
+		Optional<UserPostBookmark> bookmark = userPostBookmarkRepository.findByUserIdAndPostId(userId, postId);
+
+		if (bookmark.isPresent()) {
+			UserPostBookmark existingBookmark = bookmark.get();
+			existingBookmark.setActiveFlag(!existingBookmark.isActiveFlag());
+			return userPostBookmarkRepository.save(existingBookmark);
+		} else {
+			UserPostBookmark newBookmark = new UserPostBookmark();
+			newBookmark.setUserId(userId);
+			newBookmark.setPostId(postId);
+			userPostBookmarkRepository.save(newBookmark);
+			return newBookmark;
+		}
 	}
 }
