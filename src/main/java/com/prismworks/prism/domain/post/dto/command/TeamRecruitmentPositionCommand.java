@@ -8,7 +8,6 @@ public class TeamRecruitmentPositionCommand {
     @Builder
     @Getter
     public static class CreateTeamRecruitmentPosition {
-        private Long postTeamRecruitmentId;
         private RecruitmentPosition position;
         private Integer recruitmentCount;
     }

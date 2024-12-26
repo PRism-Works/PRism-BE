@@ -1,7 +1,5 @@
 package com.prismworks.prism.domain.search.controller;
 
-import java.util.List;
-
 import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.dto.PageResponse;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
@@ -40,7 +38,6 @@ public class SearchController implements SearchControllerDocs{
         @RequestParam(defaultValue = "10") int size
     )
     {
-        System.out.println("상태는 ? " + request.getRecruitmentStatus());
         Page<SearchDto.PostTeamRecruitmentSearchResponse> response = searchService.getBookmarkedPostTeamRecruitments(
             user.getUserId(), request, PageRequest.of(page, size));
 

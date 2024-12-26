@@ -49,25 +49,27 @@ public class PostDto {
                 .build();
         }
 
-        public CreatePostTeamRecruitment toCreatePostTeamRecruitmentCommand(Long postId) {
+        public CreatePostTeamRecruitment toCreatePostTeamRecruitmentCommand(Post post,
+            List<TeamRecruitmentPosition> positions
+        ) {
             return CreatePostTeamRecruitment.builder()
-                .postId(postId)
+                .post(post)
                 .projectId(this.projectId)
                 .contactMethod(this.contactMethod)
                 .contactInfo(this.contactInfo)
                 .applyMethod(this.applyMethod)
                 .applyInfo(this.applyInfo)
                 .processMethod(this.processMethod)
+                .recruitmentPositions(positions)
                 .isOpenUntilRecruited(this.isOpenUntilRecruited)
                 .recruitmentStartAt(this.recruitmentStartAt)
                 .recruitmentEndAt(this.recruitmentEndAt)
                 .build();
         }
 
-        public List<CreateTeamRecruitmentPosition> toCreateTeamRecruitmentPositionCommand(Long postTeamRecruitmentId) {
+        public List<CreateTeamRecruitmentPosition> toCreateTeamRecruitmentPositionCommand() {
             return recruitPositions.stream()
                 .map(positionInfo -> CreateTeamRecruitmentPosition.builder()
-                    .postTeamRecruitmentId(postTeamRecruitmentId)
                     .position(positionInfo.getPosition())
                     .recruitmentCount(positionInfo.getCount())
                     .build())

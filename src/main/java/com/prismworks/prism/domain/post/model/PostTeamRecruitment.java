@@ -1,17 +1,28 @@
 package com.prismworks.prism.domain.post.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.prismworks.prism.domain.post.dto.command.PostTeamRecruitmentCommand.CreatePostTeamRecruitment;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
+import org.springframework.util.CollectionUtils;
 
 @Getter
 @NoArgsConstructor
@@ -24,15 +35,16 @@ public class PostTeamRecruitment {
 	@Column(name = "post_team_recruitment_id")
 	private Long postTeamRecruitmentId;
 
-	@Column(name = "post_id")
-	private Long postId;
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "post_id")
+	private Post post;
 
 	@Column(name = "project_id")
 	private Integer projectId;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "recruitment_status")
-	private RecruitmentStatus recruitmentStatus;
+	private RecruitmentStatus recruitmentStatus = RecruitmentStatus.RECRUITING;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "contact_method")
@@ -51,6 +63,11 @@ public class PostTeamRecruitment {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "process_method")
 	private ProcessMethod processMethod;
+
+	@JsonManagedReference
+	@OneToMany(mappedBy = "postTeamRecruitment", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@BatchSize(size = 100)
+	private Set<TeamRecruitmentPosition> recruitmentPositions = new HashSet<>();
 
 	@Column(name = "is_open_until_recruited")
 	private boolean isOpenUntilRecruited;
@@ -71,7 +88,7 @@ public class PostTeamRecruitment {
 	private LocalDateTime deletedAt;
 
 	public PostTeamRecruitment(CreatePostTeamRecruitment command) {
-		this.postId = command.getPostId();
+		this.post = command.getPost();
 		this.projectId = command.getProjectId();
 		this.contactMethod = command.getContactMethod();
 		this.contactInfo = command.getContactInfo();
@@ -82,5 +99,17 @@ public class PostTeamRecruitment {
 		this.recruitmentStartAt = command.getRecruitmentStartAt();
 		this.recruitmentEndAt = command.getRecruitmentEndAt();
 		this.createdAt = LocalDateTime.now();
+
+		List<TeamRecruitmentPosition> recruitmentPositions = command.getRecruitmentPositions();
+		if(!CollectionUtils.isEmpty(recruitmentPositions)) {
+			recruitmentPositions.forEach(this::addRecruitmentPosition);
+		}
+	}
+
+	public void addRecruitmentPosition(TeamRecruitmentPosition position) {
+		if(!this.recruitmentPositions.contains(position)) {
+			this.recruitmentPositions.add(position);
+			position.setPostTeamRecruitment(this);
+		}
 	}
 }

@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import static com.prismworks.prism.domain.search.dto.ProjectSearchCondition.SearchType;
 
-import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
 import com.prismworks.prism.domain.post.model.ProcessMethod;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
 import com.prismworks.prism.domain.project.model.Project;
@@ -37,7 +36,7 @@ public class SearchDto {
     @Getter
     @RequiredArgsConstructor
     public static class PostTeamRecruitmentSearchRequest {
-        private List<String> positions;
+        private Set<String> positions;
         private List<String> categories;
         private ProcessMethod processMethod;
         private List<String> skills;
@@ -55,7 +54,11 @@ public class SearchDto {
         private ProcessMethod processMethod;
         private RecruitmentStatus recruitmentStatus;
 
-        public PostTeamRecruitmentSearchResponse(Project project, PostTeamRecruitment postTeamRecruitment) {
+        public PostTeamRecruitmentSearchResponse(
+            Project project,
+            ProcessMethod processMethod,
+            RecruitmentStatus recruitmentStatus
+        ) {
             this.projectId = project.getProjectId();
             this.projectName = project.getProjectName();
             this.projectDescription = project.getProjectDescription();
@@ -64,18 +67,9 @@ public class SearchDto {
                 .map(c -> c.getCategory().getName())
                 .collect(Collectors.toList());
             this.skills = project.getSkills();
-            this.processMethod = postTeamRecruitment.getProcessMethod();
-            this.recruitmentStatus = postTeamRecruitment.getRecruitmentStatus();
-        }
-
-        public PostTeamRecruitmentSearchResponse(int projectId, RecruitmentStatus postTeamRecruitment) {
-            this.projectId = 2;
-            this.projectName = "abc";
-            this.projectDescription = "Abc";
-            this.categories = List.of("헬로");
-            this.skills = List.of("안녕");
-            this.processMethod = ProcessMethod.ONLINE;
-            this.recruitmentStatus = RecruitmentStatus.RECRUITING;
+            this.processMethod = processMethod;
+            this.recruitmentStatus = recruitmentStatus;
         }
     }
+
 }
