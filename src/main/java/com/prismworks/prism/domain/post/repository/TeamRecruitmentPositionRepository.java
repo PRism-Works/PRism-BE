@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.post.repository;
 
+import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,5 +10,5 @@ import com.prismworks.prism.domain.post.model.TeamRecruitmentPosition;
 
 @Repository
 public interface TeamRecruitmentPositionRepository extends JpaRepository<TeamRecruitmentPosition, Long> {
-	List<TeamRecruitmentPosition> findByPostTeamRecruitmentId(Long postTeamRecruitmentId);
+	List<TeamRecruitmentPosition> findByPostTeamRecruitment(PostTeamRecruitment postTeamRecruitment);
 }
