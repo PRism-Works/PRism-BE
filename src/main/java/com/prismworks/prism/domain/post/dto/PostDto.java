@@ -17,6 +17,7 @@ import com.prismworks.prism.domain.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -129,16 +130,15 @@ public class PostDto {
         private final LocalDateTime recruitmentStart;
         private final LocalDateTime recruitmentEnd;
         private final ProcessMethod processMethod;
-        private final List<TeamRecruitmentPosition> recruitmentPositions;
         private final ContactMethod contactMethod;
         private final String contactInfo;
         private final ApplyMethod applicationMethod;
         private final String applicationInfo;
+        private final Set<TeamRecruitmentPosition> recruitmentPositions;
 
         public static RecruitmentPostDetailDto of(
             Post post,
-            PostTeamRecruitment recruitment,
-            List<TeamRecruitmentPosition> recruitmentPositions
+            PostTeamRecruitment recruitment
         ) {
             return RecruitmentPostDetailDto.builder()
                 .postId(post.getPostId())
@@ -157,9 +157,7 @@ public class PostDto {
                 .applicationMethod(recruitment.getApplyMethod())
                 .applicationInfo(recruitment.getApplyInfo())
                 .processMethod(recruitment.getProcessMethod())
-                .recruitmentPositions(
-                    recruitmentPositions
-                )
+                .recruitmentPositions(recruitment.getRecruitmentPositions())
                 .build();
         }
 

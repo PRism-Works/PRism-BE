@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
+
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,13 +60,11 @@ public class PostService {
         PostTeamRecruitment recruitment = postRecruitmentRepository.findByPost(post)
             .orElseThrow(() -> new EntityNotFoundException("Recruitment not found for Post ID: " + postId));
 
-        List<TeamRecruitmentPosition> recruitmentPositions = teamRecruitmentPositionRepository.findByPostTeamRecruitment(
-            recruitment);
+		Hibernate.initialize(recruitment.getRecruitmentPositions());
 
         return RecruitmentPostDetailDto.of(
             post,
-            recruitment,
-            recruitmentPositions
+            recruitment
         );
     }
 
