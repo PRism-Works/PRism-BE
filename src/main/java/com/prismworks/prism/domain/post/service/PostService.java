@@ -5,21 +5,22 @@ import com.prismworks.prism.domain.post.dto.PostDto.RecruitmentPostDetailDto;
 import com.prismworks.prism.domain.post.dto.command.PostCommand.CreatePost;
 import com.prismworks.prism.domain.post.dto.command.PostTeamRecruitmentCommand.CreatePostTeamRecruitment;
 import com.prismworks.prism.domain.post.dto.command.TeamRecruitmentPositionCommand.CreateTeamRecruitmentPosition;
+import com.prismworks.prism.domain.post.dto.query.PostQuery.GetRecruitmentPosts;
 import com.prismworks.prism.domain.post.model.Post;
 import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
+import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
 import com.prismworks.prism.domain.post.model.TeamRecruitmentPosition;
 import com.prismworks.prism.domain.post.model.UserPostBookmark;
 import com.prismworks.prism.domain.post.repository.PostRepository;
 import com.prismworks.prism.domain.post.repository.PostTeamRecruitmentRepository;
 import com.prismworks.prism.domain.post.repository.TeamRecruitmentPositionRepository;
 import com.prismworks.prism.domain.post.repository.UserPostBookmarkRepository;
-
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +49,11 @@ public class PostService {
 			postRecruitmentRepository.save(new PostTeamRecruitment(createRecruitmentPostCommand));
 
 		return new PostRecruitmentInfo(post, postTeamRecruitment, recruitmentPositions);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<RecruitmentPostInfo> searchRecruitmentPost(GetRecruitmentPosts query) {
+		return postRecruitmentRepository.searchRecruitmentPosts(query);
 	}
 
     @Transactional
