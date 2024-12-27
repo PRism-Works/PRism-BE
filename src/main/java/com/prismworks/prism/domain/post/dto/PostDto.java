@@ -11,8 +11,6 @@ import com.prismworks.prism.domain.post.model.ProcessMethod;
 import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.model.Post;
 import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
-import com.prismworks.prism.domain.post.model.ProcessMethod;
-import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
 import com.prismworks.prism.domain.post.model.RecruitmentPostInfo.UserInfo;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
@@ -242,7 +240,7 @@ public class PostDto {
     @Builder
     @Getter
     public static class ViewPostDto {
-        private RecruitmentPostDetailDto recruitmentPostDetail;
-        private ProjectDetailDto projectDetailDto;
+        private RecruitmentPostDetailDto post;
+        private ProjectDetailDto project;
     }
 }

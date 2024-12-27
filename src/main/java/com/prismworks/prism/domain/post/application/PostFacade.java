@@ -45,8 +45,8 @@ public class PostFacade {
         ProjectDetailDto projectDetailDto = projectService.getProjectDetailInRetrieve(post.getProjectId());
 
         return PostDto.ViewPostDto.builder()
-            .recruitmentPostDetail(post)
-            .projectDetailDto(projectDetailDto)
+            .post(post)
+            .project(projectDetailDto)
             .build();
     }
 }
