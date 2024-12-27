@@ -19,6 +19,8 @@ public class PostQuery {
         private ProcessMethod processMethod;
         private List<String> skills;
         private List<RecruitmentStatus> recruitmentStatuses;
+        private boolean isBookmarkSearch;
+        private String userId;
         private int pageNo;
         private int pageSize;
     }

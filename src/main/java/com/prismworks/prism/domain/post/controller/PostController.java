@@ -16,7 +16,6 @@ import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
 import com.prismworks.prism.domain.post.service.PostService;
-import com.prismworks.prism.domain.search.dto.SearchDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,9 +23,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,9 +51,18 @@ public class PostController {
     }
 
     @GetMapping("/recruitment")
-    public ApiSuccessResponse searchRecruitmentPosts(SearchRecruitmentPostsRequest request) {
+    public ApiSuccessResponse searchRecruitmentPosts(
+        @CurrentUser UserContext userContext,
+        SearchRecruitmentPostsRequest request
+    ) {
+        System.out.println("보자구");
+        System.out.println("request.isRecruiting() : " + request.isRecruiting());
+        System.out.println("request.getSkills() : " + request.getSkills());
+        System.out.println("request.isBookmarkSearch() : " + request.isBookmarkSearch());
+        System.out.println("request.getPageNo() : " + request.getPageNo());
+        System.out.println("request.getPageSize() : " + request.getPageSize());
         Page<RecruitmentPostInfo> searchResult = postFacade.searchRecruitmentPost(
-            request.toGetRecruitmentPostsQuery());
+            request.toGetRecruitmentPostsQuery(userContext.getUserId()));
 
         SearchRecruitmentPostsResponse response = SearchRecruitmentPostsResponse.builder()
             .totalCount(searchResult.getTotalElements())
@@ -68,23 +74,6 @@ public class PostController {
             .build();
 
         return ApiSuccessResponse.defaultOk(response);
-    }
-
-    @GetMapping("/recruitment/bookmarked")
-    public ApiSuccessResponse getBookmarkedPostTeamRecruitments(
-        @CurrentUser UserContext user,
-        @ModelAttribute SearchDto.PostTeamRecruitmentSearchRequest request,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    )
-    {
-        // Page<SearchDto.PostTeamRecruitmentSearchResponse> response = postFacade.getBookmarkedPostTeamRecruitments(
-        //     user.getUserId(),
-        //     request,
-        //     PageRequest.of(page, size)
-        // );
-        //
-        return ApiSuccessResponse.defaultOk(null);
     }
 
     @GetMapping("/recruitment/my")

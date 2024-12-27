@@ -2,6 +2,7 @@ package com.prismworks.prism.domain.post.repository.custom;
 
 import static com.prismworks.prism.domain.post.model.QPostTeamRecruitment.postTeamRecruitment;
 import static com.prismworks.prism.domain.post.model.QTeamRecruitmentPosition.teamRecruitmentPosition;
+import static com.prismworks.prism.domain.post.model.QUserPostBookmark.*;
 import static com.prismworks.prism.domain.project.model.QProject.project;
 import static com.prismworks.prism.domain.user.model.QUsers.users;
 
@@ -60,7 +61,7 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
     }
 
     private JPAQuery<?> generateCommonSearchQuery(GetRecruitmentPosts condition) {
-        return queryFactory
+        JPAQuery<?> query = queryFactory
             .from(postTeamRecruitment)
             .join(project).on(postTeamRecruitment.projectId.eq(project.projectId))
             .join(users).on(postTeamRecruitment.post.userId.eq(users.userId))
@@ -72,6 +73,14 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
                 this.recruitmentStatusIn(condition.getRecruitmentStatuses()),
                 this.recruitmentPositionsIn(condition.getRecruitmentPositions())
             );
+
+        if (condition.isBookmarkSearch()) {
+            query.join(userPostBookmark).on(postTeamRecruitment.post.postId.eq(userPostBookmark.postId))
+                .where(userPostBookmark.userId.eq(condition.getUserId()))
+                .where(userPostBookmark.activeFlag.eq(true));
+        }
+
+        return query;
     }
 
     private BooleanExpression recruitmentPositionsIn(List<RecruitmentPosition> positions) {

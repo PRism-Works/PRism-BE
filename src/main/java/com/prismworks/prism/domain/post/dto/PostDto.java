@@ -112,18 +112,21 @@ public class PostDto {
         private List<Integer> categoryIds;
         private ProcessMethod processMethod;
         private List<String> skills;
-        private boolean isRecruiting;
+        private boolean recruiting;
+        private boolean bookmarkSearch;
         private int pageNo;
         private int pageSize;
 
-        public PostQuery.GetRecruitmentPosts toGetRecruitmentPostsQuery() {
+        public PostQuery.GetRecruitmentPosts toGetRecruitmentPostsQuery(String userId) {
             return PostQuery.GetRecruitmentPosts.builder()
                 .recruitmentPositions(recruitmentPositions)
                 .categoryIds(categoryIds)
                 .processMethod(processMethod)
                 .skills(skills)
-                .recruitmentStatuses(isRecruiting ? List.of(RecruitmentStatus.RECRUITING)
+                .recruitmentStatuses(recruiting ? List.of(RecruitmentStatus.RECRUITING)
                     : List.of(RecruitmentStatus.RECRUITING, RecruitmentStatus.CLOSED))
+                .isBookmarkSearch(bookmarkSearch)
+                .userId(userId)
                 .pageNo(pageNo)
                 .pageSize(pageSize)
                 .build();
