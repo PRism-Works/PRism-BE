@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
 @RestController
-public class PostController {
+public class PostController implements PostControllerDocs {
 
     @Autowired
     private final PostFacade postFacade;
