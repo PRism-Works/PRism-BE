@@ -28,21 +28,4 @@ public class SearchService {
 
         return new PageResponse<>(page.getTotalElements(), page.getTotalPages(), page.getNumber(), page.getContent());
     }
-
-	public Page<SearchDto.PostTeamRecruitmentSearchResponse> getBookmarkedPostTeamRecruitments(
-		String userId,
-		SearchDto.PostTeamRecruitmentSearchRequest request,
-		PageRequest pageRequest
-	)
-	{
-		return postTeamRecruitmentRepository.findBookmarkedPostTeamRecruitments(
-			userId,
-			request.getPositions(),
-			request.getCategories(),
-			request.getSkills(),
-			request.getProcessMethod(),
-			request.getRecruitmentStatus(),
-			pageRequest
-		);
-	}
 }

@@ -29,19 +29,5 @@ public class SearchController implements SearchControllerDocs{
         PageResponse<ProjectProjection.ProjectSearchResult> response = searchService.searchProject(request);
         return ApiSuccessResponse.defaultOk(response);
     }
-
-    @GetMapping("/posts/recruitment/bookmarked")
-    public ApiSuccessResponse getBookmarkedPostTeamRecruitments(
-        @CurrentUser UserContext user,
-        @ModelAttribute SearchDto.PostTeamRecruitmentSearchRequest request,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    )
-    {
-        Page<SearchDto.PostTeamRecruitmentSearchResponse> response = searchService.getBookmarkedPostTeamRecruitments(
-            user.getUserId(), request, PageRequest.of(page, size));
-
-        return ApiSuccessResponse.defaultOk(response);
-    }
 }
 
