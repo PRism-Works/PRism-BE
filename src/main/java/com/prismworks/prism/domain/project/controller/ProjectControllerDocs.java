@@ -6,7 +6,10 @@ import com.prismworks.prism.domain.project.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.text.ParseException;
@@ -17,12 +20,12 @@ public interface ProjectControllerDocs {
 
 	@Operation(summary = "프로젝트 생성", description = "새로운 프로젝트 생성")
 	ApiSuccessResponse createProject(@Parameter(hidden = true) UserContext userContext,
-		ProjectDto projectDto) throws ParseException;
+		@RequestBody @Valid ProjectDto projectDto) throws ParseException;
 
 	@Operation(summary = "프로젝트 수정", description = "기존 프로젝트 수정")
 	ApiSuccessResponse updateProject(@Parameter(hidden = true) UserContext userContext,
 		@PathVariable int projectId,
-		ProjectDto projectDto) throws ParseException;
+		@RequestBody @Valid ProjectDto projectDto) throws ParseException;
 
 	@Operation(summary = "프로젝트 삭제", description = "프로젝트 삭제")
 	ApiSuccessResponse deleteProject(@Parameter(hidden = true) UserContext userContext,

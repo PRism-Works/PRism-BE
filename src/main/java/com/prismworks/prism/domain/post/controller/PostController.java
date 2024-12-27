@@ -8,16 +8,21 @@ import com.prismworks.prism.domain.post.dto.MyPostCommonFilter;
 import com.prismworks.prism.domain.post.dto.PostDto;
 import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest;
 import com.prismworks.prism.domain.post.dto.PostDto.GetMyRecruitmentPostsResponse;
+import com.prismworks.prism.domain.post.dto.PostDto.SearchRecruitmentPostItem;
+import com.prismworks.prism.domain.post.dto.PostDto.SearchRecruitmentPostsRequest;
+import com.prismworks.prism.domain.post.dto.PostDto.SearchRecruitmentPostsResponse;
 import com.prismworks.prism.domain.post.dto.RecruitmentPostCommonFilter;
 import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
-
 import com.prismworks.prism.domain.post.model.RecruitmentPosition;
+import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
 import com.prismworks.prism.domain.post.service.PostService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
 @RestController
-public class PostController {
+public class PostController implements PostControllerDocs {
 
     @Autowired
     private final PostFacade postFacade;
@@ -43,6 +48,32 @@ public class PostController {
             userContext.getUserId());
 
         return ApiSuccessResponse.defaultOk(recruitmentPostInfo);
+    }
+
+    @GetMapping("/recruitment")
+    public ApiSuccessResponse searchRecruitmentPosts(
+        @CurrentUser UserContext userContext,
+        SearchRecruitmentPostsRequest request
+    ) {
+        System.out.println("보자구");
+        System.out.println("request.isRecruiting() : " + request.isRecruiting());
+        System.out.println("request.getSkills() : " + request.getSkills());
+        System.out.println("request.isBookmarkSearch() : " + request.isBookmarkSearch());
+        System.out.println("request.getPageNo() : " + request.getPageNo());
+        System.out.println("request.getPageSize() : " + request.getPageSize());
+        Page<RecruitmentPostInfo> searchResult = postFacade.searchRecruitmentPost(
+            request.toGetRecruitmentPostsQuery(userContext.getUserId()));
+
+        SearchRecruitmentPostsResponse response = SearchRecruitmentPostsResponse.builder()
+            .totalCount(searchResult.getTotalElements())
+            .totalPages(searchResult.getTotalPages())
+            .currentPage(searchResult.getNumber())
+            .posts(searchResult.getContent().stream()
+                .map(SearchRecruitmentPostItem::new)
+                .collect(Collectors.toList()))
+            .build();
+
+        return ApiSuccessResponse.defaultOk(response);
     }
 
     @GetMapping("/recruitment/my")
