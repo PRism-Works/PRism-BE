@@ -1,6 +1,7 @@
 package com.prismworks.prism.domain.post.repository;
 
 import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
+import com.prismworks.prism.domain.post.repository.custom.PostTeamRecruitmentCustomRepository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;

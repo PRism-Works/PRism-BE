@@ -4,24 +4,27 @@ import static com.prismworks.prism.domain.post.dto.command.PostCommand.CreatePos
 
 import com.prismworks.prism.domain.post.dto.command.PostTeamRecruitmentCommand.CreatePostTeamRecruitment;
 import com.prismworks.prism.domain.post.dto.command.TeamRecruitmentPositionCommand.CreateTeamRecruitmentPosition;
+import com.prismworks.prism.domain.post.dto.query.PostQuery;
 import com.prismworks.prism.domain.post.model.ApplyMethod;
 import com.prismworks.prism.domain.post.model.ContactMethod;
-import com.prismworks.prism.domain.post.model.ProcessMethod;
-import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.model.Post;
 import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
+import com.prismworks.prism.domain.post.model.ProcessMethod;
+import com.prismworks.prism.domain.post.model.RecruitmentPosition;
+import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
+import com.prismworks.prism.domain.post.model.RecruitmentPostInfo.UserInfo;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
 import com.prismworks.prism.domain.post.model.TeamRecruitmentPosition;
 import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
 import com.prismworks.prism.domain.user.dto.UserDto;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 public class PostDto {
     @Getter
@@ -99,6 +102,70 @@ public class PostDto {
         private final List<RecruitPositionItem> recruitPositions;
         private final String title;
         private final String content;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class SearchRecruitmentPostsRequest {
+        private List<RecruitmentPosition> recruitmentPositions;
+        private List<Integer> categoryIds;
+        private ProcessMethod processMethod;
+        private List<String> skills;
+        private boolean isRecruiting;
+        private int pageNo;
+        private int pageSize;
+
+        public PostQuery.GetRecruitmentPosts toGetRecruitmentPostsQuery() {
+            return PostQuery.GetRecruitmentPosts.builder()
+                .recruitmentPositions(recruitmentPositions)
+                .categoryIds(categoryIds)
+                .processMethod(processMethod)
+                .skills(skills)
+                .recruitmentStatuses(isRecruiting ? List.of(RecruitmentStatus.RECRUITING)
+                    : List.of(RecruitmentStatus.RECRUITING, RecruitmentStatus.CLOSED))
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .build();
+        }
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class SearchRecruitmentPostItem {
+        private final Long postId;
+        private final String title;
+        private final String content;
+        private final List<String> categories;
+        private final List<RecruitmentPosition> positions;
+        private final boolean isOpenUntilRecruited;
+        private final LocalDateTime recruitmentStartAt;
+        private final LocalDateTime recruitmentEndAt;
+        private final int viewCount;
+        private final UserInfo userInfo;
+
+        public SearchRecruitmentPostItem(RecruitmentPostInfo postInfo) {
+            this.postId = postInfo.getPostId();
+            this.title = postInfo.getTitle();
+            this.content = postInfo.getContent();
+            this.categories = postInfo.getCategories();
+            this.positions = postInfo.getPositions();
+            this.isOpenUntilRecruited = postInfo.isOpenUntilRecruited();
+            this.recruitmentStartAt = postInfo.getRecruitmentStartAt();
+            this.recruitmentEndAt = postInfo.getRecruitmentEndAt();
+            this.viewCount = postInfo.getViewCount();
+            this.userInfo = postInfo.getUserInfo();
+        }
+    }
+
+    @Getter
+    @Builder
+    @RequiredArgsConstructor
+    public static class SearchRecruitmentPostsResponse {
+        private final long totalCount;
+        private final int totalPages;
+        private final int currentPage;
+        private final List<SearchRecruitmentPostItem> posts;
     }
 
     @Getter
