@@ -15,6 +15,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -37,30 +38,7 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
         PageRequest pageRequest = PageRequest.of(condition.getPageNo(), condition.getPageSize(),
             Direction.DESC, "createdAt");
 
-        JPAQuery<?> commonSearchQuery = queryFactory
-            .from(postTeamRecruitment)
-            .join(project).on(postTeamRecruitment.projectId.eq(project.projectId))
-            .join(users).on(postTeamRecruitment.post.userId.eq(users.userId))
-            .leftJoin(postTeamRecruitment.recruitmentPositions, teamRecruitmentPosition)
-            .where(
-                this.processMethodEq(condition.getProcessMethod()),
-                this.projectCategoryIdsIn(condition.getCategoryIds()),
-                this.projectSkillsIn(condition.getSkills()),
-                this.recruitmentStatusIn(condition.getRecruitmentStatuses())
-            );
-
-        List<RecruitmentPosition> positions = condition.getRecruitmentPositions();
-        if(!CollectionUtils.isEmpty(positions)) {
-            List<Long> postTeamRecruitmentIds = queryFactory
-                .select(teamRecruitmentPosition.postTeamRecruitment.postTeamRecruitmentId)
-                .from(teamRecruitmentPosition)
-                .where(this.recruitmentPositionsIn(positions))
-                .fetch();
-
-            if(!CollectionUtils.isEmpty(postTeamRecruitmentIds)) {
-                commonSearchQuery.where(this.postTeamRecruitmentIdIn(postTeamRecruitmentIds));
-            }
-        }
+        JPAQuery<?> commonSearchQuery = this.generateCommonSearchQuery(condition);
 
         JPAQuery<Long> countQuery = commonSearchQuery.clone()
             .select(postTeamRecruitment.count());
@@ -81,13 +59,33 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
         return PageableExecutionUtils.getPage(contents, pageRequest, countQuery::fetchOne);
     }
 
-    private BooleanExpression postTeamRecruitmentIdIn(List<Long> postTeamRecruitmentIds) {
-        return CollectionUtils.isEmpty(postTeamRecruitmentIds) ? null
-            : postTeamRecruitment.postTeamRecruitmentId.in(postTeamRecruitmentIds);
+    private JPAQuery<?> generateCommonSearchQuery(GetRecruitmentPosts condition) {
+        return queryFactory
+            .from(postTeamRecruitment)
+            .join(project).on(postTeamRecruitment.projectId.eq(project.projectId))
+            .join(users).on(postTeamRecruitment.post.userId.eq(users.userId))
+            .leftJoin(postTeamRecruitment.recruitmentPositions, teamRecruitmentPosition)
+            .where(
+                this.processMethodEq(condition.getProcessMethod()),
+                this.projectCategoryIdsIn(condition.getCategoryIds()),
+                this.projectSkillsIn(condition.getSkills()),
+                this.recruitmentStatusIn(condition.getRecruitmentStatuses()),
+                this.recruitmentPositionsIn(condition.getRecruitmentPositions())
+            );
     }
 
     private BooleanExpression recruitmentPositionsIn(List<RecruitmentPosition> positions) {
-        return CollectionUtils.isEmpty(positions) ? null : teamRecruitmentPosition.position.in(positions);
+        List<Long> postTeamRecruitmentIds = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(positions)) {
+            postTeamRecruitmentIds = queryFactory
+                .select(teamRecruitmentPosition.postTeamRecruitment.postTeamRecruitmentId)
+                .from(teamRecruitmentPosition)
+                .where(recruitmentPositionsIn(positions))
+                .fetch();
+        }
+
+        return CollectionUtils.isEmpty(postTeamRecruitmentIds) ? null
+            : postTeamRecruitment.postTeamRecruitmentId.in(postTeamRecruitmentIds);
     }
 
     private BooleanExpression processMethodEq(ProcessMethod processMethod) {
