@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.post.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.prismworks.prism.domain.post.dto.command.TeamRecruitmentPositionCommand.CreateTeamRecruitmentPosition;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +28,7 @@ public class TeamRecruitmentPosition {
 	@Column(name = "team_recruitment_position_id")
 	private Long positionId;
 
+	@JsonBackReference
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "post_team_recruitment_id")
 	private PostTeamRecruitment postTeamRecruitment;

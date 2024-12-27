@@ -58,7 +58,6 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/peer-reviews/link").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/peer-reviews/projects/*").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/recruitment").permitAll()
 
                         .anyRequest().authenticated()
                 );

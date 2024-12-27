@@ -16,6 +16,7 @@ import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
 import com.prismworks.prism.domain.post.service.PostService;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
 @RestController
-public class PostController {
+public class PostController implements PostControllerDocs {
 
     @Autowired
     private final PostFacade postFacade;
@@ -50,9 +51,18 @@ public class PostController {
     }
 
     @GetMapping("/recruitment")
-    public ApiSuccessResponse searchRecruitmentPosts(SearchRecruitmentPostsRequest request) {
+    public ApiSuccessResponse searchRecruitmentPosts(
+        @CurrentUser UserContext userContext,
+        SearchRecruitmentPostsRequest request
+    ) {
+        System.out.println("보자구");
+        System.out.println("request.isRecruiting() : " + request.isRecruiting());
+        System.out.println("request.getSkills() : " + request.getSkills());
+        System.out.println("request.isBookmarkSearch() : " + request.isBookmarkSearch());
+        System.out.println("request.getPageNo() : " + request.getPageNo());
+        System.out.println("request.getPageSize() : " + request.getPageSize());
         Page<RecruitmentPostInfo> searchResult = postFacade.searchRecruitmentPost(
-            request.toGetRecruitmentPostsQuery());
+            request.toGetRecruitmentPostsQuery(userContext.getUserId()));
 
         SearchRecruitmentPostsResponse response = SearchRecruitmentPostsResponse.builder()
             .totalCount(searchResult.getTotalElements())

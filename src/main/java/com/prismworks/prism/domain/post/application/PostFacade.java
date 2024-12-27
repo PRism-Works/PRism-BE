@@ -33,6 +33,8 @@ public class PostFacade {
         return postService.searchRecruitmentPost(query);
     }
 
+
+
     @Transactional
     public PostDto.ViewPostDto viewPost(Long postId) {
 

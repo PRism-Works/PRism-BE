@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.post.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.prismworks.prism.domain.post.dto.command.PostTeamRecruitmentCommand.CreatePostTeamRecruitment;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -63,6 +64,7 @@ public class PostTeamRecruitment {
 	@Column(name = "process_method")
 	private ProcessMethod processMethod;
 
+	@JsonManagedReference
 	@OneToMany(mappedBy = "postTeamRecruitment", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@BatchSize(size = 100)
 	private Set<TeamRecruitmentPosition> recruitmentPositions = new HashSet<>();
