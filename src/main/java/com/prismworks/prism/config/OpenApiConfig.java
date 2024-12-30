@@ -59,31 +59,25 @@ public class OpenApiConfig {
 
     @Bean
     public GroupedOpenApi groupedPeerReviewOpenApi() {
-        String[] packagesToScan = {"com.prismworks.prism.domain.peerreview"};
-
         return GroupedOpenApi.builder()
             .group("3. 동료평가")
-            .packagesToScan(packagesToScan)
+            .pathsToMatch("/api/v1/auth/login", "/api/v1/peer-reviews/**")
             .build();
     }
 
     @Bean
     public GroupedOpenApi groupedPrismOpenApi() {
-        String[] packagesToScan = {"com.prismworks.prism.domain.prism"};
-
         return GroupedOpenApi.builder()
             .group("4. PRism 평가 및 분석 결과")
-            .packagesToScan(packagesToScan)
+            .pathsToMatch("/api/v1/auth/login", "/api/v1/prism/**")
             .build();
     }
 
     @Bean
     public GroupedOpenApi groupedProjectOpenApi() {
-        String[] packagesToScan = {"com.prismworks.prism.domain.project"};
-
         return GroupedOpenApi.builder()
             .group("5. 프로젝트")
-            .packagesToScan(packagesToScan)
+            .pathsToMatch("/api/v1/auth/login", "/api/v1/projects/**")
             .build();
     }
 
@@ -99,11 +93,17 @@ public class OpenApiConfig {
 
     @Bean
     public GroupedOpenApi groupedUserOpenApi() {
-        String[] packagesToScan = {"com.prismworks.prism.domain.user"};
-
         return GroupedOpenApi.builder()
             .group("7. 사용자")
-            .packagesToScan(packagesToScan)
+            .pathsToMatch("/api/v1/auth/login", "/api/v1/users/**")
+            .build();
+    }
+
+    @Bean
+    public GroupedOpenApi groupedPostOpenApi() {
+        return GroupedOpenApi.builder()
+            .group("8. 커뮤니티")
+            .pathsToMatch("/api/v1/auth/login", "/api/v1/posts/**")
             .build();
     }
 }

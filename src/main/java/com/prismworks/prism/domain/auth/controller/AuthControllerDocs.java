@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 
-@Tag(name = "인증 API", description = "인증 관련 API")
+@Tag(name = "2. 인증 API", description = "인증 관련 API")
 public interface AuthControllerDocs {
 
     @Operation(summary = "email 존재 여부 조회", description = "입력받은 email 존재 여부 반환")
