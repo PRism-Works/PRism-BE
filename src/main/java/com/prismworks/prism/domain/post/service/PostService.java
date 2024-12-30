@@ -78,6 +78,7 @@ public class PostService {
 		postRepository.incrementViewCountById(postId);
 	}
 
+	@Transactional
 	public UserPostBookmark bookmark(String userId, Long postId) {
 		Optional<UserPostBookmark> bookmark = userPostBookmarkRepository.findByUserIdAndPostId(userId, postId);
 
