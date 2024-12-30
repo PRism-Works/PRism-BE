@@ -17,7 +17,7 @@ public enum RecruitmentPosition {
 	BACKEND("backend"),
 	FULLSTACK("fullstack"),
 	DESIGNER("designer"),
-	IOS("iOS"),
+	IOS("ios"),
 	ANDROID("android"),
 	DEVOPS("devops"),
 	QA("qa");
@@ -30,10 +30,10 @@ public enum RecruitmentPosition {
 	}
 
 	@JsonCreator
-	public static RecruitmentPosition from(String position) {
+	public static RecruitmentPosition from(String value) {
 		return Arrays.stream(RecruitmentPosition.values())
-			.filter(recruitmentPosition -> recruitmentPosition.value.equals(position))
+			.filter(recruitmentPosition -> recruitmentPosition.value.equals(value))
 			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("Unknown status: " + position));
+			.orElseThrow(() -> new IllegalArgumentException("Unknown recruitmentPosition value: " + value));
 	}
 }

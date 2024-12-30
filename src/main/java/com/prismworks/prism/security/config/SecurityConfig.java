@@ -1,8 +1,10 @@
 package com.prismworks.prism.security.config;
 
+import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.auth.provider.JwtTokenProvider;
 import com.prismworks.prism.domain.auth.service.AuthTokenBlackListService;
 import com.prismworks.prism.security.filter.JwtAuthenticationFilter;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +21,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
@@ -32,6 +32,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .anonymous(anonymousConfigurer -> anonymousConfigurer
+                    .principal(UserContext.guest()))
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, authTokenBlackListService),
                         UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(handler -> handler.authenticationEntryPoint(entryPoint))
@@ -58,6 +60,7 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/peer-reviews/link").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/peer-reviews/projects/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/posts/recruitment").permitAll()
 
                         .anyRequest().authenticated()
                 );

@@ -25,6 +25,6 @@ public enum ContactMethod {
         return Arrays.stream(ContactMethod.values())
             .filter(contactMethod -> contactMethod.value.equals(value))
             .findFirst()
-            .orElseThrow(() -> new RuntimeException("ContactMethod not match"));
+            .orElseThrow(() -> new IllegalArgumentException("Unknown contactMethod value " + value));
     }
 }

@@ -8,6 +8,7 @@ import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
 import com.prismworks.prism.domain.post.service.PostService;
 import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
 import com.prismworks.prism.domain.project.service.ProjectService;
+import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +34,6 @@ public class PostFacade {
         return postService.searchRecruitmentPost(query);
     }
 
-
-
     @Transactional
     public PostDto.ViewPostDto viewPost(Long postId) {
 
@@ -48,5 +47,11 @@ public class PostFacade {
             .post(post)
             .project(projectDetailDto)
             .build();
+    }
+
+    @Transactional
+    public void bookmark(String userId, Long postId) {
+        Users user = userService.findUserById(userId);
+        postService.bookmark(user.getUserId(), postId);
     }
 }

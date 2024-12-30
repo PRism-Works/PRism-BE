@@ -65,7 +65,6 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
             .from(postTeamRecruitment)
             .join(project).on(postTeamRecruitment.projectId.eq(project.projectId))
             .join(users).on(postTeamRecruitment.post.userId.eq(users.userId))
-            .leftJoin(postTeamRecruitment.recruitmentPositions, teamRecruitmentPosition)
             .where(
                 this.processMethodEq(condition.getProcessMethod()),
                 this.projectCategoryIdsIn(condition.getCategoryIds()),
@@ -89,7 +88,7 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
             postTeamRecruitmentIds = queryFactory
                 .select(teamRecruitmentPosition.postTeamRecruitment.postTeamRecruitmentId)
                 .from(teamRecruitmentPosition)
-                .where(recruitmentPositionsIn(positions))
+                .where(teamRecruitmentPosition.position.in(positions))
                 .fetch();
         }
 

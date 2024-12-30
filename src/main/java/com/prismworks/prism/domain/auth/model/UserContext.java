@@ -21,4 +21,15 @@ public class UserContext extends User {
         this.userId = user.getUserId();
         this.email = user.getEmail();
     }
+
+    public UserContext(String userId, String email, GrantedAuthority authority) {
+        super(email, "N/A", Collections.singletonList(authority));
+        this.userId = userId;
+        this.email = email;
+    }
+
+    public static UserContext guest() {
+        return new UserContext("GUEST", "guest@guest.com", new SimpleGrantedAuthority("ROLE_GUEST"));
+    }
+
 }

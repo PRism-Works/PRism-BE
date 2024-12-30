@@ -11,7 +11,8 @@ import lombok.Getter;
 public enum ProcessMethod {
 	ONLINE("online"),
 	OFFLINE("offline"),
-	ONLINE_AND_OFFLINE("onlineAndOffline");
+	ONLINE_AND_OFFLINE("onlineAndOffline"),
+    ETC("etc");
 
 	private final String value;
 
@@ -25,6 +26,6 @@ public enum ProcessMethod {
         return Arrays.stream(ProcessMethod.values())
             .filter(projectProcessMethod -> projectProcessMethod.value.equals(value))
             .findFirst()
-            .orElseThrow(() -> new RuntimeException("ProcessMethod not match")); //todo: custom Exception
+            .orElseThrow(() -> new IllegalArgumentException("Unknown processMethod value " + value));
     }
 }
