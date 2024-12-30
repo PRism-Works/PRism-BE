@@ -27,6 +27,6 @@ public enum ApplyMethod {
         return Arrays.stream(ApplyMethod.values())
             .filter(applyMethod -> applyMethod.value.equals(value))
             .findFirst()
-            .orElseThrow(() -> new RuntimeException("ApplicationMethod not match")); //todo: custom Exception
+            .orElseThrow(() -> new IllegalArgumentException("Unknown applyMethod value " + value));
     }
 }
