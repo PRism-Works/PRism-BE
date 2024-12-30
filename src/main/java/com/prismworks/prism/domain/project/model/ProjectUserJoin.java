@@ -19,7 +19,7 @@ public class ProjectUserJoin {
     @JoinColumn(name = "user_id")
     private Users user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
 

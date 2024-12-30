@@ -11,6 +11,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.Map;
 
+@Hidden
 @RestController
 @EnableWebMvc
 public class IndexController {
@@ -20,13 +21,11 @@ public class IndexController {
         return "hello world!";
     }
 
-    @Hidden
     @GetMapping(value = "/healthcheck")
     public String healthcheck() {
         return "test8";
     }
 
-    @Hidden
     @GetMapping(value = "/secured-uri")
     public ApiSuccessResponse testSecuredUri(@CurrentUser UserContext userContext) {
         return ApiSuccessResponse.defaultOk(Map.of("email", userContext.getEmail()));

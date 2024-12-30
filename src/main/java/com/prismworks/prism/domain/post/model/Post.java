@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.post.model;
 
+import com.prismworks.prism.domain.post.dto.command.PostCommand.CreatePost;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,7 +26,7 @@ public class Post {
 	private String userId;
 
 	@Column(name = "view_count")
-	private Integer viewCount;
+	private Integer viewCount = 0;
 
 	@Column(name = "title")
 	private String title;
@@ -41,4 +42,11 @@ public class Post {
 
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
+
+	public Post(CreatePost command) {
+		this.userId = command.getUserId();
+		this.title = command.getTitle();
+		this.content = command.getContent();
+		this.createdAt = LocalDateTime.now();
+	}
 }

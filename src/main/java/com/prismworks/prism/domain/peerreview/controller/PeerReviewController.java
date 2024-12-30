@@ -18,20 +18,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/peer-reviews")
 @RestController
-public class PeerReviewController {
+public class PeerReviewController implements PeerReviewControllerDocs {
 
     private final PeerReviewService peerReviewService;
     private final PrismService prismService;
-
-    @GetMapping("/projects/{projectId}/users/{userId}") // 사용자 프로젝트 동료평가 [마이프로필 - 프로젝트 상세 - 나의 PRism, 나의 PRism분석 리포트]
-    public ApiSuccessResponse getProjectPeerReview(@PathVariable Integer projectId, @PathVariable String userId) {
-        return ApiSuccessResponse.defaultOk(new PeerReviewDto.ProjectPeerReviewResponse());
-    }
-
-    @GetMapping("/users/{userId}") // 사용자 동료평가 [마이프로필 - PRism 종합 리포트]
-    public ApiSuccessResponse getOverallPeerReview(@PathVariable String userId) {
-        return ApiSuccessResponse.defaultOk(new PeerReviewDto.ProjectPeerReviewResponse());
-    }
 
     @PostMapping("/link") // 동료평가 링크 이메일 발송
     public ApiSuccessResponse sendReviewLinkEmail(@CurrentUser UserContext userContext,

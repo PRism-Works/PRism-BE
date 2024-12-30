@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/prism")
-public class PrismController {
+public class PrismController implements PrismControllerDocs {
 
     private final PrismService prismService;
 
