@@ -13,7 +13,6 @@ import java.util.Map;
 
 @Hidden
 @RestController
-@EnableWebMvc
 public class IndexController {
 
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
