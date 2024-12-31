@@ -9,10 +9,14 @@ import com.prismworks.prism.domain.peerreview.dto.*;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResponse;
 
 import java.io.IOException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
+@RequiredArgsConstructor
+@Component
 public class PeerReviewResponseDeserializer extends JsonDeserializer<PeerReviewResponse> {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @Override
     public PeerReviewResponse deserialize(JsonParser p, DeserializationContext ctxt)

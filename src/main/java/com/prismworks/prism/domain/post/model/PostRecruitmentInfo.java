@@ -58,9 +58,4 @@ public class PostRecruitmentInfo {
         private RecruitmentPosition position;
         private Integer recruitmentCount;
     }
-
-    @JsonProperty("createdAt")
-    public String getCreatedAt() {
-        return DateUtil.formatDate(createdAt, DatePattern.DATE);
-    }
 }
