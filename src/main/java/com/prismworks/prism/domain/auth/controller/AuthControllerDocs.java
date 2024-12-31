@@ -23,7 +23,7 @@ public interface AuthControllerDocs {
     })
     ApiSuccessResponse emailExists(String email);
 
-    @Operation(summary = "이메일 인증 코드 발송 (동기)", description = "이메일 인증 코드 발송")
+    @Operation(summary = "이메일 인증 코드 발송", description = "이메일 인증 코드 발송")
     ApiSuccessResponse sendVerificationCode(AuthDto.SendCodeRequest request);
 
     @Operation(summary = "이메일 인증 코드 검증", description = "이메일 인증 코드 검증")
@@ -44,7 +44,4 @@ public interface AuthControllerDocs {
     @Operation(summary = "로그아웃", description = "로그아웃")
     ApiSuccessResponse logout(@Parameter(hidden = true) HttpServletRequest request,
         @Parameter(hidden = true) UserContext userContext);
-
-    @Operation(summary = "이메일 인증 코드 발송 (비동기)", description = "이메일 인증 코드 발송 (비동기)")
-    ApiSuccessResponse sendVerificationCodeAsync(AuthDto.SendCodeRequest request);
 }

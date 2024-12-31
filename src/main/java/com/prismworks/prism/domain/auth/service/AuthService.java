@@ -66,24 +66,7 @@ public class AuthService {
                 .templateVariables(Map.of("code", emailAuthCode.getCode()))
                 .build();
 
-         emailSendService.sendEmail(emailSendRequest);
-    }
-
-    public void sendAuthCodeAsync(SendCodeRequest dto) {
-        if(AuthType.SIGNUP.equals(dto.getAuthType())) {
-            checkAlreadySignup(dto.getEmail());
-        }
-
-        EmailAuthCode emailAuthCode =
-                emailAuthCodeService.createEmailAuthCode(dto.getEmail(), dto.getAuthType(), dto.getRequestAt());
-
-        EmailSendRequest emailSendRequest = EmailSendRequest.builder()
-                .toEmails(List.of(emailAuthCode.getEmail()))
-                .template(EmailTemplate.valueOf(emailAuthCode.getAuthType().getValue()))
-                .templateVariables(Map.of("code", emailAuthCode.getCode()))
-                .build();
-
-        emailSendService.sendEmailAsync(emailSendRequest);
+         emailSendService.sendEmailAsync(emailSendRequest);
     }
 
     @Transactional
