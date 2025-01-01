@@ -2,7 +2,6 @@ package com.prismworks.prism.domain.post.dto;
 
 import static com.prismworks.prism.domain.post.dto.command.PostCommand.CreatePost;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.prismworks.prism.domain.post.dto.command.PostTeamRecruitmentCommand.CreatePostTeamRecruitment;
 import com.prismworks.prism.domain.post.dto.command.TeamRecruitmentPositionCommand.CreateTeamRecruitmentPosition;
 import com.prismworks.prism.domain.post.dto.query.PostQuery;
@@ -172,6 +171,9 @@ public class PostDto {
         @Schema(description = "페이지 사이즈", defaultValue = "10")
         private int pageSize = 10;
 
+        @Schema(description = "페이지 정렬 조건", defaultValue = "recent", allowableValues = {"recent", "popular", "expiry"})
+        private RecruitmentPostSortOption sort = RecruitmentPostSortOption.RECENT;
+
         public PostQuery.GetRecruitmentPosts toGetRecruitmentPostsQuery(String userId) {
             return PostQuery.GetRecruitmentPosts.builder()
                 .recruitmentPositions(recruitmentPositions)
@@ -184,6 +186,7 @@ public class PostDto {
                 .userId(userId)
                 .pageNo(pageNo)
                 .pageSize(pageSize)
+                .sort(sort)
                 .build();
         }
     }
@@ -218,6 +221,9 @@ public class PostDto {
         @Schema(description = "조회수")
         private final int viewCount;
 
+        @Schema(description = "북마크 여부")
+        private final boolean isBookmarked;
+
         @Schema(description = "작성자 정보")
         private final UserInfo writerInfo;
 
@@ -231,6 +237,7 @@ public class PostDto {
             this.recruitmentStartAt = postInfo.getRecruitmentStartAt();
             this.recruitmentEndAt = postInfo.getRecruitmentEndAt();
             this.viewCount = postInfo.getViewCount();
+            this.isBookmarked = postInfo.isBookmarked();
             this.writerInfo = postInfo.getUserInfo();
         }
     }
@@ -277,7 +284,6 @@ public class PostDto {
         private final String userId;
         private UserDto.UserProfileDetail writer;
         private final int viewCount;
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime createdAt;
         private final LocalDateTime recruitmentStart;
         private final LocalDateTime recruitmentEnd;

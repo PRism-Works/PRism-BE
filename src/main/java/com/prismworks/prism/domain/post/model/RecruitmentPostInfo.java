@@ -20,7 +20,7 @@ public class RecruitmentPostInfo {
     private final LocalDateTime recruitmentStartAt;
     private final LocalDateTime recruitmentEndAt;
     private final int viewCount;
-//    private final boolean isBookmarked;
+    private final boolean isBookmarked;
     private final UserInfo userInfo;
 
     @Getter

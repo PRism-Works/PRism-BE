@@ -1,8 +1,9 @@
 package com.prismworks.prism.domain.post.repository.custom;
 
+import static com.prismworks.prism.common.infra.repository.QueryOrderFactory.getOrderSpecifier;
 import static com.prismworks.prism.domain.post.model.QPostTeamRecruitment.postTeamRecruitment;
 import static com.prismworks.prism.domain.post.model.QTeamRecruitmentPosition.teamRecruitmentPosition;
-import static com.prismworks.prism.domain.post.model.QUserPostBookmark.*;
+import static com.prismworks.prism.domain.post.model.QUserPostBookmark.userPostBookmark;
 import static com.prismworks.prism.domain.project.model.QProject.project;
 import static com.prismworks.prism.domain.user.model.QUsers.users;
 
@@ -12,18 +13,19 @@ import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
 import com.prismworks.prism.domain.post.repository.custom.projection.GetPostRecruitmentsProjection;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -36,26 +38,32 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
 
     @Override
     public Page<RecruitmentPostInfo> searchRecruitmentPosts(GetRecruitmentPosts condition) {
-        PageRequest pageRequest = PageRequest.of(condition.getPageNo(), condition.getPageSize(),
-            Direction.DESC, "createdAt");
+        PageRequest pageRequest = PageRequest.of(condition.getPageNo(), condition.getPageSize());
+        boolean isBookmarkSearch = condition.isBookmarkSearch();
 
-        JPAQuery<?> commonSearchQuery = this.generateCommonSearchQuery(condition);
+        JPAQuery<?> baseQuery = this.generateCommonSearchQuery(condition);
 
-        JPAQuery<Long> countQuery = commonSearchQuery.clone()
+        JPAQuery<Long> countQuery = baseQuery.clone()
             .select(postTeamRecruitment.count());
 
-        List<GetPostRecruitmentsProjection> postTeamRecruitments = commonSearchQuery.clone()
+        List<GetPostRecruitmentsProjection> postTeamRecruitments = baseQuery.clone()
             .select(Projections.constructor(GetPostRecruitmentsProjection.class,
                 postTeamRecruitment,
                 project,
-                users.as("user")))
+                users.as("user"),
+                Expressions.as(
+                    isBookmarkSearch ? Expressions.constant(true) : this.isUserBookmarkExistsQuery(condition.getUserId()),
+                    "isBookmarked"
+                )
+            ))
             .offset(pageRequest.getOffset())
             .limit(pageRequest.getPageSize())
+            .orderBy(getOrderSpecifier(condition.getSort()))
             .fetch();
 
         List<RecruitmentPostInfo> contents = postTeamRecruitments.stream()
             .map(GetPostRecruitmentsProjection::toRecruitmentPostInfo)
-            .collect(Collectors.toList());
+            .toList();
 
         return PageableExecutionUtils.getPage(contents, pageRequest, countQuery::fetchOne);
     }
@@ -73,13 +81,23 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
                 this.recruitmentPositionsIn(condition.getRecruitmentPositions())
             );
 
-        if (condition.isBookmarkSearch()) {
-            query.join(userPostBookmark).on(postTeamRecruitment.post.postId.eq(userPostBookmark.postId))
-                .where(userPostBookmark.userId.eq(condition.getUserId()))
-                .where(userPostBookmark.activeFlag.eq(true));
+        if(condition.isBookmarkSearch()) {
+            return query.join(userPostBookmark)
+                .on(postTeamRecruitment.post.postId.eq(userPostBookmark.postId))
+                .where(userPostBookmark.userId.eq(condition.getUserId())
+                    .and(userPostBookmark.activeFlag.eq(true)));
         }
 
         return query;
+    }
+
+    private Expression<Boolean> isUserBookmarkExistsQuery(String userId) {
+        return JPAExpressions.selectOne()
+            .from(userPostBookmark)
+            .where(userPostBookmark.userId.eq(userId)
+                .and(userPostBookmark.postId.eq(postTeamRecruitment.post.postId))
+                .and(userPostBookmark.activeFlag.eq(true)))
+            .exists();
     }
 
     private BooleanExpression recruitmentPositionsIn(List<RecruitmentPosition> positions) {

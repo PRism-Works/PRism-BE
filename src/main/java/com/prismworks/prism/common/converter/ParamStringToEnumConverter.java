@@ -1,5 +1,6 @@
 package com.prismworks.prism.common.converter;
 
+import com.prismworks.prism.domain.post.dto.RecruitmentPostSortOption;
 import com.prismworks.prism.domain.post.model.ProcessMethod;
 import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import org.springframework.core.convert.converter.Converter;
@@ -19,6 +20,13 @@ public class ParamStringToEnumConverter {
         @Override
         public RecruitmentPosition convert(String source) {
             return RecruitmentPosition.from(source);
+        }
+    }
+
+    public static class RecruitmentPostSortConverter implements Converter<String, RecruitmentPostSortOption> {
+        @Override
+        public RecruitmentPostSortOption convert(String source) {
+            return RecruitmentPostSortOption.from(source);
         }
     }
 }
