@@ -218,6 +218,9 @@ public class PostDto {
         @Schema(description = "조회수")
         private final int viewCount;
 
+        @Schema(description = "북마크 여부")
+        private final boolean isBookmarked;
+
         @Schema(description = "작성자 정보")
         private final UserInfo writerInfo;
 
@@ -231,6 +234,7 @@ public class PostDto {
             this.recruitmentStartAt = postInfo.getRecruitmentStartAt();
             this.recruitmentEndAt = postInfo.getRecruitmentEndAt();
             this.viewCount = postInfo.getViewCount();
+            this.isBookmarked = postInfo.isBookmarked();
             this.writerInfo = postInfo.getUserInfo();
         }
     }
@@ -277,7 +281,6 @@ public class PostDto {
         private final String userId;
         private UserDto.UserProfileDetail writer;
         private final int viewCount;
-        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         private LocalDateTime createdAt;
         private final LocalDateTime recruitmentStart;
         private final LocalDateTime recruitmentEnd;
