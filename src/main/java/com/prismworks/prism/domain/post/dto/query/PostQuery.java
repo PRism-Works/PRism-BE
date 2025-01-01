@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.post.dto.query;
 
+import com.prismworks.prism.domain.post.dto.RecruitmentPostSortOption;
 import com.prismworks.prism.domain.post.model.ProcessMethod;
 import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
@@ -23,5 +24,6 @@ public class PostQuery {
         private String userId;
         private int pageNo;
         private int pageSize;
+        private RecruitmentPostSortOption sort;
     }
 }

@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.post.repository.custom;
 
+import static com.prismworks.prism.common.infra.repository.QueryOrderFactory.getOrderSpecifier;
 import static com.prismworks.prism.domain.post.model.QPostTeamRecruitment.postTeamRecruitment;
 import static com.prismworks.prism.domain.post.model.QTeamRecruitmentPosition.teamRecruitmentPosition;
 import static com.prismworks.prism.domain.post.model.QUserPostBookmark.userPostBookmark;
@@ -22,11 +23,9 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -39,12 +38,14 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
 
     @Override
     public Page<RecruitmentPostInfo> searchRecruitmentPosts(GetRecruitmentPosts condition) {
+        PageRequest pageRequest = PageRequest.of(condition.getPageNo(), condition.getPageSize());
+        boolean isBookmarkSearch = condition.isBookmarkSearch();
+
         JPAQuery<?> baseQuery = this.generateCommonSearchQuery(condition);
 
         JPAQuery<Long> countQuery = baseQuery.clone()
             .select(postTeamRecruitment.count());
 
-        boolean isBookmarkSearch = condition.isBookmarkSearch();
         List<GetPostRecruitmentsProjection> postTeamRecruitments = baseQuery.clone()
             .select(Projections.constructor(GetPostRecruitmentsProjection.class,
                 postTeamRecruitment,
@@ -55,17 +56,15 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
                     "isBookmarked"
                 )
             ))
-            .offset(condition.getPageNo())
-            .limit(condition.getPageSize())
-            .orderBy(postTeamRecruitment.createdAt.desc())
+            .offset(pageRequest.getOffset())
+            .limit(pageRequest.getPageSize())
+            .orderBy(getOrderSpecifier(condition.getSort()))
             .fetch();
 
         List<RecruitmentPostInfo> contents = postTeamRecruitments.stream()
             .map(GetPostRecruitmentsProjection::toRecruitmentPostInfo)
             .toList();
 
-        PageRequest pageRequest = PageRequest.of(condition.getPageNo(), condition.getPageSize(),
-            Direction.DESC, "createdAt");
         return PageableExecutionUtils.getPage(contents, pageRequest, countQuery::fetchOne);
     }
 

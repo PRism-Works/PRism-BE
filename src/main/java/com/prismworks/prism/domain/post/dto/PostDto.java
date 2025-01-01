@@ -2,7 +2,6 @@ package com.prismworks.prism.domain.post.dto;
 
 import static com.prismworks.prism.domain.post.dto.command.PostCommand.CreatePost;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.prismworks.prism.domain.post.dto.command.PostTeamRecruitmentCommand.CreatePostTeamRecruitment;
 import com.prismworks.prism.domain.post.dto.command.TeamRecruitmentPositionCommand.CreateTeamRecruitmentPosition;
 import com.prismworks.prism.domain.post.dto.query.PostQuery;
@@ -172,6 +171,9 @@ public class PostDto {
         @Schema(description = "페이지 사이즈", defaultValue = "10")
         private int pageSize = 10;
 
+        @Schema(description = "페이지 정렬 조건", defaultValue = "recent", allowableValues = {"recent", "popular", "expiry"})
+        private RecruitmentPostSortOption sort = RecruitmentPostSortOption.RECENT;
+
         public PostQuery.GetRecruitmentPosts toGetRecruitmentPostsQuery(String userId) {
             return PostQuery.GetRecruitmentPosts.builder()
                 .recruitmentPositions(recruitmentPositions)
@@ -184,6 +186,7 @@ public class PostDto {
                 .userId(userId)
                 .pageNo(pageNo)
                 .pageSize(pageSize)
+                .sort(sort)
                 .build();
         }
     }

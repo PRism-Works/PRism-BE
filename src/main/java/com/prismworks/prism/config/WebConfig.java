@@ -31,5 +31,6 @@ public class WebConfig implements WebMvcConfigurer {
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new ParamStringToEnumConverter.ProcessMethodConverter());
         registry.addConverter(new ParamStringToEnumConverter.RecruitmentPositionConverter());
+        registry.addConverter(new ParamStringToEnumConverter.RecruitmentPostSortConverter());
     }
 }
