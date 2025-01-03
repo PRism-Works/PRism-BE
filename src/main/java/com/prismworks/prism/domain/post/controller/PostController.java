@@ -7,12 +7,12 @@ import com.prismworks.prism.domain.post.application.PostFacade;
 import com.prismworks.prism.domain.post.dto.PostDto;
 import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest;
 import com.prismworks.prism.domain.post.dto.PostDto.SearchBookmarkedRecruitmentPostsRequest;
-import com.prismworks.prism.domain.post.dto.PostDto.SearchRecruitmentPostItem;
 import com.prismworks.prism.domain.post.dto.PostDto.SearchRecruitmentPostsRequest;
 import com.prismworks.prism.domain.post.dto.PostDto.SearchRecruitmentPostsResponse;
+import com.prismworks.prism.domain.post.dto.query.PostQuery.GetRecruitmentPosts;
+import com.prismworks.prism.domain.post.mapper.PostMapper;
 import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController implements PostControllerDocs {
 
     private final PostFacade postFacade;
+    private final PostMapper postMapper;
 
     @GetMapping("/recruitment")
     public ApiSuccessResponse searchRecruitmentPosts(
@@ -37,15 +38,7 @@ public class PostController implements PostControllerDocs {
         Page<RecruitmentPostInfo> searchResult = postFacade.searchRecruitmentPost(
             request.toGetRecruitmentPostsQuery(userContext.getUserId()));
 
-        SearchRecruitmentPostsResponse response = SearchRecruitmentPostsResponse.builder()
-            .totalCount(searchResult.getTotalElements())
-            .totalPages(searchResult.getTotalPages())
-            .currentPage(searchResult.getNumber())
-            .posts(searchResult.getContent().stream()
-                .map(SearchRecruitmentPostItem::new)
-                .collect(Collectors.toList()))
-            .build();
-
+        SearchRecruitmentPostsResponse response = postMapper.toSearchPostsResponse(searchResult);
         return ApiSuccessResponse.defaultOk(response);
     }
 
@@ -70,18 +63,10 @@ public class PostController implements PostControllerDocs {
     public ApiSuccessResponse getBookmarkedRecruitmentPosts(@CurrentUser UserContext userContext,
         SearchBookmarkedRecruitmentPostsRequest request
     ) {
-        Page<RecruitmentPostInfo> searchResult = postFacade.searchRecruitmentPost(
-            request.toGetRecruitmentPostsQuery(userContext.getUserId()));
+        GetRecruitmentPosts query = request.toGetRecruitmentPostsQuery(userContext.getUserId());
+        Page<RecruitmentPostInfo> searchResult = postFacade.searchRecruitmentPost(query);
 
-        SearchRecruitmentPostsResponse response = SearchRecruitmentPostsResponse.builder()
-            .totalCount(searchResult.getTotalElements())
-            .totalPages(searchResult.getTotalPages())
-            .currentPage(searchResult.getNumber())
-            .posts(searchResult.getContent().stream()
-                .map(SearchRecruitmentPostItem::new)
-                .collect(Collectors.toList()))
-            .build();
-
+        SearchRecruitmentPostsResponse response = postMapper.toSearchPostsResponse(searchResult);
         return ApiSuccessResponse.defaultOk(response);
     }
 
