@@ -32,7 +32,6 @@ public class PostService {
 	private final PostRepository postRepository;
 	private final PostTeamRecruitmentRepository postRecruitmentRepository;
 	private final TeamRecruitmentPositionRepository teamRecruitmentPositionRepository;
-	private final UserPostBookmarkRepository userPostBookmarkRepository;
 
 	@Transactional
 	public PostRecruitmentInfo createRecruitmentPost(CreateRecruitmentPostRequest req, String userId) {
@@ -76,22 +75,5 @@ public class PostService {
 
 	public void incrementViewCount(Long postId) {
 		postRepository.incrementViewCountById(postId);
-	}
-
-	@Transactional
-	public UserPostBookmark bookmark(String userId, Long postId) {
-		Optional<UserPostBookmark> bookmark = userPostBookmarkRepository.findByUserIdAndPostId(userId, postId);
-
-		if (bookmark.isPresent()) {
-			UserPostBookmark existingBookmark = bookmark.get();
-			existingBookmark.setActiveFlag(!existingBookmark.isActiveFlag());
-			return userPostBookmarkRepository.save(existingBookmark);
-		} else {
-			UserPostBookmark newBookmark = new UserPostBookmark();
-			newBookmark.setUserId(userId);
-			newBookmark.setPostId(postId);
-			userPostBookmarkRepository.save(newBookmark);
-			return newBookmark;
-		}
 	}
 }

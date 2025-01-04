@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.post.mapper;
+package com.prismworks.prism.domain.post.controller.mapper;
 
 import com.prismworks.prism.domain.post.dto.PostDto.SearchRecruitmentPostItem;
 import com.prismworks.prism.domain.post.dto.PostDto.SearchRecruitmentPostsResponse;

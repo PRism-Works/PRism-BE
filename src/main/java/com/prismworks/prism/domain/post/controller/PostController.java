@@ -10,7 +10,7 @@ import com.prismworks.prism.domain.post.dto.PostDto.SearchBookmarkedRecruitmentP
 import com.prismworks.prism.domain.post.dto.PostDto.SearchRecruitmentPostsRequest;
 import com.prismworks.prism.domain.post.dto.PostDto.SearchRecruitmentPostsResponse;
 import com.prismworks.prism.domain.post.dto.query.PostQuery.GetRecruitmentPosts;
-import com.prismworks.prism.domain.post.mapper.PostMapper;
+import com.prismworks.prism.domain.post.controller.mapper.PostMapper;
 import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
 import lombok.RequiredArgsConstructor;

@@ -5,6 +5,7 @@ import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest
 import com.prismworks.prism.domain.post.dto.query.PostQuery.GetRecruitmentPosts;
 import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
+import com.prismworks.prism.domain.post.service.PostBookmarkService;
 import com.prismworks.prism.domain.post.service.PostService;
 import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
 import com.prismworks.prism.domain.project.service.ProjectService;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class PostFacade {
     private final PostService postService;
+    private final PostBookmarkService postBookmarkService;
     private final ProjectService projectService;
     private final UserService userService;
 
@@ -52,6 +54,6 @@ public class PostFacade {
     @Transactional
     public void bookmark(String userId, Long postId) {
         Users user = userService.findUserById(userId);
-        postService.bookmark(user.getUserId(), postId);
+        postBookmarkService.bookmark(user.getUserId(), postId);
     }
 }
