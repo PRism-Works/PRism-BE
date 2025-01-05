@@ -45,6 +45,8 @@ public class PostFacade {
 
         ProjectDetailDto projectDetailDto = projectService.getProjectDetailInRetrieve(post.getProjectId());
 
+        postService.incrementViewCount(postId);
+
         return PostDto.ViewPostDto.builder()
             .post(post)
             .project(projectDetailDto)
