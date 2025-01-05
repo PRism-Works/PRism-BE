@@ -17,7 +17,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -100,7 +99,7 @@ public class PostTeamRecruitment {
 		this.recruitmentEndAt = command.getRecruitmentEndAt();
 		this.createdAt = LocalDateTime.now();
 
-		List<TeamRecruitmentPosition> recruitmentPositions = command.getRecruitmentPositions();
+		Set<TeamRecruitmentPosition> recruitmentPositions = command.getRecruitmentPositions();
 		if(!CollectionUtils.isEmpty(recruitmentPositions)) {
 			recruitmentPositions.forEach(this::addRecruitmentPosition);
 		}

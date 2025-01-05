@@ -1,7 +1,16 @@
-package com.prismworks.prism.domain.post.domain.model;
+package com.prismworks.prism.domain.post.domain.dto;
 
+import com.prismworks.prism.domain.post.domain.model.ApplyMethod;
+import com.prismworks.prism.domain.post.domain.model.ContactMethod;
+import com.prismworks.prism.domain.post.domain.model.Post;
+import com.prismworks.prism.domain.post.domain.model.PostTeamRecruitment;
+import com.prismworks.prism.domain.post.domain.model.ProcessMethod;
+import com.prismworks.prism.domain.post.domain.model.RecruitmentPosition;
+import com.prismworks.prism.domain.post.domain.model.RecruitmentStatus;
+import com.prismworks.prism.domain.post.domain.model.TeamRecruitmentPosition;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 
 @Getter
@@ -21,10 +30,11 @@ public class PostRecruitmentInfo {
     private final LocalDateTime recruitmentStartAt;
     private final LocalDateTime recruitmentEndAt;
     private final LocalDateTime createdAt;
+    private final RecruitmentStatus recruitmentStatus;
     private final List<RecruitmentPositionInfo> recruitmentPositions;
 
     public PostRecruitmentInfo(Post post, PostTeamRecruitment postTeamRecruitment,
-        List<TeamRecruitmentPosition> positions) {
+        Set<TeamRecruitmentPosition> positions) {
         this.postId = post.getPostId();
         this.userId = post.getUserId();
         this.projectId = postTeamRecruitment.getProjectId();
@@ -40,19 +50,22 @@ public class PostRecruitmentInfo {
         this.recruitmentStartAt = postTeamRecruitment.getRecruitmentStartAt();
         this.recruitmentEndAt = postTeamRecruitment.getRecruitmentEndAt();
         this.createdAt = post.getCreatedAt();
+        this.recruitmentStatus = postTeamRecruitment.getRecruitmentStatus();
         this.recruitmentPositions = positions.stream()
-            .map(position -> {
-                RecruitmentPositionInfo info = new RecruitmentPositionInfo();
-                info.position = position.getPosition();
-                info.recruitmentCount = position.getRecruitmentCount();
-                return info;
-            })
+            .map(RecruitmentPositionInfo::new)
             .toList();
     }
 
     @Getter
     public static class RecruitmentPositionInfo {
-        private RecruitmentPosition position;
-        private Integer recruitmentCount;
+        private final Long positionId;
+        private final RecruitmentPosition position;
+        private final int recruitmentCount;
+
+        public RecruitmentPositionInfo(TeamRecruitmentPosition position) {
+            this.positionId = position.getPositionId();
+            this.position = position.getPosition();
+            this.recruitmentCount = position.getRecruitmentCount();
+        }
     }
 }

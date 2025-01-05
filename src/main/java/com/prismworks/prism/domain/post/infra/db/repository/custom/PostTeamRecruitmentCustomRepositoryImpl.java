@@ -1,16 +1,16 @@
 package com.prismworks.prism.domain.post.infra.db.repository.custom;
 
 import static com.prismworks.prism.common.infra.repository.QueryOrderFactory.getOrderSpecifier;
-import static com.prismworks.prism.domain.post.model.QPostTeamRecruitment.postTeamRecruitment;
-import static com.prismworks.prism.domain.post.model.QTeamRecruitmentPosition.teamRecruitmentPosition;
-import static com.prismworks.prism.domain.post.model.QUserPostBookmark.userPostBookmark;
+import static com.prismworks.prism.domain.post.domain.model.QPostTeamRecruitment.postTeamRecruitment;
+import static com.prismworks.prism.domain.post.domain.model.QTeamRecruitmentPosition.teamRecruitmentPosition;
+import static com.prismworks.prism.domain.post.domain.model.QUserPostBookmark.userPostBookmark;
 import static com.prismworks.prism.domain.project.model.QProject.project;
 import static com.prismworks.prism.domain.user.model.QUsers.users;
 
 import com.prismworks.prism.domain.post.application.dto.query.PostQuery.GetRecruitmentPosts;
 import com.prismworks.prism.domain.post.domain.model.ProcessMethod;
 import com.prismworks.prism.domain.post.domain.model.RecruitmentPosition;
-import com.prismworks.prism.domain.post.domain.model.RecruitmentPostInfo;
+import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.domain.model.RecruitmentStatus;
 import com.prismworks.prism.domain.post.infra.db.repository.custom.projection.GetPostRecruitmentsProjection;
 import com.querydsl.core.types.Expression;
@@ -37,7 +37,7 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<RecruitmentPostInfo> searchRecruitmentPosts(GetRecruitmentPosts condition) {
+    public Page<SearchRecruitmentPostInfo> searchRecruitmentPosts(GetRecruitmentPosts condition) {
         PageRequest pageRequest = PageRequest.of(condition.getPageNo(), condition.getPageSize());
         boolean isBookmarkSearch = condition.isBookmarkSearch();
 
@@ -61,7 +61,7 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
             .orderBy(getOrderSpecifier(condition.getSort()))
             .fetch();
 
-        List<RecruitmentPostInfo> contents = postTeamRecruitments.stream()
+        List<SearchRecruitmentPostInfo> contents = postTeamRecruitments.stream()
             .map(GetPostRecruitmentsProjection::toRecruitmentPostInfo)
             .toList();
 

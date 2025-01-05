@@ -478,6 +478,7 @@ public class ProjectService {
         long anonymousCount = memberDetails.stream().filter(MemberDetailDto::isAnonyVisibility).count();
 
         return ProjectDetailDto.builder()
+                .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
                 .organizationName(project.getOrganizationName())
                 .startDate(formatDate(project.getStartDate()))

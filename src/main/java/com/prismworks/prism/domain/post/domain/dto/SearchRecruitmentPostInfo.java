@@ -1,5 +1,6 @@
-package com.prismworks.prism.domain.post.domain.model;
+package com.prismworks.prism.domain.post.domain.dto;
 
+import com.prismworks.prism.domain.post.domain.model.RecruitmentPosition;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @Builder
 @RequiredArgsConstructor
-public class RecruitmentPostInfo {
+public class SearchRecruitmentPostInfo {
     private final Long postId;
     private final String title;
     private final String content;

@@ -4,15 +4,16 @@ import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.post.application.PostFacade;
-import com.prismworks.prism.domain.post.interfaces.dto.PostDto;
+import com.prismworks.prism.domain.post.application.dto.query.PostQuery.GetRecruitmentPosts;
+import com.prismworks.prism.domain.post.application.dto.result.ViewPostResult;
+import com.prismworks.prism.domain.post.domain.dto.PostRecruitmentInfo;
+import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.CreateRecruitmentPostRequest;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.SearchBookmarkedRecruitmentPostsRequest;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.SearchRecruitmentPostsRequest;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.SearchRecruitmentPostsResponse;
-import com.prismworks.prism.domain.post.application.dto.query.PostQuery.GetRecruitmentPosts;
+import com.prismworks.prism.domain.post.interfaces.dto.response.PostResponse.GetRecruitmentPostDetailResponse;
 import com.prismworks.prism.domain.post.interfaces.mapper.PostMapper;
-import com.prismworks.prism.domain.post.domain.model.PostRecruitmentInfo;
-import com.prismworks.prism.domain.post.domain.model.RecruitmentPostInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +36,7 @@ public class PostController implements PostControllerDocs {
         @CurrentUser UserContext userContext,
         SearchRecruitmentPostsRequest request
     ) {
-        Page<RecruitmentPostInfo> searchResult = postFacade.searchRecruitmentPost(
+        Page<SearchRecruitmentPostInfo> searchResult = postFacade.searchRecruitmentPost(
             request.toGetRecruitmentPostsQuery(userContext.getUserId()));
 
         SearchRecruitmentPostsResponse response = postMapper.toSearchPostsResponse(searchResult);
@@ -44,7 +45,9 @@ public class PostController implements PostControllerDocs {
 
     @GetMapping("/{postId}/recruitment")
     public ApiSuccessResponse getRecruitmentPostDetail(@PathVariable("postId") Long postId) {
-        PostDto.ViewPostDto response = postFacade.viewPost(postId);
+        ViewPostResult result = postFacade.viewPost(postId);
+        GetRecruitmentPostDetailResponse response = postMapper.toGetRecruitmentPostDetailResponse(
+            result);
 
         return ApiSuccessResponse.defaultOk(response);
     }
@@ -64,7 +67,7 @@ public class PostController implements PostControllerDocs {
         SearchBookmarkedRecruitmentPostsRequest request
     ) {
         GetRecruitmentPosts query = request.toGetRecruitmentPostsQuery(userContext.getUserId());
-        Page<RecruitmentPostInfo> searchResult = postFacade.searchRecruitmentPost(query);
+        Page<SearchRecruitmentPostInfo> searchResult = postFacade.searchRecruitmentPost(query);
 
         SearchRecruitmentPostsResponse response = postMapper.toSearchPostsResponse(searchResult);
         return ApiSuccessResponse.defaultOk(response);

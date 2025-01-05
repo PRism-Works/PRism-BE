@@ -6,14 +6,14 @@ import com.prismworks.prism.domain.post.application.dto.RecruitmentPostSortOptio
 import com.prismworks.prism.domain.post.application.dto.command.PostTeamRecruitmentCommand.CreatePostTeamRecruitment;
 import com.prismworks.prism.domain.post.application.dto.command.TeamRecruitmentPositionCommand.CreateTeamRecruitmentPosition;
 import com.prismworks.prism.domain.post.application.dto.query.PostQuery;
+import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
+import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo.UserInfo;
 import com.prismworks.prism.domain.post.domain.model.ApplyMethod;
 import com.prismworks.prism.domain.post.domain.model.ContactMethod;
 import com.prismworks.prism.domain.post.domain.model.Post;
 import com.prismworks.prism.domain.post.domain.model.PostTeamRecruitment;
 import com.prismworks.prism.domain.post.domain.model.ProcessMethod;
 import com.prismworks.prism.domain.post.domain.model.RecruitmentPosition;
-import com.prismworks.prism.domain.post.domain.model.RecruitmentPostInfo;
-import com.prismworks.prism.domain.post.domain.model.RecruitmentPostInfo.UserInfo;
 import com.prismworks.prism.domain.post.domain.model.RecruitmentStatus;
 import com.prismworks.prism.domain.post.domain.model.TeamRecruitmentPosition;
 import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
@@ -84,7 +84,7 @@ public class PostDto {
         }
 
         public CreatePostTeamRecruitment toCreatePostTeamRecruitmentCommand(Post post,
-            List<TeamRecruitmentPosition> positions
+            Set<TeamRecruitmentPosition> positions
         ) {
             return CreatePostTeamRecruitment.builder()
                 .post(post)
@@ -228,7 +228,7 @@ public class PostDto {
         @Schema(description = "작성자 정보")
         private final UserInfo writerInfo;
 
-        public SearchRecruitmentPostItem(RecruitmentPostInfo postInfo) {
+        public SearchRecruitmentPostItem(SearchRecruitmentPostInfo postInfo) {
             this.postId = postInfo.getPostId();
             this.title = postInfo.getTitle();
             this.content = postInfo.getContent();

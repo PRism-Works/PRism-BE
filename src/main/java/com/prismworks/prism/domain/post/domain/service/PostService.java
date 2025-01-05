@@ -7,15 +7,17 @@ import com.prismworks.prism.domain.post.application.dto.command.PostTeamRecruitm
 import com.prismworks.prism.domain.post.application.dto.command.TeamRecruitmentPositionCommand.CreateTeamRecruitmentPosition;
 import com.prismworks.prism.domain.post.application.dto.query.PostQuery.GetRecruitmentPosts;
 import com.prismworks.prism.domain.post.domain.model.Post;
-import com.prismworks.prism.domain.post.domain.model.PostRecruitmentInfo;
+import com.prismworks.prism.domain.post.domain.dto.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.domain.model.PostTeamRecruitment;
-import com.prismworks.prism.domain.post.domain.model.RecruitmentPostInfo;
+import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.domain.model.TeamRecruitmentPosition;
 import com.prismworks.prism.domain.post.infra.db.repository.PostRepository;
 import com.prismworks.prism.domain.post.infra.db.repository.PostTeamRecruitmentRepository;
 import com.prismworks.prism.domain.post.infra.db.repository.TeamRecruitmentPositionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 
@@ -37,9 +39,9 @@ public class PostService {
 
 		List<CreateTeamRecruitmentPosition> createTeamRecruitmentPositionCommand =
 			req.toCreateTeamRecruitmentPositionCommand();
-		List<TeamRecruitmentPosition> recruitmentPositions = createTeamRecruitmentPositionCommand.stream()
+		Set<TeamRecruitmentPosition> recruitmentPositions = createTeamRecruitmentPositionCommand.stream()
 			.map(TeamRecruitmentPosition::new)
-			.toList();
+			.collect(Collectors.toSet());
 
 		CreatePostTeamRecruitment createRecruitmentPostCommand =
 			req.toCreatePostTeamRecruitmentCommand(post, recruitmentPositions);
@@ -50,12 +52,12 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<RecruitmentPostInfo> searchRecruitmentPost(GetRecruitmentPosts query) {
+	public Page<SearchRecruitmentPostInfo> searchRecruitmentPost(GetRecruitmentPosts query) {
 		return postRecruitmentRepository.searchRecruitmentPosts(query);
 	}
 
     @Transactional
-    public RecruitmentPostDetailDto getRecruitmentDetail(Long postId) {
+    public PostRecruitmentInfo getRecruitmentDetail(Long postId) {
         Post post = postRepository.findById(postId)
             .orElseThrow(() -> new EntityNotFoundException("Post not found for ID: " + postId));
 
@@ -64,10 +66,7 @@ public class PostService {
 
 		Hibernate.initialize(recruitment.getRecruitmentPositions());
 
-        return RecruitmentPostDetailDto.of(
-            post,
-            recruitment
-        );
+        return new PostRecruitmentInfo(post, recruitment, recruitment.getRecruitmentPositions());
     }
 
 	public void incrementViewCount(Long postId) {

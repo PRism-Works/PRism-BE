@@ -62,6 +62,7 @@ public class UserService {
         UserProfile userProfile = user.getUserProfile();
 
         return UserDto.UserProfileDetail.builder()
+                .userId(user.getUserId())
                 .username(userProfile.getUsername())
                 .email(user.getEmail())
                 .interestJobs(userProfile.getInterestJobs())

@@ -2,8 +2,8 @@ package com.prismworks.prism.domain.post.infra.db.repository.custom.projection;
 
 import com.prismworks.prism.domain.post.domain.model.Post;
 import com.prismworks.prism.domain.post.domain.model.PostTeamRecruitment;
-import com.prismworks.prism.domain.post.domain.model.RecruitmentPostInfo;
-import com.prismworks.prism.domain.post.domain.model.RecruitmentPostInfo.UserInfo;
+import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
+import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo.UserInfo;
 import com.prismworks.prism.domain.post.domain.model.TeamRecruitmentPosition;
 import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.user.model.Users;
@@ -19,9 +19,9 @@ public class GetPostRecruitmentsProjection {
     private final Users user;
     private final boolean isBookmarked;
 
-    public RecruitmentPostInfo toRecruitmentPostInfo() {
+    public SearchRecruitmentPostInfo toRecruitmentPostInfo() {
         Post post = postTeamRecruitment.getPost();
-        return RecruitmentPostInfo.builder()
+        return SearchRecruitmentPostInfo.builder()
             .postId(post.getPostId())
             .title(post.getTitle())
             .content(post.getContent())

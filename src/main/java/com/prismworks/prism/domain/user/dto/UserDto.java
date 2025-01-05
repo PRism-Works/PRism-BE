@@ -35,6 +35,7 @@ public class UserDto {
     @Builder
     @Getter
     public static class UserProfileDetail {
+        private String userId;
         private String username;
         private String email;
         private List<String> interestJobs;

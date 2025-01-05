@@ -6,7 +6,7 @@ import com.prismworks.prism.domain.post.domain.model.Post;
 import com.prismworks.prism.domain.post.domain.model.ProcessMethod;
 import com.prismworks.prism.domain.post.domain.model.TeamRecruitmentPosition;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -21,7 +21,7 @@ public class PostTeamRecruitmentCommand {
         private ApplyMethod applyMethod;
         private String applyInfo;
         private ProcessMethod processMethod;
-        private List<TeamRecruitmentPosition> recruitmentPositions;
+        private Set<TeamRecruitmentPosition> recruitmentPositions;
         private boolean isOpenUntilRecruited;
         private LocalDateTime recruitmentStartAt;
         private LocalDateTime recruitmentEndAt;
