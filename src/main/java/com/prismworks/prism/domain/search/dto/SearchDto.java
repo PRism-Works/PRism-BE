@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 
 import static com.prismworks.prism.domain.search.dto.ProjectSearchCondition.SearchType;
 
-import com.prismworks.prism.domain.post.model.ProcessMethod;
-import com.prismworks.prism.domain.post.model.RecruitmentStatus;
+import com.prismworks.prism.domain.post.domain.model.ProcessMethod;
+import com.prismworks.prism.domain.post.domain.model.RecruitmentStatus;
 import com.prismworks.prism.domain.project.model.Project;
 
 public class SearchDto {

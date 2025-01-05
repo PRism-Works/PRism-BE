@@ -1,12 +1,12 @@
 package com.prismworks.prism.domain.post.application;
 
-import com.prismworks.prism.domain.post.dto.PostDto;
-import com.prismworks.prism.domain.post.dto.PostDto.CreateRecruitmentPostRequest;
-import com.prismworks.prism.domain.post.dto.query.PostQuery.GetRecruitmentPosts;
-import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
-import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
-import com.prismworks.prism.domain.post.service.PostBookmarkService;
-import com.prismworks.prism.domain.post.service.PostService;
+import com.prismworks.prism.domain.post.interfaces.dto.PostDto;
+import com.prismworks.prism.domain.post.interfaces.dto.PostDto.CreateRecruitmentPostRequest;
+import com.prismworks.prism.domain.post.application.dto.query.PostQuery.GetRecruitmentPosts;
+import com.prismworks.prism.domain.post.domain.model.PostRecruitmentInfo;
+import com.prismworks.prism.domain.post.domain.model.RecruitmentPostInfo;
+import com.prismworks.prism.domain.post.domain.service.PostBookmarkService;
+import com.prismworks.prism.domain.post.domain.service.PostService;
 import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
 import com.prismworks.prism.domain.project.service.ProjectService;
 import com.prismworks.prism.domain.user.model.Users;

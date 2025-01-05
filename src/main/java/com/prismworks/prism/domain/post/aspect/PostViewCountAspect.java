@@ -6,7 +6,7 @@ import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
-import com.prismworks.prism.domain.post.service.PostService;
+import com.prismworks.prism.domain.post.domain.service.PostService;
 
 @Aspect
 @Component
