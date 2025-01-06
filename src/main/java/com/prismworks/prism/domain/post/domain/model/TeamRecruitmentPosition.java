@@ -49,9 +49,9 @@ public class TeamRecruitmentPosition {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
-	public TeamRecruitmentPosition(CreateTeamRecruitmentPosition command) {
-		this.position = command.getPosition();
-		this.recruitmentCount = command.getRecruitmentCount();
+	public TeamRecruitmentPosition(RecruitmentPosition position, int recruitmentCount) {
+		this.position = position;
+		this.recruitmentCount = recruitmentCount;
 		this.createdAt = LocalDateTime.now();
 	}
 

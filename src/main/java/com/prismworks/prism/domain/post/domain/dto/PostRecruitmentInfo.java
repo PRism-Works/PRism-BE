@@ -33,8 +33,10 @@ public class PostRecruitmentInfo {
     private final RecruitmentStatus recruitmentStatus;
     private final List<RecruitmentPositionInfo> recruitmentPositions;
 
-    public PostRecruitmentInfo(Post post, PostTeamRecruitment postTeamRecruitment,
-        Set<TeamRecruitmentPosition> positions) {
+    public PostRecruitmentInfo(PostTeamRecruitment postTeamRecruitment) {
+        Post post = postTeamRecruitment.getPost();
+        Set<TeamRecruitmentPosition> positions = postTeamRecruitment.getRecruitmentPositions();
+
         this.postId = post.getPostId();
         this.userId = post.getUserId();
         this.projectId = postTeamRecruitment.getProjectId();

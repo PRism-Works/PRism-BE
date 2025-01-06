@@ -1,7 +1,7 @@
 package com.prismworks.prism.domain.post.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.prismworks.prism.domain.post.application.dto.command.PostTeamRecruitmentCommand.CreatePostTeamRecruitment;
+import com.prismworks.prism.domain.post.domain.dto.command.CreateRecruitmentPostCommand;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +21,6 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
-import org.springframework.util.CollectionUtils;
 
 @Getter
 @NoArgsConstructor
@@ -34,7 +33,7 @@ public class PostTeamRecruitment {
 	@Column(name = "post_team_recruitment_id")
 	private Long postTeamRecruitmentId;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "post_id")
 	private Post post;
 
@@ -86,8 +85,7 @@ public class PostTeamRecruitment {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
-	public PostTeamRecruitment(CreatePostTeamRecruitment command) {
-		this.post = command.getPost();
+	public PostTeamRecruitment(CreateRecruitmentPostCommand command) {
 		this.projectId = command.getProjectId();
 		this.contactMethod = command.getContactMethod();
 		this.contactInfo = command.getContactInfo();
@@ -98,11 +96,12 @@ public class PostTeamRecruitment {
 		this.recruitmentStartAt = command.getRecruitmentStartAt();
 		this.recruitmentEndAt = command.getRecruitmentEndAt();
 		this.createdAt = LocalDateTime.now();
+		this.post = new Post(command.getUserId(), command.getTitle(), command.getContent());
 
-		Set<TeamRecruitmentPosition> recruitmentPositions = command.getRecruitmentPositions();
-		if(!CollectionUtils.isEmpty(recruitmentPositions)) {
-			recruitmentPositions.forEach(this::addRecruitmentPosition);
-		}
+		command.getRecruitPositions()
+			.stream()
+			.map(position -> new TeamRecruitmentPosition(position.getPosition(), position.getCount()))
+			.forEach(this::addRecruitmentPosition);
 	}
 
 	public void addRecruitmentPosition(TeamRecruitmentPosition position) {

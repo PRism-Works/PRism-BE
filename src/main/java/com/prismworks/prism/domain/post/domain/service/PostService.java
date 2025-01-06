@@ -1,27 +1,18 @@
 package com.prismworks.prism.domain.post.domain.service;
 
-import com.prismworks.prism.domain.post.interfaces.dto.PostDto.CreateRecruitmentPostRequest;
-import com.prismworks.prism.domain.post.interfaces.dto.PostDto.RecruitmentPostDetailDto;
-import com.prismworks.prism.domain.post.application.dto.command.PostCommand.CreatePost;
-import com.prismworks.prism.domain.post.application.dto.command.PostTeamRecruitmentCommand.CreatePostTeamRecruitment;
-import com.prismworks.prism.domain.post.application.dto.command.TeamRecruitmentPositionCommand.CreateTeamRecruitmentPosition;
 import com.prismworks.prism.domain.post.application.dto.query.PostQuery.GetRecruitmentPosts;
-import com.prismworks.prism.domain.post.domain.model.Post;
 import com.prismworks.prism.domain.post.domain.dto.PostRecruitmentInfo;
-import com.prismworks.prism.domain.post.domain.model.PostTeamRecruitment;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
-import com.prismworks.prism.domain.post.domain.model.TeamRecruitmentPosition;
+import com.prismworks.prism.domain.post.domain.dto.command.CreateRecruitmentPostCommand;
+import com.prismworks.prism.domain.post.domain.model.Post;
+import com.prismworks.prism.domain.post.domain.model.PostTeamRecruitment;
 import com.prismworks.prism.domain.post.infra.db.repository.PostRepository;
 import com.prismworks.prism.domain.post.infra.db.repository.PostTeamRecruitmentRepository;
 import com.prismworks.prism.domain.post.infra.db.repository.TeamRecruitmentPositionRepository;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-
 import org.hibernate.Hibernate;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,22 +24,11 @@ public class PostService {
 	private final TeamRecruitmentPositionRepository teamRecruitmentPositionRepository;
 
 	@Transactional
-	public PostRecruitmentInfo createRecruitmentPost(CreateRecruitmentPostRequest req, String userId) {
-		CreatePost createPostCommand = req.toCreatePostCommand(userId);
-		Post post = postRepository.save(new Post(createPostCommand));
+	public PostRecruitmentInfo createRecruitmentPost(CreateRecruitmentPostCommand command) {
+		PostTeamRecruitment postTeamRecruitment = new PostTeamRecruitment(command);
+		PostTeamRecruitment savedPostTeamRecruitment = postRecruitmentRepository.save(postTeamRecruitment);
 
-		List<CreateTeamRecruitmentPosition> createTeamRecruitmentPositionCommand =
-			req.toCreateTeamRecruitmentPositionCommand();
-		Set<TeamRecruitmentPosition> recruitmentPositions = createTeamRecruitmentPositionCommand.stream()
-			.map(TeamRecruitmentPosition::new)
-			.collect(Collectors.toSet());
-
-		CreatePostTeamRecruitment createRecruitmentPostCommand =
-			req.toCreatePostTeamRecruitmentCommand(post, recruitmentPositions);
-		PostTeamRecruitment postTeamRecruitment =
-			postRecruitmentRepository.save(new PostTeamRecruitment(createRecruitmentPostCommand));
-
-		return new PostRecruitmentInfo(post, postTeamRecruitment, recruitmentPositions);
+		return new PostRecruitmentInfo(savedPostTeamRecruitment);
 	}
 
 	@Transactional(readOnly = true)
@@ -66,7 +46,7 @@ public class PostService {
 
 		Hibernate.initialize(recruitment.getRecruitmentPositions());
 
-        return new PostRecruitmentInfo(post, recruitment, recruitment.getRecruitmentPositions());
+        return new PostRecruitmentInfo(recruitment);
     }
 
 	public void incrementViewCount(Long postId) {
