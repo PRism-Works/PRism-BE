@@ -11,18 +11,14 @@ import com.prismworks.prism.domain.post.model.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
 import com.prismworks.prism.domain.post.model.RecruitmentPostInfo;
 import com.prismworks.prism.domain.post.model.TeamRecruitmentPosition;
-import com.prismworks.prism.domain.post.model.UserPostBookmark;
 import com.prismworks.prism.domain.post.repository.PostRepository;
 import com.prismworks.prism.domain.post.repository.PostTeamRecruitmentRepository;
 import com.prismworks.prism.domain.post.repository.TeamRecruitmentPositionRepository;
-import com.prismworks.prism.domain.post.repository.UserPostBookmarkRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,8 +60,6 @@ public class PostService {
 
         PostTeamRecruitment recruitment = postRecruitmentRepository.findByPost(post)
             .orElseThrow(() -> new EntityNotFoundException("Recruitment not found for Post ID: " + postId));
-
-		Hibernate.initialize(recruitment.getRecruitmentPositions());
 
         return RecruitmentPostDetailDto.of(
             post,
