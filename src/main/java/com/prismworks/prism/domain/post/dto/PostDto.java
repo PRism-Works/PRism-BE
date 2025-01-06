@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -292,7 +291,7 @@ public class PostDto {
         private final String contactInfo;
         private final ApplyMethod applicationMethod;
         private final String applicationInfo;
-        private final Set<TeamRecruitmentPosition> recruitmentPositions;
+        private final List<RecruitmentPositionInfo> recruitmentPositions;
 
         public static RecruitmentPostDetailDto of(
             Post post,
@@ -315,13 +314,29 @@ public class PostDto {
                 .applicationMethod(recruitment.getApplyMethod())
                 .applicationInfo(recruitment.getApplyInfo())
                 .processMethod(recruitment.getProcessMethod())
-                .recruitmentPositions(recruitment.getRecruitmentPositions())
+                .recruitmentPositions(recruitment.getRecruitmentPositions()
+                    .stream()
+                    .map(position -> new RecruitmentPositionInfo(
+                        position.getPosition(),
+                        position.getRecruitmentCount()
+                    ))
+                    .toList()
+                )
                 .build();
+
+
         }
 
         public void setWriter(UserDto.UserProfileDetail writer) {
             this.writer = writer;
         }
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class RecruitmentPositionInfo {
+        private final RecruitmentPosition position;
+        private final int recruitmentCount;
     }
 
     @Builder
