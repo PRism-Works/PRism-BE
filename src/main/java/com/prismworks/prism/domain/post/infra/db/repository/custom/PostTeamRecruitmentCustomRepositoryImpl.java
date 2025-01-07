@@ -7,7 +7,7 @@ import static com.prismworks.prism.domain.post.domain.model.QUserPostBookmark.us
 import static com.prismworks.prism.domain.project.model.QProject.project;
 import static com.prismworks.prism.domain.user.model.QUsers.users;
 
-import com.prismworks.prism.domain.post.application.dto.query.PostQuery.GetRecruitmentPosts;
+import com.prismworks.prism.domain.post.domain.dto.query.PostQuery.GetRecruitmentPosts;
 import com.prismworks.prism.domain.post.domain.model.ProcessMethod;
 import com.prismworks.prism.domain.post.domain.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;

@@ -1,7 +1,6 @@
 package com.prismworks.prism.domain.post.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.prismworks.prism.domain.post.application.dto.command.TeamRecruitmentPositionCommand.CreateTeamRecruitmentPosition;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

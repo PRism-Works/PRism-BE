@@ -1,7 +1,10 @@
 package com.prismworks.prism.domain.post.interfaces.mapper;
 
+import com.prismworks.prism.domain.post.application.dto.param.WritePostParam;
 import com.prismworks.prism.domain.post.application.dto.result.ViewPostResult;
 import com.prismworks.prism.domain.post.domain.dto.PostRecruitmentInfo;
+import com.prismworks.prism.domain.post.interfaces.dto.PostDto;
+import com.prismworks.prism.domain.post.interfaces.dto.PostDto.CreateRecruitmentPostRequest;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.SearchRecruitmentPostItem;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.SearchRecruitmentPostsResponse;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
@@ -17,7 +20,34 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PostMapper {
+public class PostApiMapper {
+
+    public WritePostParam toWritePostParam(CreateRecruitmentPostRequest request, String userId) {
+        return WritePostParam.builder()
+            .userId(userId)
+            .openUntilRecruited(request.isOpenUntilRecruited())
+            .recruitmentStartAt(request.getRecruitmentStartAt())
+            .recruitmentEndAt(request.getRecruitmentEndAt())
+            .title(request.getTitle())
+            .content(request.getContent())
+            .projectId(request.getProjectId())
+            .contactMethod(request.getContactMethod())
+            .contactInfo(request.getContactInfo())
+            .applyMethod(request.getApplyMethod())
+            .applyInfo(request.getApplyInfo())
+            .processMethod(request.getProcessMethod())
+            .recruitPositions(request.getRecruitPositions().stream()
+                .map(this::toRecruitPositionItem)
+                .collect(Collectors.toList()))
+            .build();
+    }
+
+    private WritePostParam.RecruitPositionItem toRecruitPositionItem(PostDto.RecruitPositionItem item) {
+        return WritePostParam.RecruitPositionItem.builder()
+            .position(item.getPosition())
+            .recruitmentCount(item.getCount())
+            .build();
+    }
 
     public SearchRecruitmentPostsResponse toSearchPostsResponse(
         Page<SearchRecruitmentPostInfo> searchResult

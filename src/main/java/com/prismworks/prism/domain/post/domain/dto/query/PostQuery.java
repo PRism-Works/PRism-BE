@@ -1,6 +1,5 @@
-package com.prismworks.prism.domain.post.application.dto.query;
+package com.prismworks.prism.domain.post.domain.dto.query;
 
-import com.prismworks.prism.domain.post.application.dto.RecruitmentPostSortOption;
 import com.prismworks.prism.domain.post.domain.model.ProcessMethod;
 import com.prismworks.prism.domain.post.domain.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.domain.model.RecruitmentStatus;

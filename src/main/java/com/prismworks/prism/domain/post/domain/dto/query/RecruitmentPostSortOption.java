@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.post.application.dto;
+package com.prismworks.prism.domain.post.domain.dto.query;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

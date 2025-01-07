@@ -1,8 +1,10 @@
 package com.prismworks.prism.domain.post.application;
 
+import com.prismworks.prism.domain.post.application.dto.param.WritePostParam;
 import com.prismworks.prism.domain.post.application.dto.result.ViewPostResult;
-import com.prismworks.prism.domain.post.interfaces.dto.PostDto.CreateRecruitmentPostRequest;
-import com.prismworks.prism.domain.post.application.dto.query.PostQuery.GetRecruitmentPosts;
+import com.prismworks.prism.domain.post.application.mapper.PostApplicationMapper;
+import com.prismworks.prism.domain.post.domain.dto.command.CreateRecruitmentPostCommand;
+import com.prismworks.prism.domain.post.domain.dto.query.PostQuery.GetRecruitmentPosts;
 import com.prismworks.prism.domain.post.domain.dto.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.domain.service.PostBookmarkService;
@@ -26,10 +28,12 @@ public class PostFacade {
     private final PostBookmarkService postBookmarkService;
     private final ProjectService projectService;
     private final UserService userService;
+    private final PostApplicationMapper mapper;
 
     @Transactional
-    public PostRecruitmentInfo writePost(CreateRecruitmentPostRequest req, String userId) {
-        return postService.createRecruitmentPost(req, userId);
+    public PostRecruitmentInfo writePost(WritePostParam param) {
+        CreateRecruitmentPostCommand command = mapper.toCreateRecruitmentPostCommand(param);
+        return postService.createRecruitmentPost(command);
     }
 
     @Transactional(readOnly = true)

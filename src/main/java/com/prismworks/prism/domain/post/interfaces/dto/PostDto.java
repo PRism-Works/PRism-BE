@@ -1,11 +1,7 @@
 package com.prismworks.prism.domain.post.interfaces.dto;
 
-import static com.prismworks.prism.domain.post.application.dto.command.PostCommand.CreatePost;
-
-import com.prismworks.prism.domain.post.application.dto.RecruitmentPostSortOption;
-import com.prismworks.prism.domain.post.application.dto.command.PostTeamRecruitmentCommand.CreatePostTeamRecruitment;
-import com.prismworks.prism.domain.post.application.dto.command.TeamRecruitmentPositionCommand.CreateTeamRecruitmentPosition;
-import com.prismworks.prism.domain.post.application.dto.query.PostQuery;
+import com.prismworks.prism.domain.post.domain.dto.query.RecruitmentPostSortOption;
+import com.prismworks.prism.domain.post.domain.dto.query.PostQuery;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo.UserInfo;
 import com.prismworks.prism.domain.post.domain.model.ApplyMethod;
@@ -74,41 +70,6 @@ public class PostDto {
             array = @ArraySchema(schema = @Schema(implementation = RecruitPositionItem.class)))
         @ArraySchema(schema = @Schema(implementation = RecruitPositionItem.class))
         private List<RecruitPositionItem> recruitPositions;
-
-        public CreatePost toCreatePostCommand(String userId) {
-            return CreatePost.builder()
-                .userId(userId)
-                .title(this.title)
-                .content(this.content)
-                .build();
-        }
-
-        public CreatePostTeamRecruitment toCreatePostTeamRecruitmentCommand(Post post,
-            Set<TeamRecruitmentPosition> positions
-        ) {
-            return CreatePostTeamRecruitment.builder()
-                .post(post)
-                .projectId(this.projectId)
-                .contactMethod(this.contactMethod)
-                .contactInfo(this.contactInfo)
-                .applyMethod(this.applyMethod)
-                .applyInfo(this.applyInfo)
-                .processMethod(this.processMethod)
-                .recruitmentPositions(positions)
-                .isOpenUntilRecruited(this.openUntilRecruited)
-                .recruitmentStartAt(this.recruitmentStartAt)
-                .recruitmentEndAt(this.recruitmentEndAt)
-                .build();
-        }
-
-        public List<CreateTeamRecruitmentPosition> toCreateTeamRecruitmentPositionCommand() {
-            return recruitPositions.stream()
-                .map(positionInfo -> CreateTeamRecruitmentPosition.builder()
-                    .position(positionInfo.getPosition())
-                    .recruitmentCount(positionInfo.getCount())
-                    .build())
-                .toList();
-        }
     }
 
     @Getter

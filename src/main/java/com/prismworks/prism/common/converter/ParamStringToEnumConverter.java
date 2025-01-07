@@ -1,6 +1,6 @@
 package com.prismworks.prism.common.converter;
 
-import com.prismworks.prism.domain.post.application.dto.RecruitmentPostSortOption;
+import com.prismworks.prism.domain.post.domain.dto.query.RecruitmentPostSortOption;
 import com.prismworks.prism.domain.post.domain.model.ProcessMethod;
 import com.prismworks.prism.domain.post.domain.model.RecruitmentPosition;
 import org.springframework.core.convert.converter.Converter;

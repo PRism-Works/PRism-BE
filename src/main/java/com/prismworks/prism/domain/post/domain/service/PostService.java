@@ -1,6 +1,6 @@
 package com.prismworks.prism.domain.post.domain.service;
 
-import com.prismworks.prism.domain.post.application.dto.query.PostQuery.GetRecruitmentPosts;
+import com.prismworks.prism.domain.post.domain.dto.query.PostQuery.GetRecruitmentPosts;
 import com.prismworks.prism.domain.post.domain.dto.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.domain.dto.command.CreateRecruitmentPostCommand;
