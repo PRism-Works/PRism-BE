@@ -1,7 +1,7 @@
 package com.prismworks.prism.domain.post.interfaces.dto;
 
+import com.prismworks.prism.domain.post.domain.dto.query.GetRecruitmentPostsQuery;
 import com.prismworks.prism.domain.post.domain.dto.query.RecruitmentPostSortOption;
-import com.prismworks.prism.domain.post.domain.dto.query.PostQuery;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo.UserInfo;
 import com.prismworks.prism.domain.post.domain.model.ApplyMethod;
@@ -89,16 +89,6 @@ public class PostDto {
     @AllArgsConstructor
     public static class CreateRecruitmentPostResponse {
         private final Long postId;
-        private final LocalDateTime recruitStartAt;
-        private final LocalDateTime recruitEndAt;
-        private final ContactMethod contactMethod;
-        private final String contactInfo;
-        private final ContactMethod applyMethod;
-        private final String applyInfo;
-        private final ProcessMethod processMethod;
-        private final List<RecruitPositionItem> recruitPositions;
-        private final String title;
-        private final String content;
     }
 
     @Getter
@@ -136,8 +126,8 @@ public class PostDto {
         @Schema(description = "페이지 정렬 조건", defaultValue = "recent", allowableValues = {"recent", "popular", "expiry"})
         private RecruitmentPostSortOption sort = RecruitmentPostSortOption.RECENT;
 
-        public PostQuery.GetRecruitmentPosts toGetRecruitmentPostsQuery(String userId) {
-            return PostQuery.GetRecruitmentPosts.builder()
+        public GetRecruitmentPostsQuery toGetRecruitmentPostsQuery(String userId) {
+            return GetRecruitmentPostsQuery.builder()
                 .recruitmentPositions(recruitmentPositions)
                 .categoryIds(categoryIds)
                 .processMethod(processMethod)
@@ -218,8 +208,8 @@ public class PostDto {
     @Setter
     @NoArgsConstructor
     public static class SearchBookmarkedRecruitmentPostsRequest extends SearchRecruitmentPostsRequest {
-        public PostQuery.GetRecruitmentPosts toGetRecruitmentPostsQuery(String userId) {
-            return PostQuery.GetRecruitmentPosts.builder()
+        public GetRecruitmentPostsQuery toGetRecruitmentPostsQuery(String userId) {
+            return GetRecruitmentPostsQuery.builder()
                 .recruitmentPositions(super.recruitmentPositions)
                 .categoryIds(super.categoryIds)
                 .processMethod(super.processMethod)

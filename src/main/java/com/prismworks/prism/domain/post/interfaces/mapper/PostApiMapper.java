@@ -1,10 +1,15 @@
 package com.prismworks.prism.domain.post.interfaces.mapper;
 
+import com.prismworks.prism.domain.post.application.dto.param.SearchRecruitmentPostParam;
 import com.prismworks.prism.domain.post.application.dto.param.WritePostParam;
+import com.prismworks.prism.domain.post.application.dto.result.SearchRecruitmentPostResult;
 import com.prismworks.prism.domain.post.application.dto.result.ViewPostResult;
+import com.prismworks.prism.domain.post.application.dto.result.WritPostResult;
 import com.prismworks.prism.domain.post.domain.dto.PostRecruitmentInfo;
+import com.prismworks.prism.domain.post.domain.model.RecruitmentStatus;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.CreateRecruitmentPostRequest;
+import com.prismworks.prism.domain.post.interfaces.dto.PostDto.CreateRecruitmentPostResponse;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.SearchRecruitmentPostItem;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.SearchRecruitmentPostsResponse;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
@@ -15,6 +20,7 @@ import com.prismworks.prism.domain.post.interfaces.dto.response.PostResponse.Rec
 import com.prismworks.prism.domain.post.interfaces.dto.response.PostResponse.WriterInfo;
 import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
 import com.prismworks.prism.domain.user.dto.UserDto.UserProfileDetail;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -22,7 +28,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class PostApiMapper {
 
-    public WritePostParam toWritePostParam(CreateRecruitmentPostRequest request, String userId) {
+    public WritePostParam fromCreateRecruitmentPostRequest(CreateRecruitmentPostRequest request,
+        String userId
+    ) {
         return WritePostParam.builder()
             .userId(userId)
             .openUntilRecruited(request.isOpenUntilRecruited())
@@ -42,16 +50,56 @@ public class PostApiMapper {
             .build();
     }
 
-    private WritePostParam.RecruitPositionItem toRecruitPositionItem(PostDto.RecruitPositionItem item) {
-        return WritePostParam.RecruitPositionItem.builder()
-            .position(item.getPosition())
-            .recruitmentCount(item.getCount())
+    public CreateRecruitmentPostResponse toCreateRecruitmentPostResponse(
+        WritPostResult result
+    ) {
+        PostRecruitmentInfo postRecruitmentInfo = result.getPostRecruitmentInfo();
+
+        return CreateRecruitmentPostResponse.builder()
+            .postId(postRecruitmentInfo.getPostId())
+            .build();
+    }
+
+    public SearchRecruitmentPostParam fromSearchRecruitmentPostRequest(
+        PostDto.SearchRecruitmentPostsRequest request, String userId
+    ) {
+        return SearchRecruitmentPostParam.builder()
+            .userId(userId)
+            .recruitmentPositions(request.getRecruitmentPositions())
+            .categoryIds(request.getCategoryIds())
+            .processMethod(request.getProcessMethod())
+            .skills(request.getSkills())
+            .recruitmentStatuses(request.isRecruiting() ? List.of(RecruitmentStatus.RECRUITING)
+                : List.of(RecruitmentStatus.RECRUITING, RecruitmentStatus.CLOSED))
+            .isBookmarkSearch(false)
+            .pageNo(request.getPageNo())
+            .pageSize(request.getPageSize())
+            .sort(request.getSort())
+            .build();
+    }
+
+    public SearchRecruitmentPostParam fromSearchBookmarkedPostRequest(
+        PostDto.SearchBookmarkedRecruitmentPostsRequest request, String userId
+    ) {
+        return SearchRecruitmentPostParam.builder()
+            .userId(userId)
+            .recruitmentPositions(request.getRecruitmentPositions())
+            .categoryIds(request.getCategoryIds())
+            .processMethod(request.getProcessMethod())
+            .skills(request.getSkills())
+            .recruitmentStatuses(request.isRecruiting() ? List.of(RecruitmentStatus.RECRUITING)
+                : List.of(RecruitmentStatus.RECRUITING, RecruitmentStatus.CLOSED))
+            .isBookmarkSearch(true)
+            .pageNo(request.getPageNo())
+            .pageSize(request.getPageSize())
+            .sort(request.getSort())
             .build();
     }
 
     public SearchRecruitmentPostsResponse toSearchPostsResponse(
-        Page<SearchRecruitmentPostInfo> searchResult
+        SearchRecruitmentPostResult result
     ) {
+        Page<SearchRecruitmentPostInfo> searchResult = result.getSearchRecruitmentPostInfos();
         return SearchRecruitmentPostsResponse.builder()
             .totalCount(searchResult.getTotalElements())
             .totalPages(searchResult.getTotalPages())
@@ -110,5 +158,12 @@ public class PostApiMapper {
             .build();
 
         return new GetRecruitmentPostDetailResponse(recruitmentPostItem, projectItem);
+    }
+
+    private WritePostParam.RecruitPositionItem toRecruitPositionItem(PostDto.RecruitPositionItem item) {
+        return WritePostParam.RecruitPositionItem.builder()
+            .position(item.getPosition())
+            .recruitmentCount(item.getCount())
+            .build();
     }
 }

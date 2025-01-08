@@ -7,7 +7,7 @@ import static com.prismworks.prism.domain.post.domain.model.QUserPostBookmark.us
 import static com.prismworks.prism.domain.project.model.QProject.project;
 import static com.prismworks.prism.domain.user.model.QUsers.users;
 
-import com.prismworks.prism.domain.post.domain.dto.query.PostQuery.GetRecruitmentPosts;
+import com.prismworks.prism.domain.post.domain.dto.query.GetRecruitmentPostsQuery;
 import com.prismworks.prism.domain.post.domain.model.ProcessMethod;
 import com.prismworks.prism.domain.post.domain.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
@@ -37,7 +37,7 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<SearchRecruitmentPostInfo> searchRecruitmentPosts(GetRecruitmentPosts condition) {
+    public Page<SearchRecruitmentPostInfo> searchRecruitmentPosts(GetRecruitmentPostsQuery condition) {
         PageRequest pageRequest = PageRequest.of(condition.getPageNo(), condition.getPageSize());
         boolean isBookmarkSearch = condition.isBookmarkSearch();
 
@@ -68,7 +68,7 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
         return PageableExecutionUtils.getPage(contents, pageRequest, countQuery::fetchOne);
     }
 
-    private JPAQuery<?> generateCommonSearchQuery(GetRecruitmentPosts condition) {
+    private JPAQuery<?> generateCommonSearchQuery(GetRecruitmentPostsQuery condition) {
         JPAQuery<?> query = queryFactory
             .from(postTeamRecruitment)
             .join(project).on(postTeamRecruitment.projectId.eq(project.projectId))

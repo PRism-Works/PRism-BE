@@ -1,6 +1,6 @@
 package com.prismworks.prism.domain.post.domain.service;
 
-import com.prismworks.prism.domain.post.domain.dto.query.PostQuery.GetRecruitmentPosts;
+import com.prismworks.prism.domain.post.domain.dto.query.GetRecruitmentPostsQuery;
 import com.prismworks.prism.domain.post.domain.dto.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.domain.dto.command.CreateRecruitmentPostCommand;
@@ -32,7 +32,7 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<SearchRecruitmentPostInfo> searchRecruitmentPost(GetRecruitmentPosts query) {
+	public Page<SearchRecruitmentPostInfo> searchRecruitmentPost(GetRecruitmentPostsQuery query) {
 		return postRecruitmentRepository.searchRecruitmentPosts(query);
 	}
 

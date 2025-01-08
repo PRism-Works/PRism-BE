@@ -1,7 +1,9 @@
 package com.prismworks.prism.domain.post.application.mapper;
 
+import com.prismworks.prism.domain.post.application.dto.param.SearchRecruitmentPostParam;
 import com.prismworks.prism.domain.post.application.dto.param.WritePostParam;
 import com.prismworks.prism.domain.post.domain.dto.command.CreateRecruitmentPostCommand;
+import com.prismworks.prism.domain.post.domain.dto.query.GetRecruitmentPostsQuery;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +27,22 @@ public class PostApplicationMapper {
             .recruitPositions(param.getRecruitPositions().stream()
                 .map(this::toRecruitPositionItem)
                 .collect(Collectors.toList()))
+            .build();
+    }
+
+    public GetRecruitmentPostsQuery toGetRecruitmentPostsQuery(SearchRecruitmentPostParam param) {
+        return GetRecruitmentPostsQuery.builder()
+            .recruitmentPositions(param.getRecruitmentPositions())
+            .userId(param.getUserId())
+            .categoryIds(param.getCategoryIds())
+            .processMethod(param.getProcessMethod())
+            .skills(param.getSkills())
+            .recruitmentStatuses(param.getRecruitmentStatuses())
+            .isBookmarkSearch(param.isBookmarkSearch())
+            .userId(param.getUserId())
+            .pageNo(param.getPageNo())
+            .pageSize(param.getPageSize())
+            .sort(param.getSort())
             .build();
     }
 

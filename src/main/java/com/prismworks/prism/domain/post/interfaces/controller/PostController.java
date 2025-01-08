@@ -4,12 +4,15 @@ import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.post.application.PostFacade;
+import com.prismworks.prism.domain.post.application.dto.param.SearchRecruitmentPostParam;
 import com.prismworks.prism.domain.post.application.dto.param.WritePostParam;
-import com.prismworks.prism.domain.post.domain.dto.query.PostQuery.GetRecruitmentPosts;
+import com.prismworks.prism.domain.post.application.dto.result.SearchRecruitmentPostResult;
 import com.prismworks.prism.domain.post.application.dto.result.ViewPostResult;
+import com.prismworks.prism.domain.post.application.dto.result.WritPostResult;
 import com.prismworks.prism.domain.post.domain.dto.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.CreateRecruitmentPostRequest;
+import com.prismworks.prism.domain.post.interfaces.dto.PostDto.CreateRecruitmentPostResponse;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.SearchBookmarkedRecruitmentPostsRequest;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.SearchRecruitmentPostsRequest;
 import com.prismworks.prism.domain.post.interfaces.dto.PostDto.SearchRecruitmentPostsResponse;
@@ -30,46 +33,52 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostController implements PostControllerDocs {
 
     private final PostFacade postFacade;
-    private final PostApiMapper postApiMapper;
+    private final PostApiMapper mapper;
 
     @GetMapping("/recruitment")
     public ApiSuccessResponse searchRecruitmentPosts(
         @CurrentUser UserContext userContext,
         SearchRecruitmentPostsRequest request
     ) {
-        Page<SearchRecruitmentPostInfo> searchResult = postFacade.searchRecruitmentPost(
-            request.toGetRecruitmentPostsQuery(userContext.getUserId()));
+        SearchRecruitmentPostParam param = mapper.fromSearchRecruitmentPostRequest(
+            request, userContext.getUserId());
 
-        SearchRecruitmentPostsResponse response = postApiMapper.toSearchPostsResponse(searchResult);
+        SearchRecruitmentPostResult result = postFacade.searchRecruitmentPost(param);
+
+        SearchRecruitmentPostsResponse response = mapper.toSearchPostsResponse(result);
         return ApiSuccessResponse.defaultOk(response);
     }
 
     @GetMapping("/{postId}/recruitment")
     public ApiSuccessResponse getRecruitmentPostDetail(@PathVariable("postId") Long postId) {
         ViewPostResult result = postFacade.viewPost(postId);
-        GetRecruitmentPostDetailResponse response = postApiMapper.toGetRecruitmentPostDetailResponse(
-            result);
 
+        GetRecruitmentPostDetailResponse response = mapper.toGetRecruitmentPostDetailResponse(
+            result);
         return ApiSuccessResponse.defaultOk(response);
     }
 
     @PostMapping("/recruitment")
     public ApiSuccessResponse createRecruitmentPost(@CurrentUser UserContext userContext,
         @RequestBody CreateRecruitmentPostRequest request) {
-        WritePostParam param = postApiMapper.toWritePostParam(request, userContext.getUserId());
-        PostRecruitmentInfo recruitmentPostInfo = postFacade.writePost(param);
+        WritePostParam param = mapper.fromCreateRecruitmentPostRequest(request, userContext.getUserId());
 
-        return ApiSuccessResponse.defaultOk(recruitmentPostInfo);
+        WritPostResult result = postFacade.writePost(param);
+
+        CreateRecruitmentPostResponse response = mapper.toCreateRecruitmentPostResponse(result);
+        return ApiSuccessResponse.defaultOk(response);
     }
 
     @GetMapping("/bookmarks/recruitment")
     public ApiSuccessResponse getBookmarkedRecruitmentPosts(@CurrentUser UserContext userContext,
         SearchBookmarkedRecruitmentPostsRequest request
     ) {
-        GetRecruitmentPosts query = request.toGetRecruitmentPostsQuery(userContext.getUserId());
-        Page<SearchRecruitmentPostInfo> searchResult = postFacade.searchRecruitmentPost(query);
+        SearchRecruitmentPostParam param = mapper.fromSearchBookmarkedPostRequest(
+            request, userContext.getUserId());
 
-        SearchRecruitmentPostsResponse response = postApiMapper.toSearchPostsResponse(searchResult);
+        SearchRecruitmentPostResult result = postFacade.searchRecruitmentPost(param);
+
+        SearchRecruitmentPostsResponse response = mapper.toSearchPostsResponse(result);
         return ApiSuccessResponse.defaultOk(response);
     }
 

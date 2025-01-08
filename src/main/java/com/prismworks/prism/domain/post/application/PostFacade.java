@@ -1,10 +1,13 @@
 package com.prismworks.prism.domain.post.application;
 
+import com.prismworks.prism.domain.post.application.dto.param.SearchRecruitmentPostParam;
 import com.prismworks.prism.domain.post.application.dto.param.WritePostParam;
+import com.prismworks.prism.domain.post.application.dto.result.SearchRecruitmentPostResult;
 import com.prismworks.prism.domain.post.application.dto.result.ViewPostResult;
+import com.prismworks.prism.domain.post.application.dto.result.WritPostResult;
 import com.prismworks.prism.domain.post.application.mapper.PostApplicationMapper;
 import com.prismworks.prism.domain.post.domain.dto.command.CreateRecruitmentPostCommand;
-import com.prismworks.prism.domain.post.domain.dto.query.PostQuery.GetRecruitmentPosts;
+import com.prismworks.prism.domain.post.domain.dto.query.GetRecruitmentPostsQuery;
 import com.prismworks.prism.domain.post.domain.dto.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.domain.service.PostBookmarkService;
@@ -31,14 +34,21 @@ public class PostFacade {
     private final PostApplicationMapper mapper;
 
     @Transactional
-    public PostRecruitmentInfo writePost(WritePostParam param) {
+    public WritPostResult writePost(WritePostParam param) {
         CreateRecruitmentPostCommand command = mapper.toCreateRecruitmentPostCommand(param);
-        return postService.createRecruitmentPost(command);
+
+        PostRecruitmentInfo postRecruitmentInfo = postService.createRecruitmentPost(command);
+        return new WritPostResult(postRecruitmentInfo);
     }
 
     @Transactional(readOnly = true)
-    public Page<SearchRecruitmentPostInfo> searchRecruitmentPost(GetRecruitmentPosts query) {
-        return postService.searchRecruitmentPost(query);
+    public SearchRecruitmentPostResult searchRecruitmentPost(SearchRecruitmentPostParam param) {
+        GetRecruitmentPostsQuery query = mapper.toGetRecruitmentPostsQuery(param);
+
+        Page<SearchRecruitmentPostInfo> searchRecruitmentPostInfos =
+            postService.searchRecruitmentPost(query);
+
+        return new SearchRecruitmentPostResult(searchRecruitmentPostInfos);
     }
 
     @Transactional
