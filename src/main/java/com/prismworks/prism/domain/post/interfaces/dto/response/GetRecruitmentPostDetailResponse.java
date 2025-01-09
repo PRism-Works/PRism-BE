@@ -11,14 +11,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-public class PostResponse {
-
-    @Getter
-    @RequiredArgsConstructor
-    public static class GetRecruitmentPostDetailResponse {
-        private final CommonRecruitmentPostItem post;
-        private final CommonProjectItem project;
-    }
+@Getter
+@RequiredArgsConstructor
+public class GetRecruitmentPostDetailResponse {
+    private final CommonRecruitmentPostItem post;
+    private final CommonProjectItem project;
 
     @Getter
     @Builder

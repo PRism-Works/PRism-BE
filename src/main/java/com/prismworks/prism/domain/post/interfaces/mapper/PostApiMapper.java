@@ -6,18 +6,20 @@ import com.prismworks.prism.domain.post.application.dto.result.SearchRecruitment
 import com.prismworks.prism.domain.post.application.dto.result.ViewPostResult;
 import com.prismworks.prism.domain.post.application.dto.result.WritPostResult;
 import com.prismworks.prism.domain.post.domain.dto.PostRecruitmentInfo;
-import com.prismworks.prism.domain.post.domain.model.RecruitmentStatus;
-import com.prismworks.prism.domain.post.interfaces.dto.PostDto;
-import com.prismworks.prism.domain.post.interfaces.dto.PostDto.CreateRecruitmentPostRequest;
-import com.prismworks.prism.domain.post.interfaces.dto.PostDto.CreateRecruitmentPostResponse;
-import com.prismworks.prism.domain.post.interfaces.dto.PostDto.SearchRecruitmentPostItem;
-import com.prismworks.prism.domain.post.interfaces.dto.PostDto.SearchRecruitmentPostsResponse;
 import com.prismworks.prism.domain.post.domain.dto.SearchRecruitmentPostInfo;
-import com.prismworks.prism.domain.post.interfaces.dto.response.PostResponse.CommonProjectItem;
-import com.prismworks.prism.domain.post.interfaces.dto.response.PostResponse.CommonRecruitmentPostItem;
-import com.prismworks.prism.domain.post.interfaces.dto.response.PostResponse.GetRecruitmentPostDetailResponse;
-import com.prismworks.prism.domain.post.interfaces.dto.response.PostResponse.RecruitmentPositionItem;
-import com.prismworks.prism.domain.post.interfaces.dto.response.PostResponse.WriterInfo;
+import com.prismworks.prism.domain.post.domain.model.RecruitmentStatus;
+import com.prismworks.prism.domain.post.interfaces.dto.request.CreateRecruitmentPostRequest;
+import com.prismworks.prism.domain.post.interfaces.dto.request.CreateRecruitmentPostRequest.RecruitPositionItem;
+import com.prismworks.prism.domain.post.interfaces.dto.request.SearchBookmarkedRecruitmentPostsRequest;
+import com.prismworks.prism.domain.post.interfaces.dto.request.SearchRecruitmentPostsRequest;
+import com.prismworks.prism.domain.post.interfaces.dto.response.CreateRecruitmentPostResponse;
+import com.prismworks.prism.domain.post.interfaces.dto.response.GetRecruitmentPostDetailResponse;
+import com.prismworks.prism.domain.post.interfaces.dto.response.GetRecruitmentPostDetailResponse.CommonProjectItem;
+import com.prismworks.prism.domain.post.interfaces.dto.response.GetRecruitmentPostDetailResponse.CommonRecruitmentPostItem;
+import com.prismworks.prism.domain.post.interfaces.dto.response.GetRecruitmentPostDetailResponse.RecruitmentPositionItem;
+import com.prismworks.prism.domain.post.interfaces.dto.response.GetRecruitmentPostDetailResponse.WriterInfo;
+import com.prismworks.prism.domain.post.interfaces.dto.response.SearchRecruitmentPostsResponse.SearchRecruitmentPostItem;
+import com.prismworks.prism.domain.post.interfaces.dto.response.SearchRecruitmentPostsResponse;
 import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
 import com.prismworks.prism.domain.user.dto.UserDto.UserProfileDetail;
 import java.util.List;
@@ -61,7 +63,7 @@ public class PostApiMapper {
     }
 
     public SearchRecruitmentPostParam fromSearchRecruitmentPostRequest(
-        PostDto.SearchRecruitmentPostsRequest request, String userId
+        SearchRecruitmentPostsRequest request, String userId
     ) {
         return SearchRecruitmentPostParam.builder()
             .userId(userId)
@@ -79,7 +81,7 @@ public class PostApiMapper {
     }
 
     public SearchRecruitmentPostParam fromSearchBookmarkedPostRequest(
-        PostDto.SearchBookmarkedRecruitmentPostsRequest request, String userId
+        SearchBookmarkedRecruitmentPostsRequest request, String userId
     ) {
         return SearchRecruitmentPostParam.builder()
             .userId(userId)
@@ -160,7 +162,7 @@ public class PostApiMapper {
         return new GetRecruitmentPostDetailResponse(recruitmentPostItem, projectItem);
     }
 
-    private WritePostParam.RecruitPositionItem toRecruitPositionItem(PostDto.RecruitPositionItem item) {
+    private WritePostParam.RecruitPositionItem toRecruitPositionItem(RecruitPositionItem item) {
         return WritePostParam.RecruitPositionItem.builder()
             .position(item.getPosition())
             .recruitmentCount(item.getCount())

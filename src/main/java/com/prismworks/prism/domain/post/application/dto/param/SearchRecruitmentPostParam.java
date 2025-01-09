@@ -13,14 +13,14 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @Getter
 public class SearchRecruitmentPostParam {
-    private List<RecruitmentPosition> recruitmentPositions;
-    private List<Integer> categoryIds;
-    private ProcessMethod processMethod;
-    private List<String> skills;
-    private List<RecruitmentStatus> recruitmentStatuses;
-    private boolean isBookmarkSearch;
-    private String userId;
-    private int pageNo;
-    private int pageSize;
-    private RecruitmentPostSortOption sort;
+    private final List<RecruitmentPosition> recruitmentPositions;
+    private final List<Integer> categoryIds;
+    private final ProcessMethod processMethod;
+    private final List<String> skills;
+    private final List<RecruitmentStatus> recruitmentStatuses;
+    private final boolean isBookmarkSearch;
+    private final String userId;
+    private final int pageNo;
+    private final int pageSize;
+    private final RecruitmentPostSortOption sort;
 }
