@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.post.infra.db.repository.custom.projection;
+package com.prismworks.prism.domain.post.domain.repository.custom.projection;
 
 import com.prismworks.prism.domain.post.domain.model.Post;
 import com.prismworks.prism.domain.post.domain.model.PostTeamRecruitment;

@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.post.infra.db.repository;
+package com.prismworks.prism.domain.post.domain.repository;
 
 import java.util.Optional;
 

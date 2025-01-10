@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.post.infra.db.repository;
+package com.prismworks.prism.domain.post.domain.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

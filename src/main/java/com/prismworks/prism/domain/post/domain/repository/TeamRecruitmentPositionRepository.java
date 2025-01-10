@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.post.infra.db.repository;
+package com.prismworks.prism.domain.post.domain.repository;
 
 import com.prismworks.prism.domain.post.domain.model.PostTeamRecruitment;
 import java.util.List;

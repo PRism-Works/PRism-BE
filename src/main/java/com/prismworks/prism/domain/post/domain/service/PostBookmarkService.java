@@ -1,7 +1,7 @@
 package com.prismworks.prism.domain.post.domain.service;
 
 import com.prismworks.prism.domain.post.domain.model.UserPostBookmark;
-import com.prismworks.prism.domain.post.infra.db.repository.UserPostBookmarkRepository;
+import com.prismworks.prism.domain.post.domain.repository.UserPostBookmarkRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

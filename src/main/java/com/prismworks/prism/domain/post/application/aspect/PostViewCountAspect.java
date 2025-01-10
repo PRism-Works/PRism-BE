@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.post.aspect;
+package com.prismworks.prism.domain.post.application.aspect;
 
 import lombok.RequiredArgsConstructor;
 
