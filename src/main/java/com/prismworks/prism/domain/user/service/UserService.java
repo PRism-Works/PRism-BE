@@ -1,6 +1,6 @@
 package com.prismworks.prism.domain.user.service;
 
-import com.prismworks.prism.domain.user.dto.UserDto;
+import com.prismworks.prism.interfaces.user.dto.UserDto;
 import com.prismworks.prism.domain.user.model.UserProfile;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.repository.UserProfileRepository;

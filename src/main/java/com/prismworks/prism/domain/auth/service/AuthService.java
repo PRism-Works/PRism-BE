@@ -11,7 +11,7 @@ import com.prismworks.prism.domain.email.model.EmailAuthCode;
 import com.prismworks.prism.domain.email.model.EmailTemplate;
 import com.prismworks.prism.domain.email.service.EmailAuthCodeService;
 import com.prismworks.prism.domain.email.service.EmailSendService;
-import com.prismworks.prism.domain.user.dto.UserDto;
+import com.prismworks.prism.interfaces.user.dto.UserDto;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.service.UserService;
 import io.jsonwebtoken.Claims;
@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.prismworks.prism.domain.auth.dto.AuthDto.*;
-import static com.prismworks.prism.utils.DateUtil.fromLocalDateTime;
-import static com.prismworks.prism.utils.DateUtil.toLocalDateTime;
+import static com.prismworks.prism.common.utils.DateUtil.fromLocalDateTime;
+import static com.prismworks.prism.common.utils.DateUtil.toLocalDateTime;
 
 @RequiredArgsConstructor
 @Service

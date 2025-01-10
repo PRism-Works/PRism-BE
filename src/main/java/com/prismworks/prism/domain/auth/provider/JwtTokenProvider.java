@@ -15,7 +15,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-import static com.prismworks.prism.utils.DateUtil.toLocalDateTime;
+import static com.prismworks.prism.common.utils.DateUtil.toLocalDateTime;
 
 @Component
 public class JwtTokenProvider {

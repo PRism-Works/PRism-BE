@@ -1,11 +1,11 @@
 package com.prismworks.prism.domain.search.service;
 
 import com.prismworks.prism.common.dto.PageResponse;
-import com.prismworks.prism.domain.post.domain.repository.PostTeamRecruitmentRepository;
+import com.prismworks.prism.domain.post.repository.PostTeamRecruitmentRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
 import com.prismworks.prism.domain.project.Repository.custom.projection.ProjectProjection;
-import com.prismworks.prism.domain.search.dto.ProjectSearchCondition;
-import com.prismworks.prism.domain.search.dto.SearchDto;
+import com.prismworks.prism.interfaces.search.dto.ProjectSearchCondition;
+import com.prismworks.prism.interfaces.search.dto.SearchDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

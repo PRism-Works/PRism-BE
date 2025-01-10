@@ -2,7 +2,7 @@ package com.prismworks.prism.domain.project.Repository.custom;
 
 import com.prismworks.prism.domain.project.Repository.custom.projection.ProjectProjection;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
-import com.prismworks.prism.domain.search.dto.ProjectSearchCondition;
+import com.prismworks.prism.interfaces.search.dto.ProjectSearchCondition;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

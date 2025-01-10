@@ -1,7 +1,7 @@
 package com.prismworks.prism.domain.user.model;
 
 import com.prismworks.prism.common.converter.StringToListConverter;
-import com.prismworks.prism.domain.user.dto.UserDto;
+import com.prismworks.prism.interfaces.user.dto.UserDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.util.StringUtils;
