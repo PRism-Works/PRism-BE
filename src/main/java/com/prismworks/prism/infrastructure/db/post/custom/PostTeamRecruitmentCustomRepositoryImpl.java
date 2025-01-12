@@ -1,9 +1,9 @@
-package com.prismworks.prism.domain.post.repository.custom;
+package com.prismworks.prism.infrastructure.db.post.custom;
 
 import static com.prismworks.prism.common.infra.repository.QueryOrderFactory.getOrderSpecifier;
-import static com.prismworks.prism.domain.post.domain.model.QPostTeamRecruitment.postTeamRecruitment;
-import static com.prismworks.prism.domain.post.domain.model.QTeamRecruitmentPosition.teamRecruitmentPosition;
-import static com.prismworks.prism.domain.post.domain.model.QUserPostBookmark.userPostBookmark;
+import static com.prismworks.prism.domain.post.model.QPostTeamRecruitment.postTeamRecruitment;
+import static com.prismworks.prism.domain.post.model.QTeamRecruitmentPosition.teamRecruitmentPosition;
+import static com.prismworks.prism.domain.post.model.QUserPostBookmark.userPostBookmark;
 import static com.prismworks.prism.domain.project.model.QProject.project;
 import static com.prismworks.prism.domain.user.model.QUsers.users;
 
@@ -12,7 +12,7 @@ import com.prismworks.prism.domain.post.model.ProcessMethod;
 import com.prismworks.prism.domain.post.model.RecruitmentPosition;
 import com.prismworks.prism.domain.post.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
-import com.prismworks.prism.domain.post.repository.custom.projection.GetPostRecruitmentsProjection;
+import com.prismworks.prism.infrastructure.db.post.custom.projection.GetPostRecruitmentsProjection;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;

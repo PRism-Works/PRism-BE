@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.post.repository.custom;
+package com.prismworks.prism.infrastructure.db.post.custom;
 
 import com.prismworks.prism.domain.post.dto.query.GetRecruitmentPostsQuery;
 import com.prismworks.prism.domain.post.dto.SearchRecruitmentPostInfo;

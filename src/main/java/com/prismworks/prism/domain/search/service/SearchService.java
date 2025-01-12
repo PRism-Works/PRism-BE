@@ -1,7 +1,6 @@
 package com.prismworks.prism.domain.search.service;
 
 import com.prismworks.prism.common.dto.PageResponse;
-import com.prismworks.prism.domain.post.repository.PostTeamRecruitmentRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
 import com.prismworks.prism.domain.project.Repository.custom.projection.ProjectProjection;
 import com.prismworks.prism.interfaces.search.dto.ProjectSearchCondition;
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class SearchService {
 
     private final ProjectRepository projectRepository;
-	private final PostTeamRecruitmentRepository postTeamRecruitmentRepository;
 
     @Transactional(readOnly = true)
     public PageResponse<ProjectProjection.ProjectSearchResult> searchProject(SearchDto.ProjectSearchRequest dto) {
