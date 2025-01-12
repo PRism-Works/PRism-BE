@@ -11,8 +11,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class CreateRecruitmentPostRequest {
     @Schema(description = "마감일 팀원 모집 완료시 까지 여부")
@@ -55,14 +57,14 @@ public class CreateRecruitmentPostRequest {
     private List<RecruitPositionItem> recruitPositions;
 
     @Getter
+    @NoArgsConstructor
     @AllArgsConstructor
-    @Schema(description = "주소 정보 객체")
     public static class RecruitPositionItem {
         @Schema(description = "모집 직무",
             allowableValues = {"pm", "marketer", "frontend", "backend", "fullstack", "designer", "ios", "android", "devops", "qa"})
-        private final RecruitmentPosition position;
+        private RecruitmentPosition position;
 
         @Schema(description = "모집 인원")
-        private final int count;
+        private int count;
     }
 }
