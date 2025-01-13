@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 @Builder
 public class ProjectDetailDto {
+    private Integer projectId;
     private String projectName;
     private String organizationName;
     private String startDate;

@@ -1,7 +1,6 @@
 package com.prismworks.prism.domain.post.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.prismworks.prism.domain.post.dto.command.TeamRecruitmentPositionCommand.CreateTeamRecruitmentPosition;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -49,9 +48,9 @@ public class TeamRecruitmentPosition {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
-	public TeamRecruitmentPosition(CreateTeamRecruitmentPosition command) {
-		this.position = command.getPosition();
-		this.recruitmentCount = command.getRecruitmentCount();
+	public TeamRecruitmentPosition(RecruitmentPosition position, int recruitmentCount) {
+		this.position = position;
+		this.recruitmentCount = recruitmentCount;
 		this.createdAt = LocalDateTime.now();
 	}
 

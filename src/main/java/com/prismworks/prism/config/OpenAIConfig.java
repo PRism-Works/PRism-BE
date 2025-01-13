@@ -11,7 +11,7 @@ public class OpenAIConfig {
     @Bean
     public ChatClient chatClient(ChatClient.Builder builder) {
         OpenAiChatOptions chatOptions = OpenAiChatOptions.builder()
-                .withModel(OpenAiApi.ChatModel.GPT_4_O_MINI)
+                .model(OpenAiApi.ChatModel.GPT_4_O_MINI)
                 .build();
 
         return builder.defaultOptions(chatOptions).build();

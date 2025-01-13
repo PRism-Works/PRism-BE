@@ -15,7 +15,9 @@ import com.prismworks.prism.domain.project.model.Category;
 import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
-import com.prismworks.prism.domain.user.dto.UserDto;
+import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
+import com.prismworks.prism.interfaces.project.dto.request.ProjectDto;
+import com.prismworks.prism.interfaces.user.dto.UserDto;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.repository.UserRepository;
 import com.prismworks.prism.domain.user.service.UserService;
@@ -68,7 +70,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponseDto createProject(UserContext userContext,ProjectDto projectDto) throws ParseException {
+    public ProjectResponseDto createProject(UserContext userContext, ProjectDto projectDto) throws ParseException {
 
         if (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) {
             throw ProjectException.NO_PROJECT_NAME;
@@ -478,6 +480,7 @@ public class ProjectService {
         long anonymousCount = memberDetails.stream().filter(MemberDetailDto::isAnonyVisibility).count();
 
         return ProjectDetailDto.builder()
+                .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
                 .organizationName(project.getOrganizationName())
                 .startDate(formatDate(project.getStartDate()))

@@ -1,18 +1,17 @@
 package com.prismworks.prism.domain.post.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
+import com.prismworks.prism.domain.post.dto.SearchRecruitmentPostInfo;
+import com.prismworks.prism.domain.post.dto.query.GetRecruitmentPostsQuery;
+import com.prismworks.prism.domain.post.model.PostTeamRecruitment;
+import java.util.Optional;
+import org.springframework.data.domain.Page;
 
-import com.prismworks.prism.domain.post.model.Post;
+public interface PostRepository {
+    PostTeamRecruitment savePostTeamRecruitment(PostTeamRecruitment postTeamRecruitment);
 
-@Repository
-public interface PostRepository extends JpaRepository<Post, Long> {
+    Page<SearchRecruitmentPostInfo> searchRecruitmentPosts(GetRecruitmentPostsQuery query);
 
-	@Modifying
-	@Query("UPDATE Post p SET p.viewCount = p.viewCount + 1 WHERE p.postId = :postId")
-	void incrementViewCountById(@Param("postId") Long postId);
+    Optional<PostTeamRecruitment> getPostTeamRecruitment(Long postId);
+
+    int incrementViewCount(Long postId);
 }
-
