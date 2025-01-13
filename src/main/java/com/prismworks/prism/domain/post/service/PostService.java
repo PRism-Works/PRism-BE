@@ -37,8 +37,6 @@ public class PostService {
         PostTeamRecruitment recruitment = postRepository.getPostTeamRecruitment(postId)
             .orElseThrow(() -> new EntityNotFoundException("Recruitment not found for Post ID: " + postId));
 
-		Hibernate.initialize(recruitment.getRecruitmentPositions());
-
         return new PostRecruitmentInfo(recruitment);
     }
 
