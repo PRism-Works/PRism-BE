@@ -46,7 +46,7 @@ public class OpenApiConfig {
 
     @Bean
     public GroupedOpenApi groupedAllApi() {
-        String[] packagesToScan = {"com.prismworks.prism.domain"};
+        String[] packagesToScan = {"com.prismworks.prism.interfaces"};
 
         return GroupedOpenApi.builder()
                 .group("1. 전체")
@@ -56,7 +56,7 @@ public class OpenApiConfig {
 
     @Bean
     public GroupedOpenApi groupedAuthOpenApi() {
-        String[] packagesToScan = {"com.prismworks.prism.domain.auth"};
+        String[] packagesToScan = {"com.prismworks.prism.interfaces.auth"};
 
         return GroupedOpenApi.builder()
             .group("2. 인증")
@@ -90,7 +90,7 @@ public class OpenApiConfig {
 
     @Bean
     public GroupedOpenApi groupedSearchOpenApi() {
-        String[] packagesToScan = {"com.prismworks.prism.domain.search"};
+        String[] packagesToScan = {"com.prismworks.prism.interfaces.search"};
 
         return GroupedOpenApi.builder()
             .group("6. 검색")
