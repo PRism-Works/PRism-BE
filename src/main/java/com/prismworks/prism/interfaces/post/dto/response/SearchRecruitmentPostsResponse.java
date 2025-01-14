@@ -52,6 +52,9 @@ public class SearchRecruitmentPostsResponse {
         @Schema(description = "북마크 여부")
         private final boolean isBookmarked;
 
+        @Schema(description = "북마크 개수")
+        private final int bookmarkCount;
+
         @Schema(description = "작성자 정보")
         private final UserInfo writerInfo;
 
@@ -66,6 +69,7 @@ public class SearchRecruitmentPostsResponse {
             this.recruitmentEndAt = postInfo.getRecruitmentEndAt();
             this.viewCount = postInfo.getViewCount();
             this.isBookmarked = postInfo.isBookmarked();
+            this.bookmarkCount = postInfo.getBookmarkCount();
             this.writerInfo = postInfo.getUserInfo();
         }
     }

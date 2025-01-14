@@ -7,10 +7,10 @@ import static com.prismworks.prism.domain.post.model.QUserPostBookmark.userPostB
 import static com.prismworks.prism.domain.project.model.QProject.project;
 import static com.prismworks.prism.domain.user.model.QUsers.users;
 
+import com.prismworks.prism.domain.post.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.dto.query.GetRecruitmentPostsQuery;
 import com.prismworks.prism.domain.post.model.ProcessMethod;
 import com.prismworks.prism.domain.post.model.RecruitmentPosition;
-import com.prismworks.prism.domain.post.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
 import com.prismworks.prism.infrastructure.db.post.custom.projection.GetPostRecruitmentsProjection;
 import com.querydsl.core.types.Expression;
@@ -51,10 +51,8 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
                 postTeamRecruitment,
                 project,
                 users.as("user"),
-                Expressions.as(
-                    isBookmarkSearch ? Expressions.constant(true) : this.isUserBookmarkExistsQuery(condition.getUserId()),
-                    "isBookmarked"
-                )
+                getIsBookmarked(condition, isBookmarkSearch),
+                getBookmarkCount()
             ))
             .offset(pageRequest.getOffset())
             .limit(pageRequest.getPageSize())
@@ -89,6 +87,26 @@ public class PostTeamRecruitmentCustomRepositoryImpl implements PostTeamRecruitm
         }
 
         return query;
+    }
+
+    private Expression<Long> getBookmarkCount() {
+        return Expressions.as(
+            JPAExpressions.select(userPostBookmark.count())
+                .from(userPostBookmark)
+                .where(userPostBookmark.postId.eq(postTeamRecruitment.post.postId)
+                    .and(userPostBookmark.activeFlag.eq(true))),
+            "bookmarkCount"
+        );
+    }
+
+    private Expression<Boolean> getIsBookmarked(GetRecruitmentPostsQuery condition,
+        boolean isBookmarkSearch
+    ) {
+        Expression<Boolean> source = isBookmarkSearch
+            ? Expressions.constant(true)
+            : this.isUserBookmarkExistsQuery(condition.getUserId());
+
+        return Expressions.as(source, "isBookmarked");
     }
 
     private Expression<Boolean> isUserBookmarkExistsQuery(String userId) {
