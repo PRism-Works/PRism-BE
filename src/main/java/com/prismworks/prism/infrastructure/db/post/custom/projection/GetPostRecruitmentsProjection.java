@@ -18,6 +18,7 @@ public class GetPostRecruitmentsProjection {
     private final Project project;
     private final Users user;
     private final boolean isBookmarked;
+    private final long bookmarkCount;
 
     public SearchRecruitmentPostInfo toRecruitmentPostInfo() {
         Post post = postTeamRecruitment.getPost();
@@ -40,6 +41,7 @@ public class GetPostRecruitmentsProjection {
             .recruitmentEndAt(postTeamRecruitment.getRecruitmentEndAt())
             .viewCount(post.getViewCount())
             .isBookmarked(isBookmarked)
+            .bookmarkCount(Long.valueOf(bookmarkCount).intValue())
             .userInfo(new UserInfo(user.getUserId(), user.getUserProfile().getUsername(), user.getEmail()))
             .build();
     }

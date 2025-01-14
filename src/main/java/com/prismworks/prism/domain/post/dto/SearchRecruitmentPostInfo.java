@@ -22,6 +22,7 @@ public class SearchRecruitmentPostInfo {
     private final LocalDateTime recruitmentEndAt;
     private final int viewCount;
     private final boolean isBookmarked;
+    private final int bookmarkCount;
     private final UserInfo userInfo;
 
     @Getter
