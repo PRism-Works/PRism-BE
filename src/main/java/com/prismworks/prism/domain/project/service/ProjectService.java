@@ -19,7 +19,7 @@ import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilit
 import com.prismworks.prism.interfaces.project.dto.request.ProjectDto;
 import com.prismworks.prism.interfaces.user.dto.UserDto;
 import com.prismworks.prism.domain.user.model.Users;
-import com.prismworks.prism.domain.user.repository.UserRepository;
+import com.prismworks.prism.infrastructure.db.user.UserJpaRepository;
 import com.prismworks.prism.domain.user.service.UserService;
 
 import org.hibernate.Hibernate;
@@ -41,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 public class ProjectService {
 
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
+    private final UserJpaRepository userJpaRepository;
     private final UserService userService;
     private final ProjectRepository projectRepository;
     private final ProjectUserJoinRepository projectUserJoinRepository;
@@ -107,7 +107,7 @@ public class ProjectService {
         resolveCategoryJoins(project, projectDto.getCategories());
 
         List<ProjectUserJoin> members = projectDto.getMembers().stream().map(memberDto -> {
-            Optional<Users> foundUser = userRepository.findByEmail(memberDto.getEmail());
+            Optional<Users> foundUser = userJpaRepository.findByEmail(memberDto.getEmail());
             ProjectUserJoin join = new ProjectUserJoin();
             join.setProject(project);
             join.setName(memberDto.getName());
@@ -198,7 +198,7 @@ public class ProjectService {
         List<ProjectUserJoin> newMembers = memberDtos.stream()
                 .map(memberDto -> {
                     ProjectUserJoin projectUserJoin = projectUserJoinRepository.findByEmailAndProjectId(memberDto.getEmail() ,project.getProjectId());
-                    Optional<Users> foundUser = userRepository.findByEmail(memberDto.getEmail());
+                    Optional<Users> foundUser = userJpaRepository.findByEmail(memberDto.getEmail());
 
                     ProjectUserJoin join = new ProjectUserJoin();
                     if(projectUserJoin == null) {
@@ -246,7 +246,7 @@ public class ProjectService {
     }
 
     private ProjectUserJoin createNewMember(Project project, MemberDto memberDto) {
-        return userRepository.findByEmail(memberDto.getEmail())
+        return userJpaRepository.findByEmail(memberDto.getEmail())
                 .map(user -> {
                     ProjectUserJoin join = new ProjectUserJoin();
                     join.setUser(user);
@@ -536,7 +536,7 @@ public class ProjectService {
 
 
         updatedMember.setEmail(userContext.getEmail());
-        userRepository.findById(userContext.getUserId())
+        userJpaRepository.findById(userContext.getUserId())
                 .ifPresentOrElse(updatedMember::setUser, () -> {
                     throw new ProjectException("User not found with given ID", ProjectErrorCode.USER_NOT_FOUND);
                 });

@@ -1,24 +1,21 @@
 package com.prismworks.prism.domain.user.service;
 
-import com.prismworks.prism.interfaces.user.dto.UserDto;
 import com.prismworks.prism.domain.user.model.UserProfile;
 import com.prismworks.prism.domain.user.model.Users;
-import com.prismworks.prism.domain.user.repository.UserProfileRepository;
 import com.prismworks.prism.domain.user.repository.UserRepository;
+import com.prismworks.prism.interfaces.user.dto.UserDto;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserProfileRepository userProfileRepository;
 
     @Transactional(readOnly = true)
     public boolean userExistByEmail(String email) {
@@ -27,19 +24,13 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Users findUserById(String userId) {
-        return userRepository.findById(userId)
+        return userRepository.getUserById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("user not found by id : " + userId));
     }
 
     @Transactional(readOnly = true)
     public Optional<Users> findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    @Transactional(readOnly = true)
-    public UserProfile findProfileById(String userId) {
-        return userProfileRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("userProfile not found by id: " + userId));
+        return userRepository.getUserByEmail(email);
     }
 
     @Transactional(readOnly = true)
@@ -73,32 +64,34 @@ public class UserService {
 
     @Transactional
     public Users createUser(UserDto.CreateInfo dto) {
+        String userId = UUID.randomUUID().toString();
+
+        UserProfile userProfile = UserProfile.builder()
+            .userId(userId)
+            .username(dto.getUsername())
+            .build();
+
         Users user = Users.builder()
-                .userId(UUID.randomUUID().toString())
+                .userId(userId)
                 .email(dto.getEmail())
                 .password(dto.getEncodedPassword()) // todo: encoding 검증
+                .userProfile(userProfile)
                 .isActive(true)
                 .build();
 
-        UserProfile userProfile = UserProfile
-                .builder()
-                .userId(user.getUserId())
-                .username(dto.getUsername())
-                .build();
-
-        userProfileRepository.save(userProfile);
-        return userRepository.save(user);
+        return userRepository.saveUser(user);
     }
 
     @Transactional
     public void updateUserProfile(String userId, UserDto.UpdateProfileRequest dto) {
-        UserProfile userProfile = this.findProfileById(userId);
+        Users user = this.findUserById(userId);
+        UserProfile userProfile = user.getUserProfile();
         userProfile.updateProfile(dto);
     }
 
     @Transactional
     public void updateUserPassword(String email, String encodedPassword) {
-        Users user = userRepository.findByEmail(email)
+        Users user = this.findUserByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("user not found by email: " + email));
 
         user.updatePassword(encodedPassword);
