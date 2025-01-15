@@ -1,7 +1,7 @@
 package com.prismworks.prism.domain.user.model;
 
 import com.prismworks.prism.common.converter.StringToListConverter;
-import com.prismworks.prism.interfaces.user.dto.UserDto;
+import com.prismworks.prism.domain.user.dto.command.UpdateProfileCommand;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.util.StringUtils;
@@ -46,34 +46,34 @@ public class UserProfile {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public void updateProfile(UserDto.UpdateProfileRequest dto) {
+    public void updateProfile(UpdateProfileCommand command) {
         boolean isUpdate = false;
-        String username = dto.getUsername();
+        String username = command.getUsername();
         if(StringUtils.hasText(username) && !username.equals(this.username)) {
             this.username = username;
             isUpdate = true;
         }
 
-        List<String> skills = dto.getSkills();
+        List<String> skills = command.getSkills();
         if(skills != null && !skills.isEmpty()) {
             this.skills = skills;
             isUpdate = true;
         }
 
-        List<String> interestJobs = dto.getInterestJobs();
+        List<String> interestJobs = command.getInterestJobs();
         if(interestJobs != null && !interestJobs.isEmpty()) {
             this.interestJobs = interestJobs;
             isUpdate = true;
         }
 
-        String introduction = dto.getIntroduction();
+        String introduction = command.getIntroduction();
         if(StringUtils.hasText(introduction) && !introduction.equals(this.introduction)) {
             this.introduction = introduction;
             isUpdate = true;
         }
 
         if(isUpdate) {
-            this.updatedAt = dto.getRequestAt();
+            this.updatedAt = command.getRequestAt();
         }
     }
 }

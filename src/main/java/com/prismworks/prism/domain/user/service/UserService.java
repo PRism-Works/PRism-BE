@@ -1,12 +1,14 @@
 package com.prismworks.prism.domain.user.service;
 
+import com.prismworks.prism.domain.user.dto.UserDetailInfo;
+import com.prismworks.prism.domain.user.dto.UserInfo;
+import com.prismworks.prism.domain.user.dto.command.CreateUserCommand;
+import com.prismworks.prism.domain.user.dto.command.UpdateProfileCommand;
 import com.prismworks.prism.domain.user.model.UserProfile;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.repository.UserRepository;
-import com.prismworks.prism.interfaces.user.dto.UserDto;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,66 +36,42 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserDto.UserDetail getUserDetail(String userId) {
+    public UserInfo getUser(String userId) {
         Users user = this.findUserById(userId);
-        UserProfile userProfile = user.getUserProfile();
-
-        return UserDto.UserDetail.builder()
-                .userId(user.getUserId())
-                .email(user.getEmail())
-                .username(userProfile.getUsername())
-                .interestJobs(userProfile.getInterestJobs())
-                .skills(userProfile.getSkills())
-                .build();
+        return new UserInfo(user);
     }
 
     @Transactional(readOnly = true)
-    public UserDto.UserProfileDetail getUserProfileDetail(String userId) {
+    public UserDetailInfo getUserDetail(String userId) {
         Users user = this.findUserById(userId);
         UserProfile userProfile = user.getUserProfile();
 
-        return UserDto.UserProfileDetail.builder()
-                .userId(user.getUserId())
-                .username(userProfile.getUsername())
-                .email(user.getEmail())
-                .interestJobs(userProfile.getInterestJobs())
-                .skills(userProfile.getSkills())
-                .introduction(userProfile.getIntroduction())
-                .build();
+        return new UserDetailInfo(user, userProfile);
     }
 
     @Transactional
-    public Users createUser(UserDto.CreateInfo dto) {
-        String userId = UUID.randomUUID().toString();
+    public UserInfo createUser(CreateUserCommand command) {
+        Users user = new Users(command);
+        Users saveUser = userRepository.saveUser(user);
 
-        UserProfile userProfile = UserProfile.builder()
-            .userId(userId)
-            .username(dto.getUsername())
-            .build();
-
-        Users user = Users.builder()
-                .userId(userId)
-                .email(dto.getEmail())
-                .password(dto.getEncodedPassword()) // todo: encoding 검증
-                .userProfile(userProfile)
-                .isActive(true)
-                .build();
-
-        return userRepository.saveUser(user);
+        return new UserInfo(saveUser);
     }
 
     @Transactional
-    public void updateUserProfile(String userId, UserDto.UpdateProfileRequest dto) {
-        Users user = this.findUserById(userId);
+    public UserDetailInfo updateUserProfile(UpdateProfileCommand command) {
+        Users user = this.findUserById(command.getUserId());
         UserProfile userProfile = user.getUserProfile();
-        userProfile.updateProfile(dto);
+        userProfile.updateProfile(command);
+
+        return new UserDetailInfo(user, userProfile);
     }
 
     @Transactional
-    public void updateUserPassword(String email, String encodedPassword) {
+    public UserInfo updateUserPassword(String email, String encodedPassword) {
         Users user = this.findUserByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("user not found by email: " + email));
-
         user.updatePassword(encodedPassword);
+
+        return new UserInfo(user);
     }
 }

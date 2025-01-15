@@ -11,38 +11,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class UserDto {
-
-    @Builder
-    @AllArgsConstructor
-    @Getter
-    public static class CreateInfo {
-        private String username;
-        private String email;
-        private String encodedPassword;
-    }
-
-    @Builder
-    @AllArgsConstructor
-    @Getter
-    public static class UserDetail {
-        private String userId;
-        private String email;
-        private String username;
-        private List<String> interestJobs;
-        private List<String> skills;
-    }
-
-    @Builder
-    @Getter
-    public static class UserProfileDetail {
-        private String userId;
-        private String username;
-        private String email;
-        private List<String> interestJobs;
-        private List<String> skills;
-        private String introduction;
-    }
-
     @Getter
     public static class UpdateProfileRequest {
         @Size(min = 1, max = 20)

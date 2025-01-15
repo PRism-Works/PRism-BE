@@ -6,16 +6,16 @@ import com.prismworks.prism.application.post.dto.result.SearchRecruitmentPostRes
 import com.prismworks.prism.application.post.dto.result.ViewPostResult;
 import com.prismworks.prism.application.post.dto.result.WritPostResult;
 import com.prismworks.prism.application.post.mapper.PostApplicationMapper;
-import com.prismworks.prism.domain.post.dto.command.CreateRecruitmentPostCommand;
-import com.prismworks.prism.domain.post.dto.query.GetRecruitmentPostsQuery;
 import com.prismworks.prism.domain.post.dto.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.dto.SearchRecruitmentPostInfo;
+import com.prismworks.prism.domain.post.dto.command.CreateRecruitmentPostCommand;
+import com.prismworks.prism.domain.post.dto.query.GetRecruitmentPostsQuery;
 import com.prismworks.prism.domain.post.service.PostBookmarkService;
 import com.prismworks.prism.domain.post.service.PostService;
 import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
 import com.prismworks.prism.domain.project.service.ProjectService;
-import com.prismworks.prism.interfaces.user.dto.UserDto.UserProfileDetail;
-import com.prismworks.prism.domain.user.model.Users;
+import com.prismworks.prism.domain.user.dto.UserDetailInfo;
+import com.prismworks.prism.domain.user.dto.UserInfo;
 import com.prismworks.prism.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,17 +54,17 @@ public class PostFacade {
     @Transactional
     public ViewPostResult viewPost(Long postId) {
         PostRecruitmentInfo postRecruitmentInfo = postService.getRecruitmentDetail(postId);
-        UserProfileDetail userProfileDetail = userService.getUserProfileDetail(
+        UserDetailInfo userDetail = userService.getUserDetail(
             postRecruitmentInfo.getUserId());
         ProjectDetailDto projectDetailDto = projectService.getProjectDetailInRetrieve(
             postRecruitmentInfo.getProjectId());
 
-        return new ViewPostResult(postRecruitmentInfo, userProfileDetail, projectDetailDto);
+        return new ViewPostResult(postRecruitmentInfo, userDetail, projectDetailDto);
     }
 
     @Transactional
     public void bookmark(String userId, Long postId) {
-        Users user = userService.findUserById(userId);
-        postBookmarkService.bookmark(user.getUserId(), postId);
+        UserInfo userInfo = userService.getUser(userId);
+        postBookmarkService.bookmark(userInfo.getUserId(), postId);
     }
 }

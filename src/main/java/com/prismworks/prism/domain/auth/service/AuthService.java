@@ -11,10 +11,12 @@ import com.prismworks.prism.domain.email.model.EmailAuthCode;
 import com.prismworks.prism.domain.email.model.EmailTemplate;
 import com.prismworks.prism.domain.email.service.EmailAuthCodeService;
 import com.prismworks.prism.domain.email.service.EmailSendService;
-import com.prismworks.prism.interfaces.user.dto.UserDto;
+import com.prismworks.prism.domain.user.dto.UserInfo;
+import com.prismworks.prism.domain.user.dto.command.CreateUserCommand;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.service.UserService;
 import io.jsonwebtoken.Claims;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -88,17 +90,18 @@ public class AuthService {
         this.checkAlreadySignup(email);
         this.checkEmailVerified(email, dto.getAuthCode(), AuthType.SIGNUP);
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
-        UserDto.CreateInfo userCreateInfo = UserDto.CreateInfo.builder()
+        CreateUserCommand command = CreateUserCommand.builder()
+                .userId(UUID.randomUUID().toString())
                 .username(dto.getUsername())
                 .email(email)
                 .encodedPassword(encodedPassword)
                 .build();
 
-        Users user = userService.createUser(userCreateInfo);
+        UserInfo userInfo = userService.createUser(command);
 
         return SignupResponse.builder()
-                .userId(user.getUserId())
-                .email(user.getEmail())
+                .userId(userInfo.getUserId())
+                .email(userInfo.getEmail())
                 .build();
     }
 

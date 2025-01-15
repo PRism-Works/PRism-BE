@@ -15,9 +15,9 @@ import com.prismworks.prism.domain.project.model.Category;
 import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
+import com.prismworks.prism.domain.user.dto.UserDetailInfo;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectDto;
-import com.prismworks.prism.interfaces.user.dto.UserDto;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.infrastructure.db.user.UserJpaRepository;
 import com.prismworks.prism.domain.user.service.UserService;
@@ -463,7 +463,7 @@ public class ProjectService {
                         // 로깅, 오류 처리 또는 기본값 설정
                         return new MemberDetailDto("-1", member.getName(), member.getEmail(), member.getRoles(), member.getAnonyVisibility());
                     } else {
-                        UserDto.UserProfileDetail userProfileDetail = userService.getUserProfileDetail(member.getUser().getUserId());
+                        UserDetailInfo userProfileDetail = userService.getUserDetail(member.getUser().getUserId());
 
                         return MemberDetailDto.builder()
                             .name(userProfileDetail.getUsername())
@@ -645,7 +645,7 @@ public class ProjectService {
         return projectUserJoins.stream()
             .map(join -> {
 
-                UserDto.UserProfileDetail userProfileDetail = userService.getUserProfileDetail(join.getUser().getUserId());
+                UserDetailInfo userProfileDetail = userService.getUserDetail(join.getUser().getUserId());
 
                 return MemberDetailDto.builder()
                     .name(userProfileDetail.getUsername())

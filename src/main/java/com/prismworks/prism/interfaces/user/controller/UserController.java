@@ -3,6 +3,8 @@ package com.prismworks.prism.interfaces.user.controller;
 import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
+import com.prismworks.prism.domain.user.dto.UserDetailInfo;
+import com.prismworks.prism.domain.user.dto.command.UpdateProfileCommand;
 import com.prismworks.prism.interfaces.user.dto.UserDto;
 import com.prismworks.prism.domain.user.service.UserService;
 import jakarta.validation.Valid;
@@ -18,13 +20,13 @@ public class UserController implements UserControllerDocs{
 
     @GetMapping("/me")
     public ApiSuccessResponse getUser(@CurrentUser UserContext userContext) {
-        UserDto.UserDetail response = userService.getUserDetail(userContext.getUserId());
+        UserDetailInfo response = userService.getUserDetail(userContext.getUserId());
         return ApiSuccessResponse.defaultOk(response);
     }
 
     @GetMapping("/{userId}/profile")
     public ApiSuccessResponse getProfile(@PathVariable String userId) {
-        UserDto.UserProfileDetail response = userService.getUserProfileDetail(userId);
+        UserDetailInfo response = userService.getUserDetail(userId);
         return ApiSuccessResponse.defaultOk(response);
     }
 
@@ -32,7 +34,15 @@ public class UserController implements UserControllerDocs{
     public ApiSuccessResponse updateProfile(@CurrentUser UserContext userContext,
                                             @RequestBody @Valid UserDto.UpdateProfileRequest request)
     {
-        userService.updateUserProfile(userContext.getUserId(), request);
+        UpdateProfileCommand command = UpdateProfileCommand.builder()
+            .userId(userContext.getUserId())
+            .username(request.getUsername())
+            .skills(request.getSkills())
+            .interestJobs(request.getInterestJobs())
+            .introduction(request.getIntroduction())
+            .requestAt(request.getRequestAt())
+            .build();
+        userService.updateUserProfile(command);
         return ApiSuccessResponse.defaultOk();
     }
 }

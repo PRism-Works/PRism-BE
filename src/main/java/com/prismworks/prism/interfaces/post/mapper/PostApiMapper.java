@@ -8,6 +8,7 @@ import com.prismworks.prism.application.post.dto.result.WritPostResult;
 import com.prismworks.prism.domain.post.dto.PostRecruitmentInfo;
 import com.prismworks.prism.domain.post.dto.SearchRecruitmentPostInfo;
 import com.prismworks.prism.domain.post.model.RecruitmentStatus;
+import com.prismworks.prism.domain.user.dto.UserDetailInfo;
 import com.prismworks.prism.interfaces.post.dto.request.CreateRecruitmentPostRequest;
 import com.prismworks.prism.interfaces.post.dto.request.CreateRecruitmentPostRequest.RecruitPositionItem;
 import com.prismworks.prism.interfaces.post.dto.request.SearchBookmarkedRecruitmentPostsRequest;
@@ -21,7 +22,6 @@ import com.prismworks.prism.interfaces.post.dto.response.GetRecruitmentPostDetai
 import com.prismworks.prism.interfaces.post.dto.response.SearchRecruitmentPostsResponse.SearchRecruitmentPostItem;
 import com.prismworks.prism.interfaces.post.dto.response.SearchRecruitmentPostsResponse;
 import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
-import com.prismworks.prism.interfaces.user.dto.UserDto.UserProfileDetail;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
@@ -113,7 +113,7 @@ public class PostApiMapper {
     }
 
     public GetRecruitmentPostDetailResponse toGetRecruitmentPostDetailResponse(ViewPostResult result) {
-        UserProfileDetail writerInfo = result.getWriterInfo();
+        UserDetailInfo writerInfo = result.getWriterInfo();
         PostRecruitmentInfo postRecruitmentInfo = result.getPostRecruitmentInfo();
         ProjectDetailDto projectInfo = result.getProjectInfo();
 
