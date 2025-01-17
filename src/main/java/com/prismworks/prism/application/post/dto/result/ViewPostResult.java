@@ -2,7 +2,7 @@ package com.prismworks.prism.application.post.dto.result;
 
 import com.prismworks.prism.domain.post.dto.PostRecruitmentInfo;
 import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
-import com.prismworks.prism.interfaces.user.dto.UserDto.UserProfileDetail;
+import com.prismworks.prism.domain.user.dto.UserDetailInfo;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,6 +10,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class ViewPostResult {
     private final PostRecruitmentInfo postRecruitmentInfo;
-    private final UserProfileDetail writerInfo;
+    private final UserDetailInfo writerInfo;
     private final ProjectDetailDto projectInfo;
 }

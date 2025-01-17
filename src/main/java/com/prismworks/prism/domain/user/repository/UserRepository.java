@@ -1,12 +1,11 @@
 package com.prismworks.prism.domain.user.repository;
 
 import com.prismworks.prism.domain.user.model.Users;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<Users, String> {
+public interface UserRepository {
     boolean existsByEmail(String email);
-
-    Optional<Users> findByEmail(String email);
+    Optional<Users> getUserById(String userId);
+    Optional<Users> getUserByEmail(String email);
+    Users saveUser(Users user);
 }

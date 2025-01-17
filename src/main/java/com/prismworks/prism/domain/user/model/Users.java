@@ -1,5 +1,6 @@
 package com.prismworks.prism.domain.user.model;
 
+import com.prismworks.prism.domain.user.dto.command.CreateUserCommand;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,7 +29,7 @@ public class Users {
     @Column(name = "active_flag")
     private boolean isActive = true;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id")
     private UserProfile userProfile;
 
@@ -38,6 +39,16 @@ public class Users {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public Users(CreateUserCommand command) {
+        this.userId = command.getUserId();
+        this.email = command.getEmail();
+        this.password = command.getEncodedPassword();
+        this.userProfile = UserProfile.builder()
+                .userId(command.getUserId())
+                .username(command.getUsername())
+                .build();
+    }
 
     public void setActive(boolean active) {
         this.isActive = active;

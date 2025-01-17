@@ -1,7 +1,7 @@
 package com.prismworks.prism.config.security.service;
 
 import com.prismworks.prism.domain.user.model.Users;
-import com.prismworks.prism.domain.user.repository.UserRepository;
+import com.prismworks.prism.infrastructure.db.user.UserJpaRepository;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,12 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserJpaRepository userJpaRepository;
 
     @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        Users user = userRepository.findById(userId)
+        Users user = userJpaRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("user not found by id: " + userId));
 
         if(!user.isActive()) {

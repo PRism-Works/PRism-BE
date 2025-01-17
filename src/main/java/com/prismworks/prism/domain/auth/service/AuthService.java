@@ -11,10 +11,11 @@ import com.prismworks.prism.domain.email.model.EmailAuthCode;
 import com.prismworks.prism.domain.email.model.EmailTemplate;
 import com.prismworks.prism.domain.email.service.EmailAuthCodeService;
 import com.prismworks.prism.domain.email.service.EmailSendService;
-import com.prismworks.prism.interfaces.user.dto.UserDto;
-import com.prismworks.prism.domain.user.model.Users;
+import com.prismworks.prism.domain.user.dto.UserInfo;
+import com.prismworks.prism.domain.user.dto.command.CreateUserCommand;
 import com.prismworks.prism.domain.user.service.UserService;
 import io.jsonwebtoken.Claims;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -88,17 +89,18 @@ public class AuthService {
         this.checkAlreadySignup(email);
         this.checkEmailVerified(email, dto.getAuthCode(), AuthType.SIGNUP);
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
-        UserDto.CreateInfo userCreateInfo = UserDto.CreateInfo.builder()
+        CreateUserCommand command = CreateUserCommand.builder()
+                .userId(UUID.randomUUID().toString())
                 .username(dto.getUsername())
                 .email(email)
                 .encodedPassword(encodedPassword)
                 .build();
 
-        Users user = userService.createUser(userCreateInfo);
+        UserInfo userInfo = userService.createUser(command);
 
         return SignupResponse.builder()
-                .userId(user.getUserId())
-                .email(user.getEmail())
+                .userId(userInfo.getUserId())
+                .email(userInfo.getEmail())
                 .build();
     }
 
@@ -116,18 +118,18 @@ public class AuthService {
     }
 
     public TokenResponse login(LoginRequest dto) {
-        Optional<Users> userOptional = userService.findUserByEmail(dto.getEmail());
-        if(userOptional.isEmpty()) {
+        Optional<UserInfo> userInfoOptional = userService.findUserInfoByEmail(dto.getEmail());
+        if(userInfoOptional.isEmpty()) {
             throw AuthException.EMAIL_NOT_REGISTERED;
         }
 
-        Users user = userOptional.get();
-        boolean matches = passwordEncoder.matches(dto.getPassword(), user.getPassword());
+        UserInfo userInfo = userInfoOptional.get();
+        boolean matches = passwordEncoder.matches(dto.getPassword(), userInfo.getPassword());
         if(!matches) {
             throw AuthException.PASSWORD_NOT_MATCH;
         }
 
-        JwtTokenDto jwtTokenDto = this.generateToken(user.getUserId(), dto.getRequestAt());
+        JwtTokenDto jwtTokenDto = this.generateToken(userInfo.getUserId(), dto.getRequestAt());
 
         return TokenResponse.builder()
                 .accessToken(jwtTokenDto.getAccessToken())
