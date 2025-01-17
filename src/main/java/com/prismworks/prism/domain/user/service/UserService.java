@@ -25,24 +25,25 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Users findUserById(String userId) {
-        return userRepository.getUserById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("user not found by id : " + userId));
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<Users> findUserByEmail(String email) {
-        return userRepository.getUserByEmail(email);
-    }
-
-    @Transactional(readOnly = true)
-    public UserInfo getUser(String userId) {
+    public UserInfo getUserInfo(String userId) {
         Users user = this.findUserById(userId);
         return new UserInfo(user);
     }
 
     @Transactional(readOnly = true)
-    public UserDetailInfo getUserDetail(String userId) {
+    public Optional<UserInfo> findUserInfoByEmail(String email) {
+        Optional<Users> user = userRepository.getUserByEmail(email);
+        return user.map(UserInfo::new);
+    }
+
+    @Transactional(readOnly = true)
+    public UserInfo getUserInfoByEmail(String email) {
+        Users user = this.findUserByEmail(email);
+        return new UserInfo(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserDetailInfo getUserDetailInfo(String userId) {
         Users user = this.findUserById(userId);
         UserProfile userProfile = user.getUserProfile();
 
@@ -68,10 +69,19 @@ public class UserService {
 
     @Transactional
     public UserInfo updateUserPassword(String email, String encodedPassword) {
-        Users user = this.findUserByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("user not found by email: " + email));
+        Users user = this.findUserByEmail(email);
         user.updatePassword(encodedPassword);
 
         return new UserInfo(user);
+    }
+
+    private Users findUserById(String userId) {
+        return userRepository.getUserById(userId)
+            .orElseThrow(() -> new EntityNotFoundException("user not found by id : " + userId));
+    }
+
+    private Users findUserByEmail(String email) {
+        return userRepository.getUserByEmail(email)
+            .orElseThrow(() -> new EntityNotFoundException("user not found by email : " + email));
     }
 }

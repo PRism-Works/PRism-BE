@@ -15,6 +15,5 @@ public class UpdateProfileCommand {
     private final List<String> skills;
     private final List<String> interestJobs;
     private final String introduction;
-    private final LocalDateTime requestAt;
 }
 

@@ -2,7 +2,7 @@ package com.prismworks.prism.interfaces.user.controller;
 
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
-import com.prismworks.prism.interfaces.user.dto.UserDto.UpdateProfileRequest;
+import com.prismworks.prism.interfaces.user.dto.request.UpdateProfileRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

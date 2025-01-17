@@ -13,7 +13,7 @@ import com.prismworks.prism.domain.peerreview.model.PrismData;
 import com.prismworks.prism.domain.project.dto.ProjectPeerReviewEmailInfoDto;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.project.service.ProjectService;
-import com.prismworks.prism.domain.user.model.Users;
+import com.prismworks.prism.domain.user.dto.UserInfo;
 import com.prismworks.prism.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -126,7 +126,7 @@ public class PeerReviewService {
         for (Map.Entry<String, List<PeerReviewResponseHistory>> entry : groupingByReviewee.entrySet()) {
             String revieweeEmail = entry.getKey();
             String revieweeUserId = null;
-            Optional<Users> userOptional = userService.findUserByEmail(revieweeEmail);
+            Optional<UserInfo> userOptional = userService.findUserInfoByEmail(revieweeEmail);
             if(userOptional.isPresent()) {
                 revieweeUserId = userOptional.get().getUserId();
             }

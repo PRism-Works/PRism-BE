@@ -463,7 +463,7 @@ public class ProjectService {
                         // 로깅, 오류 처리 또는 기본값 설정
                         return new MemberDetailDto("-1", member.getName(), member.getEmail(), member.getRoles(), member.getAnonyVisibility());
                     } else {
-                        UserDetailInfo userProfileDetail = userService.getUserDetail(member.getUser().getUserId());
+                        UserDetailInfo userProfileDetail = userService.getUserDetailInfo(member.getUser().getUserId());
 
                         return MemberDetailDto.builder()
                             .name(userProfileDetail.getUsername())
@@ -645,7 +645,7 @@ public class ProjectService {
         return projectUserJoins.stream()
             .map(join -> {
 
-                UserDetailInfo userProfileDetail = userService.getUserDetail(join.getUser().getUserId());
+                UserDetailInfo userProfileDetail = userService.getUserDetailInfo(join.getUser().getUserId());
 
                 return MemberDetailDto.builder()
                     .name(userProfileDetail.getUsername())

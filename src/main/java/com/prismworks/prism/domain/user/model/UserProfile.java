@@ -73,7 +73,7 @@ public class UserProfile {
         }
 
         if(isUpdate) {
-            this.updatedAt = command.getRequestAt();
+            this.updatedAt = LocalDateTime.now();
         }
     }
 }

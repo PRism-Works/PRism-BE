@@ -54,7 +54,7 @@ public class PostFacade {
     @Transactional
     public ViewPostResult viewPost(Long postId) {
         PostRecruitmentInfo postRecruitmentInfo = postService.getRecruitmentDetail(postId);
-        UserDetailInfo userDetail = userService.getUserDetail(
+        UserDetailInfo userDetail = userService.getUserDetailInfo(
             postRecruitmentInfo.getUserId());
         ProjectDetailDto projectDetailDto = projectService.getProjectDetailInRetrieve(
             postRecruitmentInfo.getProjectId());
@@ -64,7 +64,7 @@ public class PostFacade {
 
     @Transactional
     public void bookmark(String userId, Long postId) {
-        UserInfo userInfo = userService.getUser(userId);
+        UserInfo userInfo = userService.getUserInfo(userId);
         postBookmarkService.bookmark(userInfo.getUserId(), postId);
     }
 }
