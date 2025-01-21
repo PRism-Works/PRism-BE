@@ -1,10 +1,15 @@
 package com.prismworks.prism.domain.project.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 
 import java.util.*;
+
+import org.springframework.util.StringUtils;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -87,5 +92,40 @@ public class Project {
     @Override
     public int hashCode() {
         return Objects.hash(projectId);
+    }
+
+    public void updateProject(UpdateProjectCommand command) {
+
+        String projectName = command.getProjectName();
+        if(StringUtils.hasText(projectName) && !projectName.equals(this.projectName)) {
+            this.projectName = projectName;
+        }
+
+        String projectDescription = command.getProjectDescription();
+        if(StringUtils.hasText(projectDescription) && !projectDescription.equals(this.projectDescription)) {
+            this.projectDescription = projectDescription;
+        }
+
+        String organizationName = command.getOrganizationName();
+        if(StringUtils.hasText(organizationName) && !organizationName.equals(this.organizationName)) {
+            this.organizationName = organizationName;
+        }
+
+        int memberCount = command.getMemberCount();
+        if(this.memberCount != memberCount) {
+            this.memberCount = memberCount;
+        }
+
+        Date startDate = command.getStartDate();
+        if (startDate != null && !this.startDate.equals(startDate)) {
+            this.startDate = startDate;
+        }
+
+        Date endDate = command.getEndDate();
+        if (endDate != null && !this.endDate.equals(endDate)) {
+            this.endDate = endDate;
+        }
+
+        this.updatedAt = new Date();
     }
 }

@@ -9,6 +9,8 @@ import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectUserJoinRepository;
 import com.prismworks.prism.domain.project.dto.*;
+import com.prismworks.prism.domain.project.dto.command.ProjectUserCommand;
+import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
 import com.prismworks.prism.domain.project.model.Category;
@@ -60,6 +62,8 @@ public class ProjectService {
 
     @Transactional
     public void resolveCategoryJoins(Project project, List<String> categoryNames) {
+        project.getCategories().clear();
+
         for (String name : categoryNames) {
             Category category = saveCategoryTransactional(name); // 트랜잭션 메서드 사용
             ProjectCategoryJoin join = new ProjectCategoryJoin();
@@ -137,7 +141,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponseDto updateProject(String myEmail,int projectId, ProjectDto projectDto) throws ParseException {
+    public ProjectDetailInfo updateProject(String myEmail, int projectId, UpdateProjectCommand command) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
 
@@ -145,55 +149,29 @@ public class ProjectService {
             throw new ProjectException("You do not have permission to update this project", ProjectErrorCode.UNAUTHORIZED);
         }
 
-        if (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) {
+        if (command.getProjectName() == null || command.getProjectName().isEmpty()) {
             throw ProjectException.NO_PROJECT_NAME;
         }
 
-        if (projectDto.getMembers() == null || projectDto.getMembers().isEmpty()) {
+        if (command.getMembers() == null || command.getMembers().isEmpty()) {
             throw ProjectException.NO_MEMBER;
         }
 
-        if (projectDto.getStartDate() == null || projectDto.getEndDate() == null) {
+        if (command.getStartDate() == null || command.getEndDate() == null) {
             throw ProjectException.NO_DATETIME;
         }
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        project.setProjectName(projectDto.getProjectName());
-        project.setProjectDescription(projectDto.getProjectDescription());
-        project.setOrganizationName(projectDto.getOrganizationName());
-        project.setMemberCount(projectDto.getMemberCount());
-        project.setSkills(projectDto.getSkills());
-        project.setStartDate(sdf.parse(projectDto.getStartDate()));
-        project.setEndDate(sdf.parse(projectDto.getEndDate()));
-        project.setProjectUrlLink(projectDto.getProjectUrlLink());
-        project.setUrlVisibility(projectDto.isUrlVisibility());
-        project.setUpdatedAt(new Date());
+        // M:N 관계로 매핑된 Entity들에 대한 로직
+        resolveCategoryJoins(project, command.getCategories());
+        updateProjectMembers(project, command.getMembers());
 
-        project.getCategories().clear();
-        resolveCategoryJoins(project, projectDto.getCategories());
+        project.updateProject(command);
 
-        updateProjectMembers(project, projectDto.getMembers());
-
-        projectRepository.save(project);
-
-        return ProjectResponseDto.builder()
-                .projectId(project.getProjectId())
-                .projectName(project.getProjectName())
-                .projectDescription(project.getProjectDescription())
-                .organizationName(project.getOrganizationName())
-                .memberCount(project.getMemberCount())
-                .categories(project.getCategories())
-                .skills(project.getSkills())
-                .startDate(project.getStartDate())
-                .endDate(project.getEndDate())
-                .projectUrlLink(project.getProjectUrlLink())
-                .urlVisibility(project.getUrlVisibility())
-                .createdBy(project.getCreatedBy())
-                .build();
+        return new ProjectDetailInfo(project);
     }
 
     @Transactional
-    public void updateProjectMembers(Project project, List<MemberDto> memberDtos) {
+    public void updateProjectMembers(Project project, List<ProjectUserCommand> memberDtos) {
 
         List<ProjectUserJoin> newMembers = memberDtos.stream()
                 .map(memberDto -> {
@@ -237,6 +215,7 @@ public class ProjectService {
         }
 
         project.getMembers().addAll(newMembers);
+        project.setMemberCount(newMembers.size());
     }
 
 

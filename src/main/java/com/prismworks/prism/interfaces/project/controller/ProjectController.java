@@ -4,11 +4,15 @@ import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.project.dto.*;
+import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.service.ProjectService;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectDto;
+import com.prismworks.prism.interfaces.project.dto.request.UpdateProjectRequest;
+import com.prismworks.prism.interfaces.project.mapper.ProjectApiMapper;
+
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +21,14 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/projects")
 @Validated
 public class ProjectController implements ProjectControllerDocs {
-    @Autowired
-    private ProjectService projectService;
+
+    private final ProjectService projectService;
+    private final ProjectApiMapper projectApiMapper;
 
     @PostMapping
     public ApiSuccessResponse createProject(@CurrentUser UserContext userContext,
@@ -35,10 +41,15 @@ public class ProjectController implements ProjectControllerDocs {
     @PutMapping("/{projectId}")
     public ApiSuccessResponse updateProject(@CurrentUser UserContext userContext,
                                             @PathVariable int projectId,
-                                            @RequestBody @Valid ProjectDto projectDto) throws ParseException {
-        projectDto.setCreatedBy(userContext.getEmail());
-        ProjectResponseDto updatedProjectDto = projectService.updateProject(userContext.getEmail(),projectId, projectDto);
-        return new ApiSuccessResponse(HttpStatus.OK.value(), updatedProjectDto);
+                                            @RequestBody @Valid UpdateProjectRequest request) throws ParseException {
+
+        request.setCreatedBy(userContext.getEmail());
+
+        UpdateProjectCommand command = projectApiMapper.fromUpdateProjectRequest(request, projectId);
+
+        ProjectDetailInfo info = projectService.updateProject(userContext.getEmail(),projectId, command);
+
+        return new ApiSuccessResponse(HttpStatus.OK.value(), info);
     }
 
     @DeleteMapping("/{projectId}")
