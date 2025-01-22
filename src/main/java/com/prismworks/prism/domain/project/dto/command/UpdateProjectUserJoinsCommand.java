@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @Builder
 @RequiredArgsConstructor
-public class ProjectUserCommand {
+public class UpdateProjectUserJoinsCommand {
 
 	@NotEmpty
 	private final String name;

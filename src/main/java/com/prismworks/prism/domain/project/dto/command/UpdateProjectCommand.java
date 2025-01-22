@@ -23,6 +23,6 @@ public class UpdateProjectCommand {
 	private final Date startDate;
 	private final Date endDate;
 	private final String createdBy;
-	private final List<ProjectUserCommand> members;
+	private final List<UpdateProjectUserJoinsCommand> members;
 	private final int memberCount;
 }

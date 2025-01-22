@@ -9,11 +9,10 @@ import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectUserJoinRepository;
 import com.prismworks.prism.domain.project.dto.*;
-import com.prismworks.prism.domain.project.dto.command.ProjectUserCommand;
+import com.prismworks.prism.domain.project.dto.command.UpdateProjectUserJoinsCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
-import com.prismworks.prism.domain.project.model.Category;
 import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
@@ -51,26 +50,21 @@ public class ProjectService {
     private final PeerReviewTotalResultRepository peerReviewTotalResultRepository;
 
     @Transactional
-    public Category saveCategoryTransactional(String name) {
-        return categoryRepository.findByName(name)
-                .orElseGet(() -> {
-                    Category newCategory = new Category();
-                    newCategory.setName(name);
-                    return categoryRepository.save(newCategory);
-                });
-    }
-
-    @Transactional
     public void resolveCategoryJoins(Project project, List<String> categoryNames) {
         project.getCategories().clear();
 
-        for (String name : categoryNames) {
-            Category category = saveCategoryTransactional(name); // 트랜잭션 메서드 사용
-            ProjectCategoryJoin join = new ProjectCategoryJoin();
-            join.setProject(project);
-            join.setCategory(category);
-            project.getCategories().add(join);
-        }
+        project.getCategories().addAll(
+            categoryNames.stream()
+                .map(categoryRepository::findByName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(category -> {
+                    ProjectCategoryJoin join = new ProjectCategoryJoin();
+                    join.setProject(project);
+                    join.setCategory(category);
+                    return join;
+                }).toList()
+        );
     }
 
     @Transactional
@@ -141,25 +135,9 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectDetailInfo updateProject(String myEmail, int projectId, UpdateProjectCommand command) {
-        Project project = projectRepository.findById(projectId)
+    public ProjectDetailInfo updateProject(UpdateProjectCommand command) {
+        Project project = projectRepository.findById(command.getProjectId())
                 .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
-
-        if (!project.getCreatedBy().equals(myEmail)) {
-            throw new ProjectException("You do not have permission to update this project", ProjectErrorCode.UNAUTHORIZED);
-        }
-
-        if (command.getProjectName() == null || command.getProjectName().isEmpty()) {
-            throw ProjectException.NO_PROJECT_NAME;
-        }
-
-        if (command.getMembers() == null || command.getMembers().isEmpty()) {
-            throw ProjectException.NO_MEMBER;
-        }
-
-        if (command.getStartDate() == null || command.getEndDate() == null) {
-            throw ProjectException.NO_DATETIME;
-        }
 
         // M:N 관계로 매핑된 Entity들에 대한 로직
         resolveCategoryJoins(project, command.getCategories());
@@ -171,7 +149,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public void updateProjectMembers(Project project, List<ProjectUserCommand> memberDtos) {
+    public void updateProjectMembers(Project project, List<UpdateProjectUserJoinsCommand> memberDtos) {
 
         List<ProjectUserJoin> newMembers = memberDtos.stream()
                 .map(memberDto -> {
@@ -179,31 +157,29 @@ public class ProjectService {
                     Optional<Users> foundUser = userJpaRepository.findByEmail(memberDto.getEmail());
 
                     ProjectUserJoin join = new ProjectUserJoin();
+                    join.setProject(project);
+                    join.setRoles(memberDto.getRoles());
+
                     if(projectUserJoin == null) {
-                        join.setProject(project);
                         join.setName(memberDto.getName());
                         join.setEmail(memberDto.getEmail());
-                        join.setRoles(memberDto.getRoles());
                         join.setAnonyVisibility(true);
                         join.setPeerReviewDone(false);
-                        //join.setPeerReviewDone(projectUserJoin.isPeerReviewDone());
                     }else {
-                        if (foundUser.isPresent()) {
-                            join.setProject(project);
-                            join.setUser(foundUser.get());
-                            join.setName(projectUserJoin.getName());
-                            join.setEmail(projectUserJoin.getEmail());
-                            join.setRoles(memberDto.getRoles());
-                            join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
-                            join.setPeerReviewDone(projectUserJoin.isPeerReviewDone());
-                        }else{
-                            join.setProject(project);
-                            join.setName(memberDto.getName());
-                            join.setEmail(memberDto.getEmail());
-                            join.setRoles(memberDto.getRoles());
-                            join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
-                            join.setPeerReviewDone(projectUserJoin.isPeerReviewDone());
-                        }
+                        foundUser.ifPresentOrElse(
+                            user -> {
+                                join.setUser(user);
+                                join.setName(projectUserJoin.getName());
+                                join.setEmail(projectUserJoin.getEmail());
+                            },
+                            () -> {
+                                join.setName(memberDto.getName());
+                                join.setEmail(memberDto.getEmail());
+                            }
+                        );
+
+                        join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
+                        join.setPeerReviewDone(projectUserJoin.isPeerReviewDone());
                     }
                     return join;
                 })
@@ -215,13 +191,6 @@ public class ProjectService {
         }
 
         project.getMembers().addAll(newMembers);
-        project.setMemberCount(newMembers.size());
-    }
-
-
-    private ProjectUserJoin updateExistingMember(ProjectUserJoin existingMember, MemberDto memberDto) {
-        existingMember.setRoles(memberDto.getRoles());
-        return existingMember;
     }
 
     private ProjectUserJoin createNewMember(Project project, MemberDto memberDto) {

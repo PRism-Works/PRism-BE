@@ -41,13 +41,12 @@ public class ProjectController implements ProjectControllerDocs {
     @PutMapping("/{projectId}")
     public ApiSuccessResponse updateProject(@CurrentUser UserContext userContext,
                                             @PathVariable int projectId,
-                                            @RequestBody @Valid UpdateProjectRequest request) throws ParseException {
+                                            @RequestBody @Valid UpdateProjectRequest request) {
 
-        request.setCreatedBy(userContext.getEmail());
+        UpdateProjectCommand command = projectApiMapper
+            .fromUpdateProjectRequest(request, projectId, userContext.getEmail());
 
-        UpdateProjectCommand command = projectApiMapper.fromUpdateProjectRequest(request, projectId);
-
-        ProjectDetailInfo info = projectService.updateProject(userContext.getEmail(),projectId, command);
+        ProjectDetailInfo info = projectService.updateProject(command);
 
         return new ApiSuccessResponse(HttpStatus.OK.value(), info);
     }

@@ -2,6 +2,8 @@ package com.prismworks.prism.domain.project.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
+import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
+import com.prismworks.prism.domain.project.exception.ProjectException;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -96,6 +98,11 @@ public class Project {
 
     public void updateProject(UpdateProjectCommand command) {
 
+        // if (!project.getCreatedBy().equals(command.getCreatedBy())) {
+        if (!this.createdBy.equals(command.getCreatedBy())) {
+            throw new ProjectException("You do not have permission to update this project", ProjectErrorCode.UNAUTHORIZED);
+        }
+
         String projectName = command.getProjectName();
         if(StringUtils.hasText(projectName) && !projectName.equals(this.projectName)) {
             this.projectName = projectName;
@@ -125,6 +132,8 @@ public class Project {
         if (endDate != null && !this.endDate.equals(endDate)) {
             this.endDate = endDate;
         }
+
+        this.memberCount = this.getMembers().size();
 
         this.updatedAt = new Date();
     }
