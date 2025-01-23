@@ -1,6 +1,7 @@
 package com.prismworks.prism.domain.project.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.prismworks.prism.common.converter.StringToListConverter;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
@@ -10,6 +11,7 @@ import lombok.AllArgsConstructor;
 
 import java.util.*;
 
+import org.hibernate.annotations.BatchSize;
 import org.springframework.util.StringUtils;
 
 import lombok.Getter;
@@ -39,18 +41,13 @@ public class Project {
 
     private int memberCount;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "project_hash_tags", joinColumns = @JoinColumn(name = "project_id"))
-    @Column(name = "hash_tag")
-    private List<String> hashTags;
-
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @BatchSize(size = 100)
     @JsonManagedReference
     private Set<ProjectCategoryJoin> categories = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "project_skills", joinColumns = @JoinColumn(name = "project_id"))
-    @Column(name = "skill")
+    @Convert(converter = StringToListConverter.class)
+    @Column(name = "skills")
     private List<String> skills;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -60,6 +57,7 @@ public class Project {
     private Date endDate;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @BatchSize(size = 100)
     private List<ProjectUserJoin> members = new ArrayList<>();
     /*
     @Column(nullable = true)
@@ -122,6 +120,8 @@ public class Project {
         if(this.memberCount != memberCount) {
             this.memberCount = memberCount;
         }
+
+        //TODO: skills도 업데이트에 포함
 
         Date startDate = command.getStartDate();
         if (startDate != null && !this.startDate.equals(startDate)) {
