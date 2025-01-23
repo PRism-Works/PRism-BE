@@ -64,13 +64,13 @@ public class Project {
     private Boolean visibility;
     */
     // url 링크 공개할지 말지 정하는 옵션값
-    @Column(nullable = true)
+    @Column
     private Boolean urlVisibility;
 
-    @Column(length = 255)
+    @Column
     private String projectUrlLink;
 
-    @Column(nullable = true, length = 100)
+    @Column(length = 100)
     private String createdBy;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -96,7 +96,6 @@ public class Project {
 
     public void updateProject(UpdateProjectCommand command) {
 
-        // if (!project.getCreatedBy().equals(command.getCreatedBy())) {
         if (!this.createdBy.equals(command.getCreatedBy())) {
             throw new ProjectException("You do not have permission to update this project", ProjectErrorCode.UNAUTHORIZED);
         }
@@ -121,7 +120,9 @@ public class Project {
             this.memberCount = memberCount;
         }
 
-        //TODO: skills도 업데이트에 포함
+        if (!new HashSet<>(this.skills).equals(new HashSet<>(command.getSkills()))) {
+            this.skills = command.getSkills();
+        }
 
         Date startDate = command.getStartDate();
         if (startDate != null && !this.startDate.equals(startDate)) {
