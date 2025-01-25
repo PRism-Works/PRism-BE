@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateProjectRequest {
+public class ProjectRequest {
 
 	@NotEmpty
 	@Size(min = 1, max = 100)
@@ -39,10 +39,6 @@ public class UpdateProjectRequest {
 	private String endDate;
 
 	private String createdBy;
-
-	public void setCreatedBy(String email) {
-		this.createdBy = email;
-	}
 
 	@NotEmpty
 	@Size(min = 1)

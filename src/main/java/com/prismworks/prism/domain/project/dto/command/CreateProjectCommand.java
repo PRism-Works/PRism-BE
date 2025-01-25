@@ -5,7 +5,6 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class UpdateProjectCommand extends ProjectCommand {
+public class CreateProjectCommand extends ProjectCommand {
 
-	private final int projectId;
 }

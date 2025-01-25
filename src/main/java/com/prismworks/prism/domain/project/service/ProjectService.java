@@ -9,6 +9,7 @@ import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectUserJoinRepository;
 import com.prismworks.prism.domain.project.dto.*;
+import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectUserJoinsCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
@@ -18,7 +19,6 @@ import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.dto.UserDetailInfo;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
-import com.prismworks.prism.interfaces.project.dto.request.ProjectDto;
 import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.infrastructure.db.user.UserJpaRepository;
 import com.prismworks.prism.domain.user.service.UserService;
@@ -68,70 +68,16 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponseDto createProject(UserContext userContext, ProjectDto projectDto) throws ParseException {
+    public ProjectDetailInfo createProject(UserContext userContext, CreateProjectCommand command) throws ParseException {
 
-        if (projectDto.getProjectName() == null || projectDto.getProjectName().isEmpty()) {
-            throw ProjectException.NO_PROJECT_NAME;
-        }
-
-        if (projectDto.getMembers() == null || projectDto.getMembers().isEmpty()) {
-            throw ProjectException.NO_MEMBER;
-        }
-
-        if (projectDto.getStartDate() == null || projectDto.getEndDate() == null) {
-            throw ProjectException.NO_DATETIME;
-        }
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        Date startDate = sdf.parse(projectDto.getStartDate());
-        Date endDate = sdf.parse(projectDto.getEndDate());
-
-        Project project = new Project();
-        project.setProjectName(projectDto.getProjectName());
-        project.setProjectDescription(projectDto.getProjectDescription());
-        project.setOrganizationName(projectDto.getOrganizationName());
-        project.setMemberCount(projectDto.getMemberCount());
-        project.setSkills(projectDto.getSkills());
-        project.setStartDate(startDate);
-        project.setEndDate(endDate);
-        project.setProjectUrlLink(projectDto.getProjectUrlLink());
-        project.setCreatedBy(userContext.getEmail());
-        project.setUrlVisibility(true);
-        project.setCreatedAt(new Date());
-        project.setUpdatedAt(new Date());
-
+        Project project = new Project(command);
         projectRepository.save(project);  // 먼저 프로젝트를 저장합니다.
 
-        resolveCategoryJoins(project, projectDto.getCategories());
+        resolveCategoryJoins(project, command.getCategories());
 
-        List<ProjectUserJoin> members = projectDto.getMembers().stream().map(memberDto -> {
-            Optional<Users> foundUser = userJpaRepository.findByEmail(memberDto.getEmail());
-            ProjectUserJoin join = new ProjectUserJoin();
-            join.setProject(project);
-            join.setName(memberDto.getName());
-            join.setEmail(memberDto.getEmail());
-            join.setRoles(memberDto.getRoles());
-            join.setAnonyVisibility(true);
-            join.setPeerReviewDone(false);
-            foundUser.ifPresentOrElse(join::setUser, () -> {});
-            return join;
-        }).collect(Collectors.toList());
+        project.updateMembers(mapToProjectMembers(project, command.getMembers()));
 
-        project.setMembers(members);
-        projectRepository.save(project);  // 다시 프로젝트를 저장하여 카테고리와 멤버를 포함시킵니다.
-
-        return ProjectResponseDto.builder()
-                .projectId(project.getProjectId())
-                .projectName(project.getProjectName())
-                .projectDescription(project.getProjectDescription())
-                .organizationName(project.getOrganizationName())
-                .memberCount(project.getMemberCount())
-                .categories(project.getCategories())
-                .skills(project.getSkills())
-                .startDate(project.getStartDate())
-                .endDate(project.getEndDate())
-                .projectUrlLink(project.getProjectUrlLink())
-                .build();
+        return new ProjectDetailInfo(project);
     }
 
     @Transactional
@@ -141,17 +87,16 @@ public class ProjectService {
 
         // M:N 관계로 매핑된 Entity들에 대한 로직
         resolveCategoryJoins(project, command.getCategories());
-        updateProjectMembers(project, command.getMembers());
 
-        project.updateProject(command);
+        project.updateProject(command, mapToProjectMembers(project, command.getMembers()));
 
         return new ProjectDetailInfo(project);
     }
 
     @Transactional
-    public void updateProjectMembers(Project project, List<UpdateProjectUserJoinsCommand> memberDtos) {
+    public List<ProjectUserJoin> mapToProjectMembers(Project project, List<UpdateProjectUserJoinsCommand> members) {
 
-        List<ProjectUserJoin> newMembers = memberDtos.stream()
+        return members.stream()
                 .map(memberDto -> {
                     ProjectUserJoin projectUserJoin = projectUserJoinRepository.findByEmailAndProjectId(memberDto.getEmail() ,project.getProjectId());
                     Optional<Users> foundUser = userJpaRepository.findByEmail(memberDto.getEmail());
@@ -184,13 +129,6 @@ public class ProjectService {
                     return join;
                 })
                 .toList();
-
-        if (project.getMembers() != null) {
-            project.getMembers().clear();
-            projectRepository.flush();
-        }
-
-        project.getMembers().addAll(newMembers);
     }
 
     private ProjectUserJoin createNewMember(Project project, MemberDto memberDto) {

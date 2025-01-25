@@ -2,6 +2,7 @@ package com.prismworks.prism.domain.project.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.prismworks.prism.common.converter.StringToListConverter;
+import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
@@ -59,11 +60,7 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @BatchSize(size = 100)
     private List<ProjectUserJoin> members = new ArrayList<>();
-    /*
-    @Column(nullable = true)
-    private Boolean visibility;
-    */
-    // url 링크 공개할지 말지 정하는 옵션값
+
     @Column
     private Boolean urlVisibility;
 
@@ -82,19 +79,21 @@ public class Project {
     @Temporal(TemporalType.TIMESTAMP)
     private Date deletedAt;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Project project = (Project) o;
-        return projectId != null ? projectId.equals(project.projectId) : project.projectId == null;
-    }
-    @Override
-    public int hashCode() {
-        return Objects.hash(projectId);
+    public Project(CreateProjectCommand command) {
+        this.setProjectName(command.getProjectName());
+        this.setProjectDescription(command.getProjectDescription());
+        this.setOrganizationName(command.getOrganizationName());
+        this.setSkills(command.getSkills());
+        this.setStartDate(command.getStartDate());
+        this.setEndDate(command.getEndDate());
+        this.setProjectUrlLink(command.getProjectUrlLink());
+        this.setCreatedBy(command.getCreatedBy());
+        this.setUrlVisibility(true);
+        this.setCreatedAt(new Date());
+        this.setUpdatedAt(new Date());
     }
 
-    public void updateProject(UpdateProjectCommand command) {
+    public void updateProject(UpdateProjectCommand command, List<ProjectUserJoin> newMembers) {
 
         if (!this.createdBy.equals(command.getCreatedBy())) {
             throw new ProjectException("You do not have permission to update this project", ProjectErrorCode.UNAUTHORIZED);
@@ -115,11 +114,6 @@ public class Project {
             this.organizationName = organizationName;
         }
 
-        int memberCount = command.getMemberCount();
-        if(this.memberCount != memberCount) {
-            this.memberCount = memberCount;
-        }
-
         if (!new HashSet<>(this.skills).equals(new HashSet<>(command.getSkills()))) {
             this.skills = command.getSkills();
         }
@@ -134,8 +128,27 @@ public class Project {
             this.endDate = endDate;
         }
 
-        this.memberCount = this.getMembers().size();
+        updateMembers(newMembers);
 
         this.updatedAt = new Date();
+    }
+
+    public void updateMembers(List<ProjectUserJoin> newMembers) {
+        this.members.clear();
+        this.members.addAll(newMembers);
+
+        this.memberCount = this.getMembers().size();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Project project = (Project) o;
+        return projectId != null ? projectId.equals(project.projectId) : project.projectId == null;
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(projectId);
     }
 }

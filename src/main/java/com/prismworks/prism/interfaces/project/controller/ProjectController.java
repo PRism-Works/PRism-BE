@@ -4,11 +4,11 @@ import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.project.dto.*;
+import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.service.ProjectService;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
-import com.prismworks.prism.interfaces.project.dto.request.ProjectDto;
-import com.prismworks.prism.interfaces.project.dto.request.UpdateProjectRequest;
+import com.prismworks.prism.interfaces.project.dto.request.ProjectRequest;
 import com.prismworks.prism.interfaces.project.mapper.ProjectApiMapper;
 
 import jakarta.validation.Valid;
@@ -32,19 +32,22 @@ public class ProjectController implements ProjectControllerDocs {
 
     @PostMapping
     public ApiSuccessResponse createProject(@CurrentUser UserContext userContext,
-                                            @RequestBody @Valid ProjectDto projectDto) throws ParseException {
-        projectDto.setCreatedBy(userContext.getEmail());
-        ProjectResponseDto createdProjectDto = projectService.createProject(userContext,projectDto);
-        return new ApiSuccessResponse(HttpStatus.CREATED.value(), createdProjectDto);
+                                            @RequestBody @Valid ProjectRequest request) throws ParseException {
+
+        CreateProjectCommand command = projectApiMapper
+            .projectRequestToCreateCommand(request, userContext.getEmail());
+
+        ProjectDetailInfo info = projectService.createProject(userContext, command);
+        return new ApiSuccessResponse(HttpStatus.CREATED.value(), info);
     }
 
     @PutMapping("/{projectId}")
     public ApiSuccessResponse updateProject(@CurrentUser UserContext userContext,
                                             @PathVariable int projectId,
-                                            @RequestBody @Valid UpdateProjectRequest request) {
+                                            @RequestBody @Valid ProjectRequest request) {
 
         UpdateProjectCommand command = projectApiMapper
-            .fromUpdateProjectRequest(request, projectId, userContext.getEmail());
+            .projectRequestToUpdateCommand(request, projectId, userContext.getEmail());
 
         ProjectDetailInfo info = projectService.updateProject(command);
 
