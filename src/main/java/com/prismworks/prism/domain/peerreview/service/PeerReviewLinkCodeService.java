@@ -3,7 +3,7 @@ package com.prismworks.prism.domain.peerreview.service;
 import com.prismworks.prism.domain.email.util.RandomStringGenerator;
 import com.prismworks.prism.domain.peerreview.exception.PeerReviewException;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewLinkCode;
-import com.prismworks.prism.domain.peerreview.repository.PeerReviewLinkCodeRepository;
+import com.prismworks.prism.domain.peerreview.repository.PeerReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,17 +15,17 @@ import java.util.List;
 @Service
 public class PeerReviewLinkCodeService {
 
-    private final PeerReviewLinkCodeRepository peerReviewLinkCodeRepository;
+    private final PeerReviewRepository peerReviewRepository;
 
     @Transactional(readOnly = true)
     public PeerReviewLinkCode getLinkCode(String linkCode) {
-        return peerReviewLinkCodeRepository.findByCode(linkCode)
+        return peerReviewRepository.getPeerReviewLinkCodeByCode(linkCode)
                 .orElseThrow(() -> PeerReviewException.LINK_CODE_NOT_FOUND);
     }
 
     @Transactional(readOnly = true)
     public List<PeerReviewLinkCode> getLinkCodes(Integer projectId, List<String> reviewerEmails) {
-        return peerReviewLinkCodeRepository.findByProjectIdAndReviewerEmailIn(projectId, reviewerEmails);
+        return peerReviewRepository.getPeerReviewLinkCodeByCodesByProjectIdAndReviewerEmailIn(projectId, reviewerEmails);
     }
 
     @Transactional
@@ -46,7 +46,7 @@ public class PeerReviewLinkCodeService {
             peerReviewLinkCodes.add(linkCode);
         }
 
-        List<PeerReviewLinkCode> savedPeerReviewLinkCodes = peerReviewLinkCodeRepository.saveAll(peerReviewLinkCodes);
+        List<PeerReviewLinkCode> savedPeerReviewLinkCodes = peerReviewRepository.saveAllPeerReviewLinkCodes(peerReviewLinkCodes);
 
         linkCodes.addAll(savedPeerReviewLinkCodes);
         return linkCodes;

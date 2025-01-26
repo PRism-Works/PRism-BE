@@ -4,8 +4,7 @@ import com.prismworks.prism.domain.peerreview.exception.PeerReviewException;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResult;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
 import com.prismworks.prism.domain.peerreview.model.PrismData;
-import com.prismworks.prism.domain.peerreview.repository.PeerReviewResultRepository;
-import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRepository;
+import com.prismworks.prism.domain.peerreview.repository.PeerReviewRepository;
 import com.prismworks.prism.domain.prism.dto.PrismDataDto;
 import com.prismworks.prism.domain.prism.dto.RadialDataDto;
 import org.springframework.stereotype.Service;
@@ -13,20 +12,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class PrismService {
 
-    private final PeerReviewResultRepository peerReviewResultRepository;
-    private final PeerReviewTotalResultRepository peerReviewTotalResultRepository;
-
-    public PrismService(PeerReviewResultRepository peerReviewResultRepository, PeerReviewTotalResultRepository peerReviewTotalResultRepository) {
-        this.peerReviewResultRepository = peerReviewResultRepository;
-        this.peerReviewTotalResultRepository = peerReviewTotalResultRepository;
-    }
+    private final PeerReviewRepository peerReviewRepository;
 
     public PrismDataDto calculateUserPrismData(String userId,String prismType) {
-        Optional<PeerReviewResult> results = peerReviewResultRepository.findByUserIdAndPrismType(userId,prismType);
-        Optional<PeerReviewTotalResult> totalResult = peerReviewTotalResultRepository.findByUserIdAndPrismType(userId,prismType);
+        Optional<PeerReviewResult> results = peerReviewRepository.getPeerReviewResultByUserIdAndPrismType(userId, prismType);
+        Optional<PeerReviewTotalResult> totalResult = peerReviewRepository.getPeerReviewTotalResultByUserIdAndPrismType(userId,prismType);
 
         if (results.isEmpty() && totalResult.isEmpty()) {
             throw PeerReviewException.REVIEW_DATA_NOT_EXIST;
@@ -54,8 +50,8 @@ public class PrismService {
     }
 
     public PrismDataDto calculateUserProjectPrismData(String userId, int projectId, String prismType) {
-        Optional<PeerReviewResult> results = peerReviewResultRepository.findByUserIdAndProjectIdAndPrismType(userId, projectId,prismType);
-        Optional<PeerReviewTotalResult> totalResult = peerReviewTotalResultRepository.findByUserIdAndProjectIdAndPrismType(userId, projectId,prismType);
+        Optional<PeerReviewResult> results = peerReviewRepository.getPeerReviewResuiltByUserIdAndProjectIdAndPrismType(userId, projectId, prismType);
+        Optional<PeerReviewTotalResult> totalResult = peerReviewRepository.getPeerReviewTotalResultByUserIdAndProjectIdAndPrismType(userId, projectId,prismType);
 
         if (results.isEmpty() && totalResult.isEmpty()) {
             throw PeerReviewException.REVIEW_DATA_NOT_EXIST;
@@ -84,32 +80,32 @@ public class PrismService {
 
     @Transactional(readOnly = true)
     public Optional<PeerReviewResult> getPeerReviewResult(Integer projectId, String email) {
-        return peerReviewResultRepository.findByProjectIdAndEmail(projectId, email);
+        return peerReviewRepository.getPeerReviewResultByProjectIdAndEmail(projectId, email);
     }
 
     @Transactional(readOnly = true)
     public List<PeerReviewResult> getAllPeerReviewResultsByUser(String email, String prismType) {
-        return peerReviewResultRepository.findAllByEmailAndPrismType(email, prismType);
+        return peerReviewRepository.getPeerReviewResultsByEmailAndPrismType(email, prismType);
     }
 
     @Transactional(readOnly = true)
     public Optional<PeerReviewResult> getPeerReviewResultsByUser(String email, String prismType) {
-        return peerReviewResultRepository.findByEmailAndPrismType(email, prismType);
+        return peerReviewRepository.getPeerReviewResultByEmailAndPrismType(email, prismType);
     }
 
     @Transactional(readOnly = true)
     public Optional<PeerReviewTotalResult> getPeerReviewTotalResult(Integer projectId, String email) {
-        return peerReviewTotalResultRepository.findByProjectIdAndEmail(projectId, email);
+        return peerReviewRepository.getPeerReviewTotalResultByProjectIdAndEmail(projectId, email);
     }
 
     @Transactional(readOnly = true)
     public List<PeerReviewTotalResult> getAllPeerReviewTotalResultsByUser(String email, String prismType) {
-        return peerReviewTotalResultRepository.findAllByEmailAndPrismType(email, prismType);
+        return peerReviewRepository.getPeerReviewTotalResultsByEmailAndPrismType(email, prismType);
     }
 
     @Transactional(readOnly = true)
     public Optional<PeerReviewTotalResult> getPeerReviewTotalResultsByUser(String email, String prismType) {
-        return peerReviewTotalResultRepository.findByEmailAndPrismType(email, prismType);
+        return peerReviewRepository.getPeerReviewTotalResultByEmailAndPrismType(email, prismType);
     }
 
     @Transactional
@@ -158,7 +154,7 @@ public class PrismService {
                 .prismType(prismType)
                 .build();
 
-        return peerReviewResultRepository.save(peerReviewResult);
+        return peerReviewRepository.savePeerReviewResult(peerReviewResult);
     }
 
     @Transactional
@@ -184,7 +180,7 @@ public class PrismService {
                 .prismType(prismType)
                 .build();
 
-        return peerReviewTotalResultRepository.save(peerReviewTotalResult);
+        return peerReviewRepository.savePeerReviewTotalResult(peerReviewTotalResult);
     }
 
     @Transactional
@@ -225,7 +221,7 @@ public class PrismService {
                 .prismType("total")
                 .build();
 
-        peerReviewResultRepository.save(peerReviewResult);
+        peerReviewRepository.savePeerReviewResult(peerReviewResult);
     }
 
     @Transactional
@@ -266,11 +262,10 @@ public class PrismService {
                 .prismType("total")
                 .build();
 
-        peerReviewTotalResultRepository.save(peerReviewTotalResult);
+        peerReviewRepository.savePeerReviewTotalResult(peerReviewTotalResult);
     }
 
     private PrismDataDto aggregateResults(Optional<PeerReviewResult> peerReviewResult) {
-        int versionControll = 1;
         Map<String, Float> prismData = Map.of(
                 /*
                 "communication", Math.round(peerReviewResult.get().getCommunicationScore()),

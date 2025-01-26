@@ -1,7 +1,7 @@
 package com.prismworks.prism.domain.peerreview.service;
 
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResponseHistory;
-import com.prismworks.prism.domain.peerreview.repository.PeerReviewResponseHistoryRepository;
+import com.prismworks.prism.infrastructure.db.peerreview.PeerReviewResponseHistoryJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,25 +12,25 @@ import java.util.List;
 @Service
 public class PeerReviewResponseHistoryService {
 
-    private final PeerReviewResponseHistoryRepository peerReviewResponseHistoryRepository;
+    private final PeerReviewResponseHistoryJpaRepository peerReviewResponseHistoryJpaRepository;
 
     @Transactional
     public void saveAllHistories(List<PeerReviewResponseHistory> responses) {
-        peerReviewResponseHistoryRepository.saveAll(responses);
+        peerReviewResponseHistoryJpaRepository.saveAll(responses);
     }
 
     @Transactional(readOnly = true)
     public Long getReviewerCountInProject(Integer projectId) {
-        return peerReviewResponseHistoryRepository.countReviewerByProjectId(projectId);
+        return peerReviewResponseHistoryJpaRepository.countReviewerByProjectId(projectId);
     }
 
     @Transactional(readOnly = true)
     public List<PeerReviewResponseHistory> getAllHistoriesByReviewee(String revieweeEmail) {
-        return peerReviewResponseHistoryRepository.findAllByRevieweeEmail(revieweeEmail);
+        return peerReviewResponseHistoryJpaRepository.findAllByRevieweeEmail(revieweeEmail);
     }
 
     @Transactional(readOnly = true)
     public List<PeerReviewResponseHistory> getAllHistoriesByProject(Integer projectId) {
-        return peerReviewResponseHistoryRepository.findAllByProjectId(projectId);
+        return peerReviewResponseHistoryJpaRepository.findAllByProjectId(projectId);
     }
 }

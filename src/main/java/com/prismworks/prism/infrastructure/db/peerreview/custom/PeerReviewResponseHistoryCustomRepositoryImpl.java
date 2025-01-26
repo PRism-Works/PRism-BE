@@ -1,6 +1,5 @@
-package com.prismworks.prism.domain.peerreview.repository.custom;
+package com.prismworks.prism.infrastructure.db.peerreview.custom;
 
-import com.prismworks.prism.domain.peerreview.model.QPeerReviewResponseHistory;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;

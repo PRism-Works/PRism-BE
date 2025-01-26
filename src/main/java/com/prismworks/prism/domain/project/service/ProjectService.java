@@ -3,8 +3,7 @@ package com.prismworks.prism.domain.project.service;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResult;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
-import com.prismworks.prism.domain.peerreview.repository.PeerReviewResultRepository;
-import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRepository;
+import com.prismworks.prism.domain.peerreview.repository.PeerReviewRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
 import com.prismworks.prism.domain.project.dto.*;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
@@ -42,8 +41,8 @@ public class ProjectService {
     private final UserService userService;
     private final ProjectRepository projectRepository;
 
-    private final PeerReviewResultRepository peerReviewResultRepository;
-    private final PeerReviewTotalResultRepository peerReviewTotalResultRepository;
+    private final PeerReviewRepository peerReviewRepository;
+    // private final PeerReviewTotalResultJpaRepository peerReviewTotalResultJpaRepository;
 
     @Transactional
     public void resolveCategoryJoins(Project project, List<String> categoryNames) {
@@ -165,12 +164,12 @@ public class ProjectService {
 
     }
     private SummaryProjectDto convertToSummaryDtoForWhoInvolvedProjects(String userId,Project project) {
-        PeerReviewTotalResult peerReviewTotalResult = peerReviewTotalResultRepository.findByProjectIdAndUserIdAndPrismType(
+        PeerReviewTotalResult peerReviewTotalResult = peerReviewRepository.getPeerReviewTotalResultByProjectIdAndUserIdAndPrismType(
                 project.getProjectId(), userId, "each"
         );
         int numOfsurveyParticipant = projectRepository.countSurveyParticipantsByProjectId(project.getProjectId());
 
-        String evaluation = "";
+        String evaluation;
 
         if(peerReviewTotalResult == null){
             evaluation = "총평 데이터 없음";
@@ -215,7 +214,7 @@ public class ProjectService {
 
     private SummaryProjectDto convertToSummaryDtoForGetMeInvolvedProjects(String myEmail, Project project) {
         boolean anonyVisibility = projectRepository.getAnonyVisibilityByProjectIdAndEmail(project.getProjectId(), myEmail);
-        PeerReviewTotalResult peerReviewTotalResult = peerReviewTotalResultRepository.findByProjectIdAndEmailAndPrismType(
+        PeerReviewTotalResult peerReviewTotalResult = peerReviewRepository.getPeerReviewTotalResultByProjectIdAndEmailAndPrismType(
                 project.getProjectId(), myEmail, "each"
         );
         int surveyParticipant = projectRepository.countSurveyParticipantsByProjectId(project.getProjectId());
@@ -351,32 +350,32 @@ public class ProjectService {
     public ProjectDetailDto linkAnonymousProjectToUserAccount(UserContext userContext, int projectId, String anonymousEmail) {
         Project project = this.getProjectById(projectId);
 
-        Optional<PeerReviewResult> optionalPeerReviewResult = peerReviewResultRepository.findByEmailAndPrismType(userContext.getEmail(), "each");
+        Optional<PeerReviewResult> optionalPeerReviewResult = peerReviewRepository.getPeerReviewResultByEmailAndPrismType(userContext.getEmail(), "each");
         if (optionalPeerReviewResult.isPresent()) {
             PeerReviewResult peerReviewResult = optionalPeerReviewResult.get();
             peerReviewResult.setUserId(userContext.getUserId());
-            peerReviewResultRepository.save(peerReviewResult);
+            peerReviewRepository.savePeerReviewResult(peerReviewResult);
         }
 
-        optionalPeerReviewResult = peerReviewResultRepository.findByEmailAndPrismType(userContext.getEmail(), "total");
+        optionalPeerReviewResult = peerReviewRepository.getPeerReviewResultByEmailAndPrismType(userContext.getEmail(), "total");
         if (optionalPeerReviewResult.isPresent()) {
             PeerReviewResult peerReviewResult = optionalPeerReviewResult.get();
             peerReviewResult.setUserId(userContext.getUserId());
-            peerReviewResultRepository.save(peerReviewResult);
+            peerReviewRepository.savePeerReviewResult(peerReviewResult);
         }
 
-        Optional<PeerReviewTotalResult> optionalPeerReviewTotalResult = peerReviewTotalResultRepository.findByEmailAndPrismType(userContext.getEmail(), "each");
+        Optional<PeerReviewTotalResult> optionalPeerReviewTotalResult = peerReviewRepository.getPeerReviewTotalResultByEmailAndPrismType(userContext.getEmail(), "each");
         if (optionalPeerReviewTotalResult.isPresent()) {
             PeerReviewTotalResult peerReviewTotalResult = optionalPeerReviewTotalResult.get();
             peerReviewTotalResult.setUserId(userContext.getUserId());
-            peerReviewTotalResultRepository.save(peerReviewTotalResult);
+            peerReviewRepository.savePeerReviewTotalResult(peerReviewTotalResult);
         }
 
-        optionalPeerReviewTotalResult = peerReviewTotalResultRepository.findByEmailAndPrismType(userContext.getEmail(), "total");
+        optionalPeerReviewTotalResult = peerReviewRepository.getPeerReviewTotalResultByEmailAndPrismType(userContext.getEmail(), "total");
         if (optionalPeerReviewTotalResult.isPresent()) {
             PeerReviewTotalResult peerReviewTotalResult = optionalPeerReviewTotalResult.get();
             peerReviewTotalResult.setUserId(userContext.getUserId());
-            peerReviewTotalResultRepository.save(peerReviewTotalResult);
+            peerReviewRepository.savePeerReviewTotalResult(peerReviewTotalResult);
         }
 
         ProjectUserJoin updatedMember = project.getMembers().stream()
