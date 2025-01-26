@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.project.Repository;
+package com.prismworks.prism.infrastructure.db.project;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface ProjectUserJoinRepository extends JpaRepository<ProjectUserJoin, Integer> {
+public interface ProjectUserJoinJpaRepository extends JpaRepository<ProjectUserJoin, Integer> {
     @Query("SELECT p FROM ProjectUserJoin p WHERE p.email = :email AND p.project.projectId = :projectId")
     ProjectUserJoin findByEmailAndProjectId(String email, Integer projectId);
 

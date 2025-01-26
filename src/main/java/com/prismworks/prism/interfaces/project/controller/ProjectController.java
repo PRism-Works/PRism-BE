@@ -32,12 +32,12 @@ public class ProjectController implements ProjectControllerDocs {
 
     @PostMapping
     public ApiSuccessResponse createProject(@CurrentUser UserContext userContext,
-                                            @RequestBody @Valid ProjectRequest request) throws ParseException {
+                                            @RequestBody @Valid ProjectRequest request) {
 
         CreateProjectCommand command = projectApiMapper
             .projectRequestToCreateCommand(request, userContext.getEmail());
 
-        ProjectDetailInfo info = projectService.createProject(userContext, command);
+        ProjectDetailInfo info = projectService.createProject(command);
         return new ApiSuccessResponse(HttpStatus.CREATED.value(), info);
     }
 

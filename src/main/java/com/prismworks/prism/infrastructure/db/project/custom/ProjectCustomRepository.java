@@ -1,6 +1,6 @@
-package com.prismworks.prism.domain.project.Repository.custom;
+package com.prismworks.prism.infrastructure.db.project.custom;
 
-import com.prismworks.prism.domain.project.Repository.custom.projection.ProjectProjection;
+import com.prismworks.prism.infrastructure.db.project.custom.projection.ProjectProjection;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.interfaces.search.dto.ProjectSearchCondition;
 import org.springframework.data.domain.Page;

@@ -5,9 +5,7 @@ import com.prismworks.prism.domain.peerreview.model.PeerReviewResult;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewResultRepository;
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRepository;
-import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
-import com.prismworks.prism.domain.project.Repository.ProjectUserJoinRepository;
 import com.prismworks.prism.domain.project.dto.*;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectUserJoinsCommand;
@@ -18,16 +16,15 @@ import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.dto.UserDetailInfo;
+import com.prismworks.prism.domain.user.repository.UserRepository;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
 import com.prismworks.prism.domain.user.model.Users;
-import com.prismworks.prism.infrastructure.db.user.UserJpaRepository;
 import com.prismworks.prism.domain.user.service.UserService;
 
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,11 +38,10 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ProjectService {
 
-    private final CategoryRepository categoryRepository;
-    private final UserJpaRepository userJpaRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
     private final ProjectRepository projectRepository;
-    private final ProjectUserJoinRepository projectUserJoinRepository;
+
     private final PeerReviewResultRepository peerReviewResultRepository;
     private final PeerReviewTotalResultRepository peerReviewTotalResultRepository;
 
@@ -55,7 +51,7 @@ public class ProjectService {
 
         project.getCategories().addAll(
             categoryNames.stream()
-                .map(categoryRepository::findByName)
+                .map(projectRepository::getCategoryByName)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(category -> {
@@ -68,10 +64,10 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectDetailInfo createProject(UserContext userContext, CreateProjectCommand command) throws ParseException {
+    public ProjectDetailInfo createProject(CreateProjectCommand command) {
 
         Project project = new Project(command);
-        projectRepository.save(project);  // 먼저 프로젝트를 저장합니다.
+        projectRepository.saveProject(project);
 
         resolveCategoryJoins(project, command.getCategories());
 
@@ -82,8 +78,7 @@ public class ProjectService {
 
     @Transactional
     public ProjectDetailInfo updateProject(UpdateProjectCommand command) {
-        Project project = projectRepository.findById(command.getProjectId())
-                .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
+        Project project = this.getProjectById(command.getProjectId());
 
         // M:N 관계로 매핑된 Entity들에 대한 로직
         resolveCategoryJoins(project, command.getCategories());
@@ -98,8 +93,8 @@ public class ProjectService {
 
         return members.stream()
                 .map(memberDto -> {
-                    ProjectUserJoin projectUserJoin = projectUserJoinRepository.findByEmailAndProjectId(memberDto.getEmail() ,project.getProjectId());
-                    Optional<Users> foundUser = userJpaRepository.findByEmail(memberDto.getEmail());
+                    ProjectUserJoin projectUserJoin = projectRepository.getMemberByEmailAndProjectId(project.getProjectId(), memberDto.getEmail());
+                    Optional<Users> foundUser = userRepository.getUserByEmail(memberDto.getEmail());
 
                     ProjectUserJoin join = new ProjectUserJoin();
                     join.setProject(project);
@@ -131,58 +126,30 @@ public class ProjectService {
                 .toList();
     }
 
-    private ProjectUserJoin createNewMember(Project project, MemberDto memberDto) {
-        return userJpaRepository.findByEmail(memberDto.getEmail())
-                .map(user -> {
-                    ProjectUserJoin join = new ProjectUserJoin();
-                    join.setUser(user);
-                    join.setName(memberDto.getName());
-                    join.setEmail(memberDto.getEmail());
-                    join.setRoles(memberDto.getRoles());
-                    join.setProject(project);
-                    join.setPeerReviewDone(false);
-                    return join;
-                })
-                .orElseThrow(() -> new ProjectException("Member not found with email: " + memberDto.getEmail(), ProjectErrorCode.USER_NOT_FOUND));
-    }
-
     @Transactional
-    public ProjectResponseDto deleteProject(String myEmail, int projectId) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
+    public void deleteProject(String myEmail, int projectId) {
+        Project project = this.getProjectById(projectId);
 
         if (!project.getCreatedBy().equals(myEmail)) {
             throw new ProjectException("You do not have permission to delete this project", ProjectErrorCode.UNAUTHORIZED);
         }
 
-        projectRepository.delete(project);
-        return ProjectResponseDto.builder()
-            .projectId(project.getProjectId())
-            .projectName(project.getProjectName())
-            .projectDescription(project.getProjectDescription())
-            .organizationName(project.getOrganizationName())
-            .memberCount(project.getMemberCount())
-            .categories(project.getCategories())
-            .skills(project.getSkills())
-            .startDate(project.getStartDate())
-            .endDate(project.getEndDate())
-            .projectUrlLink(project.getProjectUrlLink())
-            .build();
+        this.deleteProject(project);
     }
 
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getProjectSummaryByName(String projectName) {
-        List<Project> projects = projectRepository.findByProjectName(projectName);
+        List<Project> projects = projectRepository.getProjectsByName(projectName);
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getProjectSummaryByMemberAndFilters(String projectName, String memberName, List<String> categories, String organizationName) {
-        List<Project> projects = projectRepository.findByFilters(projectName, memberName, categories, organizationName);
+    public List<SummaryProjectDto> getProjectSummaryByMemberAndFilters(String projectName, String memberName, List<String> categories, String organizationName) { //TODO Input Dto로 만들기
+        List<Project> projects = projectRepository.getProjectsByFilters(projectName, memberName, categories, organizationName);
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getMeInvolvedProjects(String myEmail) {
-        List<Project> projects = projectRepository.findByMemberEmail(myEmail);
+        List<Project> projects = projectRepository.getProjectsByMemberEmail(myEmail);
 
         return projects.stream()
                 .map(project -> convertToSummaryDtoForGetMeInvolvedProjects(myEmail, project))
@@ -190,7 +157,7 @@ public class ProjectService {
     }
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getWhoInvolvedProjects(String userId) {
-        List<Project> projects = projectRepository.findByMemberUserId(userId);
+        List<Project> projects = projectRepository.getProjectsByMemberId(userId);
 
         return projects.stream()
                 .map(project -> convertToSummaryDtoForWhoInvolvedProjects(userId,project))
@@ -201,7 +168,7 @@ public class ProjectService {
         PeerReviewTotalResult peerReviewTotalResult = peerReviewTotalResultRepository.findByProjectIdAndUserIdAndPrismType(
                 project.getProjectId(), userId, "each"
         );
-        int surveyParticipant = projectUserJoinRepository.getSurveyParticipant(project.getProjectId());
+        int numOfsurveyParticipant = projectRepository.countSurveyParticipantsByProjectId(project.getProjectId());
 
         String evaluation = "";
 
@@ -220,18 +187,18 @@ public class ProjectService {
                 .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
                 .urlVisibility(project.getUrlVisibility())
                 .userEvaluation(evaluation)
-                .surveyParticipants(surveyParticipant)
+                .surveyParticipants(numOfsurveyParticipant)
                 .build();
     }
 
     @Transactional(readOnly = true)
     public List<SummaryProjectDto> getMeRegisteredProjects(String myEmail) {
-        List<Project> projects = projectRepository.findByOwnerEmail(myEmail);
+        List<Project> projects = projectRepository.getProjectsByOwnerEmail(myEmail);
         return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
     }
 
     private SummaryProjectDto convertToSummaryDto(Project project) {
-        int surveyParticipant = projectUserJoinRepository.getSurveyParticipant(project.getProjectId());
+        int surveyParticipant = projectRepository.countSurveyParticipantsByProjectId(project.getProjectId());
 
         return SummaryProjectDto.builder()
                 .projectId(project.getProjectId())
@@ -247,11 +214,11 @@ public class ProjectService {
     }
 
     private SummaryProjectDto convertToSummaryDtoForGetMeInvolvedProjects(String myEmail, Project project) {
-        boolean anonyVisibility = projectRepository.findByAnonyVisibility(project.getProjectId(), myEmail);
+        boolean anonyVisibility = projectRepository.getAnonyVisibilityByProjectIdAndEmail(project.getProjectId(), myEmail);
         PeerReviewTotalResult peerReviewTotalResult = peerReviewTotalResultRepository.findByProjectIdAndEmailAndPrismType(
                 project.getProjectId(), myEmail, "each"
         );
-        int surveyParticipant = projectUserJoinRepository.getSurveyParticipant(project.getProjectId());
+        int surveyParticipant = projectRepository.countSurveyParticipantsByProjectId(project.getProjectId());
 
         String evaluation;
 
@@ -285,8 +252,7 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public ProjectDetailDto getProjectDetailInMyPage(String myEmail, int projectId) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
+        Project project = this.getProjectById(projectId);
 
         if (project.getMembers().stream().noneMatch(member -> member.getEmail().equals(myEmail))) {
             throw new ProjectException("You are not a member of this project", ProjectErrorCode.UNAUTHORIZED);
@@ -331,8 +297,7 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public ProjectDetailDto getProjectDetailInRetrieve(int projectId) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectException("Project not found", ProjectErrorCode.PROJECT_NOT_FOUND));
+        Project project = this.getProjectById(projectId);
 
         Hibernate.initialize(project.getMembers());
         project.getMembers().forEach(member -> Hibernate.initialize(member.getRoles()));
@@ -384,8 +349,7 @@ public class ProjectService {
 
     @Transactional
     public ProjectDetailDto linkAnonymousProjectToUserAccount(UserContext userContext, int projectId, String anonymousEmail) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ProjectException("Project not found", ProjectErrorCode.PROJECT_NOT_FOUND));
+        Project project = this.getProjectById(projectId);
 
         Optional<PeerReviewResult> optionalPeerReviewResult = peerReviewResultRepository.findByEmailAndPrismType(userContext.getEmail(), "each");
         if (optionalPeerReviewResult.isPresent()) {
@@ -422,12 +386,12 @@ public class ProjectService {
 
 
         updatedMember.setEmail(userContext.getEmail());
-        userJpaRepository.findById(userContext.getUserId())
+        userRepository.getUserById(userContext.getUserId())
                 .ifPresentOrElse(updatedMember::setUser, () -> {
                     throw new ProjectException("User not found with given ID", ProjectErrorCode.USER_NOT_FOUND);
                 });
 
-        projectRepository.save(project);
+        projectRepository.saveProject(project);
         return createProjectDetailDto(project);
     }
 
@@ -470,10 +434,10 @@ public class ProjectService {
 
     @Transactional
     public ProjectAnonyVisibilityUpdateDto updateProjectUserJoinVisibility(int projectId, String email, boolean anonyVisibility) {
-        ProjectUserJoin projectUserJoin = projectUserJoinRepository.findByEmailAndProjectId(email, projectId);
+        ProjectUserJoin projectUserJoin = projectRepository.getMemberByEmailAndProjectId(projectId, email);
 
         projectUserJoin.setAnonyVisibility(anonyVisibility);
-        projectUserJoinRepository.save(projectUserJoin); // 변경 사항을 DB에 저장
+        projectRepository.saveProjectMember(projectUserJoin); // 변경 사항을 DB에 저장
 
         return ProjectAnonyVisibilityUpdateDto.builder()
                 .projectId(projectUserJoin.getProject().getProjectId())
@@ -483,18 +447,17 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public Long countUserInProject(Integer projectId) {
-        return projectRepository.countUserByProjectId(projectId);
+        return projectRepository.getMemberCountByProjectId(projectId);
     }
 
     @Transactional(readOnly = true)
-    public List<ProjectUserJoin> getAllMemberInProject(Integer projectId) {
-        return projectRepository.findAllMemberByProjectId(projectId);
+    public List<ProjectUserJoin> getAllMemberInProject(Integer projectId) { //TODO Output Dto로 변환
+        return projectRepository.getMembersByProjectId(projectId);
     }
 
     @Transactional(readOnly = true)
     public Project getProjectByOwner(Integer projectId, String email) {
-        return projectRepository.findByProjectIdAndCreatedBy(projectId, email)
-                .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
+        return this.getProjectByIdAndCreator(projectId, email);
     }
 
     @Transactional(readOnly = true)
@@ -522,7 +485,7 @@ public class ProjectService {
     }
 
     public List<MemberDetailDto> getProjectMembers(Integer projectId) {
-        List<ProjectUserJoin> projectUserJoins = projectUserJoinRepository.findByProjectId(projectId);
+        List<ProjectUserJoin> projectUserJoins = projectRepository.getMembersByProjectId(projectId);
 
         projectUserJoins.forEach(join -> {
             Hibernate.initialize(join.getRoles());
@@ -546,12 +509,26 @@ public class ProjectService {
     }
 
     private int getProjectCount(String userId) {
-        return projectUserJoinRepository.countByUserId(userId);
+        return projectRepository.getProjectCountByUserId(userId);
     }
 
     @Transactional
-    public void memberDonePeerReview(Integer projectId, String reviewerEmail) {
-        ProjectUserJoin member = projectUserJoinRepository.findByEmailAndProjectId(reviewerEmail, projectId);
+    public void memberDonePeerReview(int projectId, String reviewerEmail) {
+        ProjectUserJoin member = projectRepository.getMemberByEmailAndProjectId(projectId, reviewerEmail);
         member.doneReview();
+    }
+
+    private Project getProjectById(int projectId) {
+        return projectRepository.getProjectById(projectId)
+            .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
+    }
+
+    private void deleteProject(Project project) {
+        projectRepository.deleteProject(project);
+    }
+
+    private Project getProjectByIdAndCreator(int projectId, String email) {
+        return projectRepository.getProjectByIdAndCreator(projectId, email)
+            .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
     }
 }

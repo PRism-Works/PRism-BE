@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.project.Repository.custom.projection;
+package com.prismworks.prism.infrastructure.db.project.custom.projection;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -1,40 +1,37 @@
 package com.prismworks.prism.domain.project.Repository;
 
-import com.prismworks.prism.domain.project.Repository.custom.ProjectCustomRepository;
-import com.prismworks.prism.domain.project.model.Project;
-import com.prismworks.prism.domain.project.model.ProjectUserJoin;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-
 import java.util.List;
 import java.util.Optional;
 
-public interface ProjectRepository extends JpaRepository<Project, Integer>, ProjectCustomRepository {
-    @Query("SELECT p FROM Project p WHERE p.projectName like %:projectName% AND p.urlVisibility = true")
-    List<Project> findByProjectName(String projectName);
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
-    @Query("SELECT DISTINCT p FROM Project p LEFT JOIN p.members m LEFT JOIN p.categories c WHERE " +
-            "(:projectName IS NULL OR p.projectName = :projectName) OR " +
-            "(:memberName IS NULL OR m.name = :memberName) OR " +
-            "(:organizationName IS NULL OR p.organizationName = :organizationName) OR " +
-            "(COALESCE(:categories, NULL) IS NULL OR c.category.name IN :categories)")
-    List<Project> findByFilters(String projectName, String memberName, List<String> categories, String organizationName);
+import com.prismworks.prism.infrastructure.db.project.custom.projection.ProjectProjection;
+import com.prismworks.prism.domain.project.model.Category;
+import com.prismworks.prism.domain.project.model.Project;
+import com.prismworks.prism.domain.project.model.ProjectUserJoin;
+import com.prismworks.prism.interfaces.search.dto.ProjectSearchCondition;
 
-    @Query("SELECT p FROM Project p JOIN p.members m WHERE m.email = :email")
-    List<Project> findByMemberEmail(String email);
+public interface ProjectRepository {
+	void saveProject(Project project);
+	void deleteProject(Project project);
+	Optional<Project> getProjectById(int projectId);
+	Optional<Project> getProjectByIdAndCreator(int projectId, String email);
+	List<Project> getProjectsByName(String projectName);
+	List<Project> getProjectsByFilters(String projectName, String memberName, List<String> categories, String organizationName);
+	List<Project> getProjectsByMemberId(String memberUserId);
+	List<Project> getProjectsByMemberEmail(String email);
+	List<Project> getProjectsByOwnerEmail(String email);
+	List<ProjectUserJoin> getMembersByProjectId(int projectId);
+	Page<ProjectProjection.ProjectSearchResult> searchByCondition(ProjectSearchCondition condition, PageRequest pageRequest);
+	Optional<Category> getCategoryByName(String categoryName);
+	Long getMemberCountByProjectId(int projectId);
 
-    @Query("SELECT p FROM Project p JOIN p.members m WHERE m.user.userId = :userId")
-    List<Project> findByMemberUserId(String userId);
+	ProjectUserJoin saveProjectMember(ProjectUserJoin projectMember);
+	int getProjectCountByUserId(String userId);
+	ProjectUserJoin getMemberByEmailAndProjectId(int projectId, String reviewerEmail);
+	int countSurveyParticipantsByProjectId(int projectId);
+	boolean getAnonyVisibilityByProjectIdAndEmail(int projectId, String email);
 
-    @Query("SELECT p FROM Project p WHERE p.createdBy = :email")
-    List<Project> findByOwnerEmail(String email);
-
-    Optional<Project> findByProjectIdAndCreatedBy(Integer projectId, String createdBy);
-
-    @Query("SELECT p.anonyVisibility FROM ProjectUserJoin p WHERE p.email = :myEmail AND p.project.projectId = :projectId")
-    boolean findByAnonyVisibility(Integer projectId,String myEmail);
-
-    @Query("SELECT p FROM ProjectUserJoin p WHERE p.email = :myEmail AND p.project.projectId = :projectId")
-    ProjectUserJoin findByMyEmailAndProjectId(Integer projectId,String myEmail);
 
 }
