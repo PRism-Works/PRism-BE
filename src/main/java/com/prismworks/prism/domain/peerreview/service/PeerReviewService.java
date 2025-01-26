@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Repository;
 
@@ -186,7 +187,7 @@ public class PeerReviewService {
                 .user(message)
                 .call()
                 .chatResponse();
-        String answer = chatResponse.getResult().getOutput().getContent();
+        String answer = chatResponse.getResult().getOutput().getText();
 
         // answer를 로그로 기록
         logger.info("Generated answer: {}\n", answer);
