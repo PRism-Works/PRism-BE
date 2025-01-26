@@ -1,12 +1,15 @@
 package com.prismworks.prism.domain.project.model;
 
+import com.prismworks.prism.domain.project.dto.command.ProjectMemberCommonCommand;
 import com.prismworks.prism.domain.user.model.Users;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.List;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "project_user_joins")
 public class ProjectUserJoin {
@@ -35,6 +38,26 @@ public class ProjectUserJoin {
 
     @Column(name = "peer_review_done")
     private boolean peerReviewDone;
+
+    public ProjectUserJoin(ProjectMemberCommonCommand command) {
+        this.name = command.getName();
+        this.email = command.getEmail();
+        this.roles = command.getRoles();
+        this.user = command.getUser();
+        this.anonyVisibility = command.isAnonyVisibility();
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public void update(ProjectMemberCommonCommand command) {
+        this.name = command.getName();
+        this.email = command.getEmail();
+        this.user = command.getUser();
+        this.roles = command.getRoles();
+        this.anonyVisibility = command.isAnonyVisibility();
+    }
 
     public void doneReview() {
         this.peerReviewDone = true;

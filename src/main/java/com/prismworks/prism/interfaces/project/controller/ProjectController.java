@@ -37,7 +37,7 @@ public class ProjectController implements ProjectControllerDocs {
         CreateProjectCommand command = projectApiMapper
             .projectRequestToCreateCommand(request, userContext.getEmail());
 
-        ProjectDetailInfo info = projectService.createProject(userContext, command);
+        ProjectDetailInfo info = projectService.createProject(command);
         return new ApiSuccessResponse(HttpStatus.CREATED.value(), info);
     }
 

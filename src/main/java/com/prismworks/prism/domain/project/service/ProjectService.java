@@ -8,9 +8,14 @@ import com.prismworks.prism.domain.peerreview.repository.PeerReviewTotalResultRe
 import com.prismworks.prism.domain.project.Repository.CategoryRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectUserJoinRepository;
-import com.prismworks.prism.domain.project.dto.*;
+import com.prismworks.prism.domain.project.dto.MemberDetailDto;
+import com.prismworks.prism.domain.project.dto.ProjectDetailDto;
+import com.prismworks.prism.domain.project.dto.ProjectDetailInfo;
+import com.prismworks.prism.domain.project.dto.ProjectPeerReviewEmailInfoDto;
+import com.prismworks.prism.domain.project.dto.ProjectResponseDto;
+import com.prismworks.prism.domain.project.dto.SummaryProjectDto;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
-import com.prismworks.prism.domain.project.dto.command.UpdateProjectUserJoinsCommand;
+import com.prismworks.prism.domain.project.dto.command.ProjectMemberCommonCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
@@ -18,24 +23,19 @@ import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.dto.UserDetailInfo;
-import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
-import com.prismworks.prism.domain.user.model.Users;
-import com.prismworks.prism.infrastructure.db.user.UserJpaRepository;
 import com.prismworks.prism.domain.user.service.UserService;
-
-import org.hibernate.Hibernate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.text.ParseException;
+import com.prismworks.prism.infrastructure.db.user.UserJpaRepository;
+import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -68,82 +68,36 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectDetailInfo createProject(UserContext userContext, CreateProjectCommand command) throws ParseException {
+    public ProjectDetailInfo createProject(CreateProjectCommand command) {
+        List<ProjectMemberCommonCommand> memberCommands = command.getMembers();// todo: facade로 빼기
+        memberCommands.forEach(memberCommand ->
+            userJpaRepository.findByEmail(memberCommand.getEmail())
+                .ifPresent(memberCommand::setUser));
 
         Project project = new Project(command);
         projectRepository.save(project);  // 먼저 프로젝트를 저장합니다.
 
         resolveCategoryJoins(project, command.getCategories());
 
-        project.updateMembers(mapToProjectMembers(project, command.getMembers()));
-
         return new ProjectDetailInfo(project);
     }
 
     @Transactional
     public ProjectDetailInfo updateProject(UpdateProjectCommand command) {
+        List<ProjectMemberCommonCommand> memberCommands = command.getMembers();// todo: facade로 빼기
+        memberCommands.forEach(memberCommand ->
+            userJpaRepository.findByEmail(memberCommand.getEmail())
+                .ifPresent(memberCommand::setUser));
+
         Project project = projectRepository.findById(command.getProjectId())
                 .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
 
         // M:N 관계로 매핑된 Entity들에 대한 로직
         resolveCategoryJoins(project, command.getCategories());
 
-        project.updateProject(command, mapToProjectMembers(project, command.getMembers()));
+        project.updateProject(command);
 
         return new ProjectDetailInfo(project);
-    }
-
-    @Transactional
-    public List<ProjectUserJoin> mapToProjectMembers(Project project, List<UpdateProjectUserJoinsCommand> members) {
-
-        return members.stream()
-                .map(memberDto -> {
-                    ProjectUserJoin projectUserJoin = projectUserJoinRepository.findByEmailAndProjectId(memberDto.getEmail() ,project.getProjectId());
-                    Optional<Users> foundUser = userJpaRepository.findByEmail(memberDto.getEmail());
-
-                    ProjectUserJoin join = new ProjectUserJoin();
-                    join.setProject(project);
-                    join.setRoles(memberDto.getRoles());
-
-                    if(projectUserJoin == null) {
-                        join.setName(memberDto.getName());
-                        join.setEmail(memberDto.getEmail());
-                        join.setAnonyVisibility(true);
-                        join.setPeerReviewDone(false);
-                    }else {
-                        foundUser.ifPresentOrElse(
-                            user -> {
-                                join.setUser(user);
-                                join.setName(projectUserJoin.getName());
-                                join.setEmail(projectUserJoin.getEmail());
-                            },
-                            () -> {
-                                join.setName(memberDto.getName());
-                                join.setEmail(memberDto.getEmail());
-                            }
-                        );
-
-                        join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
-                        join.setPeerReviewDone(projectUserJoin.isPeerReviewDone());
-                    }
-                    return join;
-                })
-                .toList();
-    }
-
-    private ProjectUserJoin createNewMember(Project project, MemberDto memberDto) {
-        return userJpaRepository.findByEmail(memberDto.getEmail())
-                .map(user -> {
-                    ProjectUserJoin join = new ProjectUserJoin();
-                    join.setUser(user);
-                    join.setName(memberDto.getName());
-                    join.setEmail(memberDto.getEmail());
-                    join.setRoles(memberDto.getRoles());
-                    join.setProject(project);
-                    join.setPeerReviewDone(false);
-                    return join;
-                })
-                .orElseThrow(() -> new ProjectException("Member not found with email: " + memberDto.getEmail(), ProjectErrorCode.USER_NOT_FOUND));
     }
 
     @Transactional

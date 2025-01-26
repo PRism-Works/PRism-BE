@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.prismworks.prism.common.converter.StringToListConverter;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
+import com.prismworks.prism.domain.project.dto.command.ProjectMemberCommonCommand;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
 
 import jakarta.persistence.*;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 
 import java.util.*;
@@ -17,10 +19,8 @@ import org.springframework.util.StringUtils;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -80,20 +80,25 @@ public class Project {
     private Date deletedAt;
 
     public Project(CreateProjectCommand command) {
-        this.setProjectName(command.getProjectName());
-        this.setProjectDescription(command.getProjectDescription());
-        this.setOrganizationName(command.getOrganizationName());
-        this.setSkills(command.getSkills());
-        this.setStartDate(command.getStartDate());
-        this.setEndDate(command.getEndDate());
-        this.setProjectUrlLink(command.getProjectUrlLink());
-        this.setCreatedBy(command.getCreatedBy());
-        this.setUrlVisibility(true);
-        this.setCreatedAt(new Date());
-        this.setUpdatedAt(new Date());
+        this.projectName = command.getProjectName();
+        this.projectDescription = command.getProjectDescription();
+        this.organizationName = command.getOrganizationName();
+        this.skills = command.getSkills();
+        this.startDate = command.getStartDate();
+        this.endDate = command.getEndDate();
+        this.projectUrlLink = command.getProjectUrlLink();
+        this.createdBy = command.getCreatedBy();
+        this.urlVisibility = true;
+        this.createdAt = new Date();
+        this.updatedAt = new Date();
+
+        command.getMembers()
+            .stream()
+            .map(ProjectUserJoin::new)
+            .forEach(this::addMember);
     }
 
-    public void updateProject(UpdateProjectCommand command, List<ProjectUserJoin> newMembers) {
+    public void updateProject(UpdateProjectCommand command) {
 
         if (!this.createdBy.equals(command.getCreatedBy())) {
             throw new ProjectException("You do not have permission to update this project", ProjectErrorCode.UNAUTHORIZED);
@@ -128,16 +133,52 @@ public class Project {
             this.endDate = endDate;
         }
 
-        updateMembers(newMembers);
+        updateMembers(command.getMembers());
 
         this.updatedAt = new Date();
     }
 
-    public void updateMembers(List<ProjectUserJoin> newMembers) {
-        this.members.clear();
-        this.members.addAll(newMembers);
+    public void updateMembers(List<ProjectMemberCommonCommand> commands) {
+        Map<String, ProjectMemberCommonCommand> map = commands.stream()
+            .collect(Collectors.toMap(
+                ProjectMemberCommonCommand::getEmail,
+                command -> command
+            ));
 
-        this.memberCount = this.getMembers().size();
+        List<ProjectUserJoin> membersCopy = new ArrayList<>(this.members);
+        for(ProjectUserJoin member : membersCopy) {
+            ProjectMemberCommonCommand command = map.get(member.getEmail());
+
+            if(command != null) {
+                member.update(command);
+                map.remove(member.getEmail());
+            } else {
+                this.removeMember(member);
+            }
+        }
+
+        for(ProjectMemberCommonCommand command : map.values()) {
+            ProjectUserJoin member = new ProjectUserJoin(command);
+            this.addMember(member);
+        }
+    }
+
+    public void addMember(ProjectUserJoin member) {
+        members.add(member);
+        member.setProject(this);
+
+        this.updateMemberCount();
+    }
+
+    public void removeMember(ProjectUserJoin member) {
+        members.remove(member);
+        member.setProject(null);
+
+        this.updateMemberCount();
+    }
+
+    public void updateMemberCount() {
+        this.memberCount = members.size();
     }
 
     @Override
