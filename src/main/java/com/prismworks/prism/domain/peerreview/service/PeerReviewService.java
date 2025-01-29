@@ -186,7 +186,7 @@ public class PeerReviewService {
                 .user(message)
                 .call()
                 .chatResponse();
-        String answer = chatResponse.getResult().getOutput().getContent();
+        String answer = chatResponse.getResult().getOutput().getText();
 
         // answer를 로그로 기록
         logger.info("Generated answer: {}\n", answer);

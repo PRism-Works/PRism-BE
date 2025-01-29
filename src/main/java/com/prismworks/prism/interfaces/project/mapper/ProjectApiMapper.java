@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.prismworks.prism.domain.project.dto.command.ProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
-import com.prismworks.prism.domain.project.dto.command.UpdateProjectUserJoinsCommand;
+import com.prismworks.prism.domain.project.dto.command.ProjectMemberCommonCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
@@ -57,7 +57,7 @@ public class ProjectApiMapper {
 			.endDate(parseDate(request.getEndDate()))
 			.createdBy(userEmail)
 			.members(request.getMembers().stream()
-				.map(member -> UpdateProjectUserJoinsCommand.builder()
+				.map(member -> ProjectMemberCommonCommand.builder()
 					.name(member.getName())
 					.email(member.getEmail())
 					.roles(member.getRoles())

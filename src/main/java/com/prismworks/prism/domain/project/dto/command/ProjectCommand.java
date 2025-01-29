@@ -21,5 +21,5 @@ public class ProjectCommand {
 	private final Date startDate;
 	private final Date endDate;
 	private final String createdBy;
-	private final List<UpdateProjectUserJoinsCommand> members;
+	private final List<ProjectMemberCommonCommand> members;
 }

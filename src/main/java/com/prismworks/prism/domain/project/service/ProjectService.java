@@ -7,7 +7,7 @@ import com.prismworks.prism.domain.peerreview.repository.PeerReviewRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
 import com.prismworks.prism.domain.project.dto.*;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
-import com.prismworks.prism.domain.project.dto.command.UpdateProjectUserJoinsCommand;
+import com.prismworks.prism.domain.project.dto.command.ProjectMemberCommonCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
@@ -17,7 +17,6 @@ import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.dto.UserDetailInfo;
 import com.prismworks.prism.domain.user.repository.UserRepository;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
-import com.prismworks.prism.domain.user.model.Users;
 import com.prismworks.prism.domain.user.service.UserService;
 
 import org.hibernate.Hibernate;
@@ -30,7 +29,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -64,13 +62,15 @@ public class ProjectService {
 
     @Transactional
     public ProjectDetailInfo createProject(CreateProjectCommand command) {
+        List<ProjectMemberCommonCommand> memberCommands = command.getMembers();// todo: facade로 빼기
+        memberCommands.forEach(memberCommand ->
+            userRepository.getUserByEmail(memberCommand.getEmail())
+                .ifPresent(memberCommand::setUser));
 
         Project project = new Project(command);
         projectRepository.saveProject(project);
 
         resolveCategoryJoins(project, command.getCategories());
-
-        project.updateMembers(mapToProjectMembers(project, command.getMembers()));
 
         return new ProjectDetailInfo(project);
     }
@@ -78,51 +78,17 @@ public class ProjectService {
     @Transactional
     public ProjectDetailInfo updateProject(UpdateProjectCommand command) {
         Project project = this.getProjectById(command.getProjectId());
+        List<ProjectMemberCommonCommand> memberCommands = command.getMembers();// todo: facade로 빼기
+        memberCommands.forEach(memberCommand ->
+			userRepository.getUserByEmail(memberCommand.getEmail())
+                .ifPresent(memberCommand::setUser));
 
         // M:N 관계로 매핑된 Entity들에 대한 로직
         resolveCategoryJoins(project, command.getCategories());
 
-        project.updateProject(command, mapToProjectMembers(project, command.getMembers()));
+        project.updateProject(command);
 
         return new ProjectDetailInfo(project);
-    }
-
-    @Transactional
-    public List<ProjectUserJoin> mapToProjectMembers(Project project, List<UpdateProjectUserJoinsCommand> members) {
-
-        return members.stream()
-                .map(memberDto -> {
-                    ProjectUserJoin projectUserJoin = projectRepository.getMemberByEmailAndProjectId(project.getProjectId(), memberDto.getEmail());
-                    Optional<Users> foundUser = userRepository.getUserByEmail(memberDto.getEmail());
-
-                    ProjectUserJoin join = new ProjectUserJoin();
-                    join.setProject(project);
-                    join.setRoles(memberDto.getRoles());
-
-                    if(projectUserJoin == null) {
-                        join.setName(memberDto.getName());
-                        join.setEmail(memberDto.getEmail());
-                        join.setAnonyVisibility(true);
-                        join.setPeerReviewDone(false);
-                    }else {
-                        foundUser.ifPresentOrElse(
-                            user -> {
-                                join.setUser(user);
-                                join.setName(projectUserJoin.getName());
-                                join.setEmail(projectUserJoin.getEmail());
-                            },
-                            () -> {
-                                join.setName(memberDto.getName());
-                                join.setEmail(memberDto.getEmail());
-                            }
-                        );
-
-                        join.setAnonyVisibility(projectUserJoin.getAnonyVisibility());
-                        join.setPeerReviewDone(projectUserJoin.isPeerReviewDone());
-                    }
-                    return join;
-                })
-                .toList();
     }
 
     @Transactional
