@@ -3,6 +3,7 @@ package com.prismworks.prism.domain.project.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.prismworks.prism.common.converter.StringToListConverter;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
+import com.prismworks.prism.domain.project.dto.command.ProjectCategoryCommonCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.ProjectMemberCommonCommand;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
@@ -96,6 +97,11 @@ public class Project {
             .stream()
             .map(ProjectUserJoin::new)
             .forEach(this::addMember);
+
+        command.getCategories()
+            .stream()
+            .map(ProjectCategoryJoin::new)
+            .forEach(this::addCategory);
     }
 
     public void updateProject(UpdateProjectCommand command) {
@@ -134,6 +140,8 @@ public class Project {
         }
 
         updateMembers(command.getMembers());
+
+        updateCategory(command.getCategories());
 
         this.updatedAt = new Date();
     }
@@ -181,13 +189,39 @@ public class Project {
         this.memberCount = members.size();
     }
 
+    private void updateCategory(List<ProjectCategoryCommonCommand> commands) {
+
+        Set<Category> newCategories = commands.stream()
+            .map(ProjectCategoryCommonCommand::getCategory)
+            .collect(Collectors.toSet());
+
+        new HashSet<>(this.categories).stream()
+            .filter(categoryJoin -> !newCategories.contains(categoryJoin.getCategory()))
+            .forEach(this::removeCategory);
+
+        for (ProjectCategoryCommonCommand command : commands) {
+            addCategory(new ProjectCategoryJoin(command));
+        }
+    }
+
+    private void addCategory(ProjectCategoryJoin category) {
+        category.setProject(this);
+        categories.add(category);
+    }
+
+    private void removeCategory(ProjectCategoryJoin category) {
+        categories.remove(category);
+        category.setProject(null);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Project project = (Project) o;
-        return projectId != null ? projectId.equals(project.projectId) : project.projectId == null;
+        return Objects.equals(projectId, project.projectId);
     }
+
     @Override
     public int hashCode() {
         return Objects.hash(projectId);

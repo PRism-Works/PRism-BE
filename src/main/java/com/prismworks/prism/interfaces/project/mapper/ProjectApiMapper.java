@@ -6,6 +6,7 @@ import java.util.Date;
 
 import org.springframework.stereotype.Component;
 
+import com.prismworks.prism.domain.project.dto.command.ProjectCategoryCommonCommand;
 import com.prismworks.prism.domain.project.dto.command.ProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.ProjectMemberCommonCommand;
@@ -49,13 +50,17 @@ public class ProjectApiMapper {
 		builder.projectName(request.getProjectName())
 			.projectDescription(request.getProjectDescription())
 			.organizationName(request.getOrganizationName())
-			.categories(request.getCategories())
 			.skills(request.getSkills())
 			.projectUrlLink(request.getProjectUrlLink())
 			.urlVisibility(request.isUrlVisibility())
 			.startDate(parseDate(request.getStartDate()))
 			.endDate(parseDate(request.getEndDate()))
 			.createdBy(userEmail)
+			.categories(request.getCategories().stream()
+				.map(categoryName -> ProjectCategoryCommonCommand.builder()
+					.categoryName(categoryName)
+					.build())
+				.toList())
 			.members(request.getMembers().stream()
 				.map(member -> ProjectMemberCommonCommand.builder()
 					.name(member.getName())

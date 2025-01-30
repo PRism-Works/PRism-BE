@@ -12,7 +12,6 @@ import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
 import com.prismworks.prism.domain.project.model.Project;
-import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.dto.UserDetailInfo;
 import com.prismworks.prism.domain.user.repository.UserRepository;
@@ -40,25 +39,6 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
 
     private final PeerReviewRepository peerReviewRepository;
-    // private final PeerReviewTotalResultJpaRepository peerReviewTotalResultJpaRepository;
-
-    @Transactional
-    public void resolveCategoryJoins(Project project, List<String> categoryNames) {
-        project.getCategories().clear();
-
-        project.getCategories().addAll(
-            categoryNames.stream()
-                .map(projectRepository::getCategoryByName)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(category -> {
-                    ProjectCategoryJoin join = new ProjectCategoryJoin();
-                    join.setProject(project);
-                    join.setCategory(category);
-                    return join;
-                }).toList()
-        );
-    }
 
     @Transactional
     public ProjectDetailInfo createProject(CreateProjectCommand command) {
@@ -67,10 +47,13 @@ public class ProjectService {
             userRepository.getUserByEmail(memberCommand.getEmail())
                 .ifPresent(memberCommand::setUser));
 
+        command.getCategories().forEach(
+            categoryCommand ->
+                projectRepository.getCategoryByName(categoryCommand.getCategoryName())
+                    .ifPresent(categoryCommand::setCategory));
+
         Project project = new Project(command);
         projectRepository.saveProject(project);
-
-        resolveCategoryJoins(project, command.getCategories());
 
         return new ProjectDetailInfo(project);
     }
@@ -83,8 +66,10 @@ public class ProjectService {
 			userRepository.getUserByEmail(memberCommand.getEmail())
                 .ifPresent(memberCommand::setUser));
 
-        // M:N 관계로 매핑된 Entity들에 대한 로직
-        resolveCategoryJoins(project, command.getCategories());
+        command.getCategories().forEach(
+            categoryCommand ->
+                projectRepository.getCategoryByName(categoryCommand.getCategoryName())
+                    .ifPresent(categoryCommand::setCategory));
 
         project.updateProject(command);
 

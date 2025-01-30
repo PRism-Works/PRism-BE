@@ -14,7 +14,7 @@ public class ProjectCommand {
 	private final String projectName;
 	private final String projectDescription;
 	private final String organizationName;
-	private final List<String> categories;
+	private final List<ProjectCategoryCommonCommand> categories;
 	private final List<String> skills;
 	private final String projectUrlLink;
 	private final boolean urlVisibility;
