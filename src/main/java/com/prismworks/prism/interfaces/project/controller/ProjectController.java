@@ -6,8 +6,10 @@ import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.project.dto.*;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
+import com.prismworks.prism.domain.project.dto.query.ProjectInfoQuery;
 import com.prismworks.prism.domain.project.service.ProjectService;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
+import com.prismworks.prism.interfaces.project.dto.request.ProjectInfoRequest;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectRequest;
 import com.prismworks.prism.interfaces.project.mapper.ProjectApiMapper;
 
@@ -17,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -64,39 +65,36 @@ public class ProjectController implements ProjectControllerDocs {
     //테스트 완료
     @GetMapping("/summary/by-name")
     public ApiSuccessResponse getProjectSummaryByName(@RequestParam String projectName) {
-        List<SummaryProjectDto> summaryProjects = projectService.getProjectSummaryByName(projectName);
+        List<ProjectInfo> summaryProjects = projectService.getProjectSummaryByName(projectName);
         return new ApiSuccessResponse(HttpStatus.OK.value(), summaryProjects);
     }
 
 
     @GetMapping("/summary/by-member-and-filters")
-    public ApiSuccessResponse getProjectSummaryByMemberAndFilters(
-            @RequestParam(required = false) String projectName,
-            @RequestParam(required = false) String memberName,
-            @RequestParam(required = false) List<String> categories,
-            @RequestParam(required = false) String organizationName) {
-        List<SummaryProjectDto> summaryProjects = projectService.getProjectSummaryByMemberAndFilters(projectName, memberName, categories, organizationName);
+    public ApiSuccessResponse getProjectSummaryByMemberAndFilters(@RequestBody ProjectInfoRequest request) {
+        ProjectInfoQuery query = projectApiMapper.projectRequestToInfoQuery(request);
+        List<ProjectInfo> summaryProjects = projectService.getProjectSummaryByMemberAndFilters(query);
         return new ApiSuccessResponse(HttpStatus.OK.value(), summaryProjects);
     }
 
     @GetMapping("/me-involved-projects")
     public ApiSuccessResponse getMeInvolvedProjects(@CurrentUser UserContext userContext) {
         String myEmail = userContext.getEmail();
-        List<SummaryProjectDto> myProjects = projectService.getMeInvolvedProjects(myEmail);
+        List<ProjectInfo> myProjects = projectService.getMeInvolvedProjects(myEmail);
         return new ApiSuccessResponse(HttpStatus.OK.value(), myProjects);
     }
 
     //굳이 내가 아니라 다른사람 프로필 검색할 때 프로젝트 리스트 뿌려주는 api
     @GetMapping("/who-involved-projects")
     public ApiSuccessResponse getWhoInvolvedProjects(@RequestParam("userId") String userId) {
-        List<SummaryProjectDto> whosProjects = projectService.getWhoInvolvedProjects(userId);
+        List<ProjectInfo> whosProjects = projectService.getWhoInvolvedProjects(userId);
         return new ApiSuccessResponse(HttpStatus.OK.value(), whosProjects);
     }
 
     @GetMapping("/me-registered-projects")
     public ApiSuccessResponse getMyRegisteredProjects(@CurrentUser UserContext userContext) {
         String myEmail = userContext.getEmail();
-        List<SummaryProjectDto> myRegisteredProjects = projectService.getMeRegisteredProjects(myEmail);
+        List<ProjectInfo> myRegisteredProjects = projectService.getMeRegisteredProjects(myEmail);
         return new ApiSuccessResponse(HttpStatus.OK.value(), myRegisteredProjects);
     }
 
@@ -125,7 +123,7 @@ public class ProjectController implements ProjectControllerDocs {
 
     //mypage에서 visibility 설정 하는 api
     @PutMapping("/anonyVisibility")
-    public ApiSuccessResponse updateProjectVisibility(@CurrentUser UserContext userContext,@RequestBody ProjectAnonyVisibilityUpdateDto request) {
+    public ApiSuccessResponse updateProjectVisibility(@CurrentUser UserContext userContext, @RequestBody ProjectAnonyVisibilityUpdateDto request) {
         ProjectAnonyVisibilityUpdateDto projectVisibilityUpdateDto = projectService.updateProjectUserJoinVisibility(
                 request.getProjectId(),
                 userContext.getEmail(),

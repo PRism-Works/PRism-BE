@@ -9,6 +9,7 @@ import com.prismworks.prism.domain.project.dto.*;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.ProjectMemberCommonCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
+import com.prismworks.prism.domain.project.dto.query.ProjectInfoQuery;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
 import com.prismworks.prism.domain.project.model.Project;
@@ -88,117 +89,81 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getProjectSummaryByName(String projectName) {
+    public List<ProjectInfo> getProjectSummaryByName(String projectName) {
         List<Project> projects = projectRepository.getProjectsByName(projectName);
-        return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
+        return projects.stream()
+            .map(project -> buildProjectInfo(project, null, false))
+            .collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getProjectSummaryByMemberAndFilters(String projectName, String memberName, List<String> categories, String organizationName) { //TODO Input Dto로 만들기
-        List<Project> projects = projectRepository.getProjectsByFilters(projectName, memberName, categories, organizationName);
-        return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
+    public List<ProjectInfo> getProjectSummaryByMemberAndFilters(ProjectInfoQuery query) {
+        List<Project> projects = projectRepository.getProjectsByFilters(query);
+        return projects.stream()
+            .map(project -> buildProjectInfo(project, null, false))
+            .collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getMeInvolvedProjects(String myEmail) {
+    public List<ProjectInfo> getMeRegisteredProjects(String myEmail) {
+        List<Project> projects = projectRepository.getProjectsByOwnerEmail(myEmail);
+        return projects.stream()
+            .map(project -> buildProjectInfo(project, null, false))
+            .collect(Collectors.toList());
+    }
+    @Transactional(readOnly = true)
+    public List<ProjectInfo> getMeInvolvedProjects(String myEmail) {
         List<Project> projects = projectRepository.getProjectsByMemberEmail(myEmail);
 
         return projects.stream()
-                .map(project -> convertToSummaryDtoForGetMeInvolvedProjects(myEmail, project))
-                .collect(Collectors.toList());
+            .map(project -> {
+                boolean anonyVisibility = projectRepository.getAnonyVisibilityByProjectIdAndEmail(project.getProjectId(), myEmail);
+                PeerReviewTotalResult peerReviewTotalResult = peerReviewRepository.getPeerReviewTotalResultByProjectIdAndEmailAndPrismType(
+                    project.getProjectId(), myEmail, "each"
+                );
+                return buildProjectInfo(project, peerReviewTotalResult, anonyVisibility);
+            })
+            .collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getWhoInvolvedProjects(String userId) {
+    public List<ProjectInfo> getWhoInvolvedProjects(String userId) {
         List<Project> projects = projectRepository.getProjectsByMemberId(userId);
 
         return projects.stream()
-                .map(project -> convertToSummaryDtoForWhoInvolvedProjects(userId,project))
-                .collect(Collectors.toList());
+            .map(project -> {
+                PeerReviewTotalResult peerReviewTotalResult = peerReviewRepository.getPeerReviewTotalResultByProjectIdAndUserIdAndPrismType(
+                    project.getProjectId(), userId, "each"
+                );
+                return buildProjectInfo(project, peerReviewTotalResult, false);
+            })
+            .collect(Collectors.toList());
 
     }
-    private SummaryProjectDto convertToSummaryDtoForWhoInvolvedProjects(String userId,Project project) {
-        PeerReviewTotalResult peerReviewTotalResult = peerReviewRepository.getPeerReviewTotalResultByProjectIdAndUserIdAndPrismType(
-                project.getProjectId(), userId, "each"
-        );
-        int numOfsurveyParticipant = projectRepository.countSurveyParticipantsByProjectId(project.getProjectId());
 
-        String evaluation;
-
-        if(peerReviewTotalResult == null){
-            evaluation = "총평 데이터 없음";
-        }else{
-            evaluation = peerReviewTotalResult.getEvalution();
-        }
-
-        return SummaryProjectDto.builder()
-                .projectId(project.getProjectId())
-                .projectName(project.getProjectName())
-                .organizationName(project.getOrganizationName())
-                .startDate(formatDate(project.getStartDate()))
-                .endDate(formatDate(project.getEndDate()))
-                .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
-                .urlVisibility(project.getUrlVisibility())
-                .userEvaluation(evaluation)
-                .surveyParticipants(numOfsurveyParticipant)
-                .build();
-    }
-
-    @Transactional(readOnly = true)
-    public List<SummaryProjectDto> getMeRegisteredProjects(String myEmail) {
-        List<Project> projects = projectRepository.getProjectsByOwnerEmail(myEmail);
-        return projects.stream().map(this::convertToSummaryDto).collect(Collectors.toList());
-    }
-
-    private SummaryProjectDto convertToSummaryDto(Project project) {
+    private ProjectInfo buildProjectInfo(Project project, PeerReviewTotalResult peerReviewTotalResult, boolean anonyVisibility) {
         int surveyParticipant = projectRepository.countSurveyParticipantsByProjectId(project.getProjectId());
+        String evaluation = (peerReviewTotalResult == null) ? "총평 데이터 없음" : peerReviewTotalResult.getEvalution();
 
-        return SummaryProjectDto.builder()
-                .projectId(project.getProjectId())
-                .projectName(project.getProjectName())
-                .organizationName(project.getOrganizationName())
-                .startDate(formatDate(project.getStartDate()))
-                .endDate(formatDate(project.getEndDate()))
-                .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
-                .urlVisibility(project.getUrlVisibility())
-                .userEvaluation("Sample Evaluation")
-                .surveyParticipants(surveyParticipant)
-                .build();
-    }
-
-    private SummaryProjectDto convertToSummaryDtoForGetMeInvolvedProjects(String myEmail, Project project) {
-        boolean anonyVisibility = projectRepository.getAnonyVisibilityByProjectIdAndEmail(project.getProjectId(), myEmail);
-        PeerReviewTotalResult peerReviewTotalResult = peerReviewRepository.getPeerReviewTotalResultByProjectIdAndEmailAndPrismType(
-                project.getProjectId(), myEmail, "each"
-        );
-        int surveyParticipant = projectRepository.countSurveyParticipantsByProjectId(project.getProjectId());
-
-        String evaluation;
-
-        if(peerReviewTotalResult == null){
-            evaluation = "총평 데이터 없음";
-        }else{
-            evaluation = peerReviewTotalResult.getEvalution();
-        }
-
-        return SummaryProjectDto.builder()
-                .projectId(project.getProjectId())
-                .projectName(project.getProjectName())
-                .organizationName(project.getOrganizationName())
-                .startDate(formatDate(project.getStartDate()))
-                .endDate(formatDate(project.getEndDate()))
-                .categories(project.getCategories().stream()
-                        .map(c -> c.getCategory().getName())
-                        .collect(Collectors.toList()))
-                .urlVisibility(project.getUrlVisibility())
-                .userEvaluation(evaluation)
-                .surveyParticipants(surveyParticipant)
-                .anonyVisibility(anonyVisibility)
-                .build();
+        return ProjectInfo.builder()
+            .projectId(project.getProjectId())
+            .projectName(project.getProjectName())
+            .projectDescription(project.getProjectDescription())
+            .organizationName(project.getOrganizationName())
+            .startDate(formatDate(project.getStartDate()))
+            .endDate(formatDate(project.getEndDate()))
+            .projectUrlLink(project.getProjectUrlLink())
+            .categories(project.getCategories().stream()
+                .map(c -> c.getCategory().getName())
+                .collect(Collectors.toList()))
+            .skills(project.getSkills())
+            .userEvaluation(evaluation)
+            .surveyParticipants(surveyParticipant)
+            .anonyVisibility(anonyVisibility)
+            .build();
     }
 
     private String formatDate(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(date);
     }
-
 
     @Transactional(readOnly = true)
     public ProjectDetailDto getProjectDetailInMyPage(String myEmail, int projectId) {

@@ -3,6 +3,7 @@ package com.prismworks.prism.interfaces.project.controller;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
+import com.prismworks.prism.interfaces.project.dto.request.ProjectInfoRequest;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.text.ParseException;
-import java.util.List;
 
 @Tag(name = "프로젝트 API", description = "프로젝트 관련 API")
 public interface ProjectControllerDocs {
@@ -38,10 +38,7 @@ public interface ProjectControllerDocs {
 
 	@Operation(summary = "멤버 및 필터를 통한 프로젝트 조회", description = "멤버와 필터로 프로젝트 요약 정보 조회")
 	ApiSuccessResponse getProjectSummaryByMemberAndFilters(
-		@RequestParam(required = false) String projectName,
-		@RequestParam(required = false) String memberName,
-		@RequestParam(required = false) List<String> categories,
-		@RequestParam(required = false) String organizationName);
+		@RequestBody ProjectInfoRequest request);
 
 	@Operation(summary = "사용자가 참여한 프로젝트 조회", description = "현재 사용자가 참여한 프로젝트 목록 조회")
 	ApiSuccessResponse getMeInvolvedProjects(@Parameter(hidden = true) UserContext userContext);

@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
 
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
+import com.prismworks.prism.domain.project.dto.query.ProjectInfoQuery;
 import com.prismworks.prism.infrastructure.db.project.custom.ProjectCustomRepository;
 import com.prismworks.prism.infrastructure.db.project.custom.projection.ProjectProjection;
 import com.prismworks.prism.domain.project.model.Category;
@@ -55,13 +56,13 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 	}
 
 	@Override
-	public List<Project> getProjectsByFilters(
-		String projectName,
-		String memberName,
-		List<String> categories,
-		String organizationName
-	) {
-		return projectJpaRepository.findByFilters(projectName, memberName, categories, organizationName);
+	public List<Project> getProjectsByFilters(ProjectInfoQuery query) {
+		return projectJpaRepository.findByFilters(
+			query.getProjectName()
+			, query.getMemberName()
+			, query.getCategories()
+			, query.getOrganizationName()
+		);
 	}
 
 	@Override

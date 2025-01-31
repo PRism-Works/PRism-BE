@@ -11,8 +11,10 @@ import com.prismworks.prism.domain.project.dto.command.ProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.ProjectMemberCommonCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
+import com.prismworks.prism.domain.project.dto.query.ProjectInfoQuery;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
+import com.prismworks.prism.interfaces.project.dto.request.ProjectInfoRequest;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectRequest;
 
 @Component
@@ -40,6 +42,15 @@ public class ProjectApiMapper {
 		buildCommonProjectCommand(request, userEmail, builder);
 
 		return builder.build();
+	}
+
+	public ProjectInfoQuery projectRequestToInfoQuery(ProjectInfoRequest request) {
+		return ProjectInfoQuery.builder()
+			.projectName(request.getProjectName())
+			.memberName(request.getMemberName())
+			.categories(request.getCategories())
+			.organizationName(request.getOrganizationName())
+			.build();
 	}
 
 	private void buildCommonProjectCommand(

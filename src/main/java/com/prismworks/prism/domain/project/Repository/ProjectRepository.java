@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import com.prismworks.prism.domain.project.dto.query.ProjectInfoQuery;
 import com.prismworks.prism.infrastructure.db.project.custom.projection.ProjectProjection;
 import com.prismworks.prism.domain.project.model.Category;
 import com.prismworks.prism.domain.project.model.Project;
@@ -18,7 +19,7 @@ public interface ProjectRepository {
 	Optional<Project> getProjectById(int projectId);
 	Optional<Project> getProjectByIdAndCreator(int projectId, String email);
 	List<Project> getProjectsByName(String projectName);
-	List<Project> getProjectsByFilters(String projectName, String memberName, List<String> categories, String organizationName);
+	List<Project> getProjectsByFilters(ProjectInfoQuery query);
 	List<Project> getProjectsByMemberId(String memberUserId);
 	List<Project> getProjectsByMemberEmail(String email);
 	List<Project> getProjectsByOwnerEmail(String email);
