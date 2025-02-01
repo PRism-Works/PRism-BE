@@ -5,6 +5,7 @@ import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectInfoRequest;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectRequest;
+import com.prismworks.prism.interfaces.project.dto.request.UpdateProjectRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,7 +28,7 @@ public interface ProjectControllerDocs {
 	@Operation(summary = "프로젝트 수정", description = "기존 프로젝트 수정")
 	ApiSuccessResponse updateProject(@Parameter(hidden = true) UserContext userContext,
 		@PathVariable int projectId,
-		@RequestBody @Valid ProjectRequest request) throws ParseException;
+		@RequestBody @Valid UpdateProjectRequest request) throws ParseException;
 
 	@Operation(summary = "프로젝트 삭제", description = "프로젝트 삭제")
 	ApiSuccessResponse deleteProject(@Parameter(hidden = true) UserContext userContext,

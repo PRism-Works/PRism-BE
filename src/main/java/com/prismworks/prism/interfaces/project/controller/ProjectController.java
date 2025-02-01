@@ -1,16 +1,18 @@
 package com.prismworks.prism.interfaces.project.controller;
 
+import com.prismworks.prism.application.project.ProjectFacade;
+import com.prismworks.prism.application.project.dto.param.UpdateProjectParam;
 import com.prismworks.prism.common.annotation.CurrentUser;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.project.dto.*;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
-import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.dto.query.ProjectInfoQuery;
 import com.prismworks.prism.domain.project.service.ProjectService;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectInfoRequest;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectRequest;
+import com.prismworks.prism.interfaces.project.dto.request.UpdateProjectRequest;
 import com.prismworks.prism.interfaces.project.mapper.ProjectApiMapper;
 
 import jakarta.validation.Valid;
@@ -30,6 +32,7 @@ public class ProjectController implements ProjectControllerDocs {
 
     private final ProjectService projectService;
     private final ProjectApiMapper projectApiMapper;
+    private final ProjectFacade facade;
 
     @PostMapping
     public ApiSuccessResponse createProject(@CurrentUser UserContext userContext,
@@ -45,14 +48,14 @@ public class ProjectController implements ProjectControllerDocs {
     @PutMapping("/{projectId}")
     public ApiSuccessResponse updateProject(@CurrentUser UserContext userContext,
                                             @PathVariable int projectId,
-                                            @RequestBody @Valid ProjectRequest request) {
+                                            @RequestBody @Valid UpdateProjectRequest request) {
 
-        UpdateProjectCommand command = projectApiMapper
-            .projectRequestToUpdateCommand(request, projectId, userContext.getEmail());
+        UpdateProjectParam param = projectApiMapper
+            .fromUpdateProjectParam(request, projectId, userContext.getEmail());
 
-        ProjectDetailInfo info = projectService.updateProject(command);
+        facade.updateProject(param);
 
-        return new ApiSuccessResponse(HttpStatus.OK.value(), info);
+        return ApiSuccessResponse.defaultOk();
     }
 
     @DeleteMapping("/{projectId}")
