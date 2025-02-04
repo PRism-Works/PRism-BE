@@ -1,4 +1,4 @@
-package com.prismworks.prism.domain.peerreview.repository;
+package com.prismworks.prism.infrastructure.db.peerreview;
 
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResult;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PeerReviewResultRepository extends JpaRepository<PeerReviewResult, Integer> {
+public interface PeerReviewResultJpaRepository extends JpaRepository<PeerReviewResult, Integer> {
     Optional<PeerReviewResult> findByProjectIdAndEmail(Integer projectId, String email);
     Optional<PeerReviewResult> findByUserIdAndPrismType(String userId,String prismType);
     //List<PeerReviewResult> findByUserIdAndPrismType(String userId,String prismType);

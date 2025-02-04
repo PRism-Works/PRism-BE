@@ -10,6 +10,8 @@ import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MemberDto {
     @NotEmpty
     private String name;
@@ -21,6 +23,7 @@ public class MemberDto {
 
     @Data
     @AllArgsConstructor
+    @NoArgsConstructor
     @Builder
     public static class MemberDetailDto {
         private String userId;

@@ -2,7 +2,7 @@ package com.prismworks.prism.interfaces.search.controller;
 
 import com.prismworks.prism.common.dto.PageResponse;
 import com.prismworks.prism.common.response.ApiSuccessResponse;
-import com.prismworks.prism.domain.project.Repository.custom.projection.ProjectProjection;
+import com.prismworks.prism.infrastructure.db.project.custom.projection.ProjectProjection;
 import com.prismworks.prism.domain.search.service.SearchService;
 import com.prismworks.prism.interfaces.search.dto.SearchDto.ProjectSearchRequest;
 import lombok.RequiredArgsConstructor;
