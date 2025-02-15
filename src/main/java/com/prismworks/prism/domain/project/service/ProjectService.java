@@ -160,25 +160,23 @@ public class ProjectService {
             .build();
     }
 
-    private String formatDate(Date date) {
+    private String formatDate(Date date) {  // TODO Util로 빼서 공통으로 사용
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         return sdf.format(date);
     }
 
     @Transactional(readOnly = true)
-    public ProjectDetailDto getProjectDetailInMyPage(String myEmail, int projectId) {
+    public ProjectDetailInfo getProjectDetailInMyPage(String myEmail, int projectId) {
         Project project = this.getProjectById(projectId);
 
         if (project.getMembers().stream().noneMatch(member -> member.getEmail().equals(myEmail))) {
             throw new ProjectException("You are not a member of this project", ProjectErrorCode.UNAUTHORIZED);
         }
 
-        project.getMembers().forEach(member -> member.getRoles().size());
-
         return convertToDetailDtoInMyPage(project);
     }
 
-    private ProjectDetailDto convertToDetailDtoInMyPage(Project project) {
+    private ProjectDetailInfo convertToDetailDtoInMyPage(Project project) {
         List<MemberDetailDto> memberDetails = project.getMembers().stream()
                 .map(member -> {
                     // User 객체가 null인 경우를 처리
@@ -193,7 +191,7 @@ public class ProjectService {
 
         long anonymousCount = memberDetails.stream().filter(MemberDetailDto::isAnonyVisibility).count();
 
-        return ProjectDetailDto.builder()
+        return ProjectDetailInfo.builder()
                 .projectName(project.getProjectName())
                 .organizationName(project.getOrganizationName())
                 .startDate(formatDate(project.getStartDate()))
@@ -211,7 +209,7 @@ public class ProjectService {
 
 
     @Transactional(readOnly = true)
-    public ProjectDetailDto getProjectDetailInRetrieve(int projectId) {
+    public ProjectDetailInfo getProjectDetailInRetrieve(int projectId) {
         Project project = this.getProjectById(projectId);
 
         Hibernate.initialize(project.getMembers());
@@ -221,7 +219,7 @@ public class ProjectService {
         return convertToDetailDtoInRetrieve(project);
     }
 
-    private ProjectDetailDto convertToDetailDtoInRetrieve(Project project) {
+    private ProjectDetailInfo convertToDetailDtoInRetrieve(Project project) {
         List<MemberDetailDto> memberDetails = project.getMembers().stream()
                 .map(member -> {
                     // User 객체가 null인 경우를 처리
@@ -245,7 +243,7 @@ public class ProjectService {
 
         long anonymousCount = memberDetails.stream().filter(MemberDetailDto::isAnonyVisibility).count();
 
-        return ProjectDetailDto.builder()
+        return ProjectDetailInfo.builder()
                 .projectId(project.getProjectId())
                 .projectName(project.getProjectName())
                 .organizationName(project.getOrganizationName())
@@ -263,7 +261,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectDetailDto linkAnonymousProjectToUserAccount(UserContext userContext, int projectId, String anonymousEmail) {
+    public ProjectDetailInfo linkAnonymousProjectToUserAccount(UserContext userContext, int projectId, String anonymousEmail) {
         Project project = this.getProjectById(projectId);
 
         Optional<PeerReviewResult> optionalPeerReviewResult = peerReviewRepository.getPeerReviewResultByEmailAndPrismType(userContext.getEmail(), "each");
@@ -307,10 +305,10 @@ public class ProjectService {
                 });
 
         projectRepository.saveProject(project);
-        return createProjectDetailDto(project);
+        return createProjectDetailInfo(project);
     }
 
-    private ProjectDetailDto createProjectDetailDto(Project project) {
+    private ProjectDetailInfo createProjectDetailInfo(Project project) {
         project.getMembers().forEach(member -> {
             Hibernate.initialize(member.getRoles());
         });
@@ -329,13 +327,11 @@ public class ProjectService {
                 .filter(MemberDetailDto::isAnonyVisibility)
                 .count();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-        return ProjectDetailDto.builder()
+        return ProjectDetailInfo.builder()
                 .projectName(project.getProjectName())
                 .organizationName(project.getOrganizationName())
-                .startDate(sdf.format(project.getStartDate()))
-                .endDate(sdf.format(project.getEndDate()))
+                .startDate(formatDate(project.getStartDate()))
+                .endDate(formatDate(project.getEndDate()))
                 .projectUrlLink(project.getProjectUrlLink())
                 .projectDescription(project.getProjectDescription())
                 .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))

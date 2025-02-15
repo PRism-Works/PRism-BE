@@ -1,12 +1,19 @@
 package com.prismworks.prism.domain.project.dto;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.prismworks.prism.domain.project.model.Project;
-import com.prismworks.prism.domain.project.model.ProjectCategoryJoin;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Builder
+@Getter
 public class ProjectDetailInfo {
 
 	public final Integer projectId;
@@ -14,12 +21,15 @@ public class ProjectDetailInfo {
 	public final String projectDescription;
 	public final String organizationName;
 	public final int memberCount;
-	public final Set<ProjectCategoryJoin> categories;
+	public final List<String> categories;
 	public final List<String> skills;
-	public final Date startDate;
-	public final Date endDate;
+	public final String startDate;
+	public final String endDate;
 	public final String projectUrlLink;
 	public final boolean urlVisibility;
+	private String mostCommonTraits;
+	private List<MemberDetailDto> members;
+	private long anonymousCount;
 	public final String createdBy;
 
 	public ProjectDetailInfo(Project project) {
@@ -28,13 +38,18 @@ public class ProjectDetailInfo {
 		this.projectDescription = project.getProjectDescription();
 		this.organizationName = project.getOrganizationName();
 		this.memberCount = project.getMemberCount();
-		this.categories = project.getCategories();
+		this.categories = project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList());
 		this.skills = project.getSkills();
-		this.startDate = project.getStartDate();
-		this.endDate = project.getEndDate();
+		this.startDate = formatDate(project.getStartDate());
+		this.endDate = formatDate(project.getEndDate());
 		this.projectUrlLink = project.getProjectUrlLink();
 		this.urlVisibility = project.getUrlVisibility();
 		this.createdBy = project.getCreatedBy();
+	}
+
+	private String formatDate(Date date) {  // TODO Util로 빼서 공통으로 사용
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		return sdf.format(date);
 	}
 
 }
