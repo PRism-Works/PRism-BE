@@ -1,11 +1,24 @@
 package com.prismworks.prism.domain.project.service;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.prismworks.prism.domain.auth.model.UserContext;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewResult;
 import com.prismworks.prism.domain.peerreview.model.PeerReviewTotalResult;
 import com.prismworks.prism.domain.peerreview.repository.PeerReviewRepository;
 import com.prismworks.prism.domain.project.Repository.ProjectRepository;
-import com.prismworks.prism.domain.project.dto.*;
+import com.prismworks.prism.domain.project.dto.ProjectDetailInfo;
+import com.prismworks.prism.domain.project.dto.ProjectInfo;
+import com.prismworks.prism.domain.project.dto.ProjectMemberInfo;
+import com.prismworks.prism.domain.project.dto.ProjectPeerReviewEmailInfoDto;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.ProjectMemberCommonCommand;
 import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
@@ -16,19 +29,9 @@ import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.dto.UserDetailInfo;
 import com.prismworks.prism.domain.user.repository.UserRepository;
-import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
 import com.prismworks.prism.domain.user.service.UserService;
+import com.prismworks.prism.interfaces.project.dto.request.ProjectAnonyVisibilityUpdateDto;
 
-import org.hibernate.Hibernate;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -173,91 +176,25 @@ public class ProjectService {
             throw new ProjectException("You are not a member of this project", ProjectErrorCode.UNAUTHORIZED);
         }
 
-        return convertToDetailDtoInMyPage(project);
+        return getProjectDetailInfo(project);
     }
-
-    private ProjectDetailInfo convertToDetailDtoInMyPage(Project project) {
-        List<MemberDetailDto> memberDetails = project.getMembers().stream()
-                .map(member -> {
-                    // User 객체가 null인 경우를 처리
-                    if (member.getUser() == null) {
-                        // 로깅, 오류 처리 또는 기본값 설정
-                        return new MemberDetailDto("-1", member.getName(), member.getEmail(), member.getRoles(),member.getAnonyVisibility());
-                    } else {
-                        return new MemberDetailDto(member.getUser().getUserId(), member.getName(), member.getEmail(), member.getRoles(),member.getAnonyVisibility());
-                    }
-                })
-                .collect(Collectors.toList());
-
-        long anonymousCount = memberDetails.stream().filter(MemberDetailDto::isAnonyVisibility).count();
-
-        return ProjectDetailInfo.builder()
-                .projectName(project.getProjectName())
-                .organizationName(project.getOrganizationName())
-                .startDate(formatDate(project.getStartDate()))
-                .endDate(formatDate(project.getEndDate()))
-                .projectUrlLink(project.getProjectUrlLink())
-                .urlVisibility(project.getUrlVisibility())
-                .projectDescription(project.getProjectDescription())
-                .mostCommonTraits("계산로직 미구현 하드코딩")
-                .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
-                .skills(project.getSkills())
-                .members(memberDetails)
-                .anonymousCount(anonymousCount)
-                .build();
-    }
-
 
     @Transactional(readOnly = true)
     public ProjectDetailInfo getProjectDetailInRetrieve(int projectId) {
         Project project = this.getProjectById(projectId);
 
-        Hibernate.initialize(project.getMembers());
-        project.getMembers().forEach(member -> Hibernate.initialize(member.getRoles()));
-        Hibernate.initialize(project.getCategories());
-
-        return convertToDetailDtoInRetrieve(project);
+        return getProjectDetailInfo(project);
     }
 
-    private ProjectDetailInfo convertToDetailDtoInRetrieve(Project project) {
-        List<MemberDetailDto> memberDetails = project.getMembers().stream()
-                .map(member -> {
-                    // User 객체가 null인 경우를 처리
-                    if (member.getUser() == null) {
-                        // 로깅, 오류 처리 또는 기본값 설정
-                        return new MemberDetailDto("-1", member.getName(), member.getEmail(), member.getRoles(), member.getAnonyVisibility());
-                    } else {
-                        UserDetailInfo userProfileDetail = userService.getUserDetailInfo(member.getUser().getUserId());
+    private ProjectDetailInfo getProjectDetailInfo(Project project) {
+        List<ProjectMemberInfo> projectMemberInfos = project.getMembers()
+            .stream()
+            .map(this::getProjectMemberInfo)
+            .toList();
 
-                        return MemberDetailDto.builder()
-                            .name(userProfileDetail.getUsername())
-                            .email(userProfileDetail.getEmail())
-                            .interestDomains(userProfileDetail.getInterestJobs())
-                            .introduction(userProfileDetail.getIntroduction())
-                            .roles(member.getRoles()) // 역할 정보 설정
-                            .projectCount(getProjectCount(member.getUser().getUserId())) // 프로젝트 수 계산
-                            .build();
-                    }
-                })
-                .collect(Collectors.toList());
+        long anonymousCount = projectMemberInfos.stream().filter(ProjectMemberInfo::isAnonyVisibility).count();
 
-        long anonymousCount = memberDetails.stream().filter(MemberDetailDto::isAnonyVisibility).count();
-
-        return ProjectDetailInfo.builder()
-                .projectId(project.getProjectId())
-                .projectName(project.getProjectName())
-                .organizationName(project.getOrganizationName())
-                .startDate(formatDate(project.getStartDate()))
-                .endDate(formatDate(project.getEndDate()))
-                .projectUrlLink(project.getProjectUrlLink())
-                .urlVisibility(project.getUrlVisibility())
-                .projectDescription(project.getProjectDescription())
-                .mostCommonTraits("")
-                .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
-                .skills(project.getSkills())
-                .members(memberDetails)
-                .anonymousCount(anonymousCount)
-                .build();
+        return new ProjectDetailInfo(project, projectMemberInfos, anonymousCount);
     }
 
     @Transactional
@@ -309,36 +246,15 @@ public class ProjectService {
     }
 
     private ProjectDetailInfo createProjectDetailInfo(Project project) {
-        project.getMembers().forEach(member -> {
-            Hibernate.initialize(member.getRoles());
-        });
-
-        List<MemberDetailDto> memberDetails = project.getMembers().stream()
-                .map(member -> new MemberDetailDto(
-                        member.getUser() != null ? member.getUser().getUserId() : "-1",
-                        member.getName(),
-                        member.getEmail(),
-                        member.getRoles(),
-                        member.getAnonyVisibility()
-                ))
+        List<ProjectMemberInfo> projectMemberInfos = project.getMembers().stream()
+                .map(ProjectMemberInfo::new)
                 .collect(Collectors.toList());
 
-        long anonymousCount = memberDetails.stream()
-                .filter(MemberDetailDto::isAnonyVisibility)
+        long anonymousCount = projectMemberInfos.stream()
+                .filter(ProjectMemberInfo::isAnonyVisibility)
                 .count();
 
-        return ProjectDetailInfo.builder()
-                .projectName(project.getProjectName())
-                .organizationName(project.getOrganizationName())
-                .startDate(formatDate(project.getStartDate()))
-                .endDate(formatDate(project.getEndDate()))
-                .projectUrlLink(project.getProjectUrlLink())
-                .projectDescription(project.getProjectDescription())
-                .categories(project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList()))
-                .skills(project.getSkills())
-                .members(memberDetails)
-                .anonymousCount(anonymousCount)
-                .build();
+        return new ProjectDetailInfo(project, projectMemberInfos, anonymousCount);
     }
 
 
@@ -348,21 +264,16 @@ public class ProjectService {
         ProjectUserJoin projectUserJoin = projectRepository.getMemberByEmailAndProjectId(projectId, email);
 
         projectUserJoin.setAnonyVisibility(anonyVisibility);
-        projectRepository.saveProjectMember(projectUserJoin); // 변경 사항을 DB에 저장
+        projectRepository.saveProjectMember(projectUserJoin);
 
         return ProjectAnonyVisibilityUpdateDto.builder()
                 .projectId(projectUserJoin.getProject().getProjectId())
-                .anonyVisibility(projectUserJoin.getAnonyVisibility()) // projectUserJoin의 anonyVisibility 반환
+                .anonyVisibility(projectUserJoin.getAnonyVisibility())
                 .build();
     }
 
     @Transactional(readOnly = true)
-    public Long countUserInProject(Integer projectId) {
-        return projectRepository.getMemberCountByProjectId(projectId);
-    }
-
-    @Transactional(readOnly = true)
-    public List<ProjectUserJoin> getAllMemberInProject(Integer projectId) { //TODO Output Dto로 변환
+    public List<ProjectUserJoin> getAllMemberInProject(Integer projectId) { // TODO PeerReviewResponseConverter Facade 사용 필요
         return projectRepository.getMembersByProjectId(projectId);
     }
 
@@ -395,28 +306,29 @@ public class ProjectService {
                 .build();
     }
 
-    public List<MemberDetailDto> getProjectMembers(Integer projectId) {
-        List<ProjectUserJoin> projectUserJoins = projectRepository.getMembersByProjectId(projectId);
+    private ProjectMemberInfo getProjectMemberInfo(ProjectUserJoin member) {
 
-        projectUserJoins.forEach(join -> {
-            Hibernate.initialize(join.getRoles());
-        });
+        if (member.getUser() == null) {
+            return ProjectMemberInfo.builder()
+                .userId("-1")
+                .name(member.getName())
+                .email(member.getEmail())
+                .roles(new ArrayList<>(member.getRoles()))
+                .anonyVisibility(member.getAnonyVisibility())
+                .build();
+        }
 
-        return projectUserJoins.stream()
-            .map(join -> {
-
-                UserDetailInfo userProfileDetail = userService.getUserDetailInfo(join.getUser().getUserId());
-
-                return MemberDetailDto.builder()
-                    .name(userProfileDetail.getUsername())
-                    .email(userProfileDetail.getEmail())
-                    .interestDomains(userProfileDetail.getInterestJobs())
-                    .introduction(userProfileDetail.getIntroduction())
-                    .roles(join.getRoles())
-                    .projectCount(getProjectCount(join.getUser().getUserId()))
-                    .build();
-            })
-            .collect(Collectors.toList());
+        UserDetailInfo userProfileDetail = userService.getUserDetailInfo(member.getUser().getUserId());
+        return ProjectMemberInfo.builder()
+            .userId(member.getUser().getUserId())
+            .name(userProfileDetail.getUsername())
+            .email(userProfileDetail.getEmail())
+            .interestDomains(new ArrayList<>(userProfileDetail.getInterestJobs()))
+            .introduction(userProfileDetail.getIntroduction())
+            .roles(new ArrayList<>(member.getRoles()))
+            .projectCount(getProjectCount(member.getUser().getUserId()))
+            .anonyVisibility(member.getAnonyVisibility())
+            .build();
     }
 
     private int getProjectCount(String userId) {

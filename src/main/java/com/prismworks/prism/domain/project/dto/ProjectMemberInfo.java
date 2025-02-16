@@ -6,10 +6,12 @@ import lombok.Data;
 
 import java.util.List;
 
+import com.prismworks.prism.domain.project.model.ProjectUserJoin;
+
 @Data
 @AllArgsConstructor
 @Builder
-public class MemberDetailDto {
+public class ProjectMemberInfo {
     private String userId;
     private String name;
     private String introduction;
@@ -20,11 +22,11 @@ public class MemberDetailDto {
     private int projectCount;
     private boolean anonyVisibility;
 
-    public MemberDetailDto(String userId, String name, String email, List<String> roles, boolean anonyVisibility) {
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.roles = roles;
-        this.anonyVisibility = anonyVisibility;
+    public ProjectMemberInfo(ProjectUserJoin member) {
+        this.userId = member.getUser() != null ? member.getUser().getUserId() : "-1";
+        this.name = member.getName();
+        this.email = member.getEmail();
+        this.roles = member.getRoles();
+        this.anonyVisibility = member.getAnonyVisibility();
     }
 }

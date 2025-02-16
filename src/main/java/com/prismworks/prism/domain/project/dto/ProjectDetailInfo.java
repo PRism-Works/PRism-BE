@@ -28,7 +28,7 @@ public class ProjectDetailInfo {
 	public final String projectUrlLink;
 	public final boolean urlVisibility;
 	private String mostCommonTraits;
-	private List<MemberDetailDto> members;
+	private List<ProjectMemberInfo> members;
 	private long anonymousCount;
 	public final String createdBy;
 
@@ -45,6 +45,24 @@ public class ProjectDetailInfo {
 		this.projectUrlLink = project.getProjectUrlLink();
 		this.urlVisibility = project.getUrlVisibility();
 		this.createdBy = project.getCreatedBy();
+	}
+
+	public ProjectDetailInfo(Project project, List<ProjectMemberInfo> projectMemberInfos, long anonymousCount) {
+		this.projectId = project.getProjectId();
+		this.projectName = project.getProjectName();
+		this.projectDescription = project.getProjectDescription();
+		this.organizationName = project.getOrganizationName();
+		this.startDate = formatDate(project.getStartDate());
+		this.endDate = formatDate(project.getEndDate());
+		this.projectUrlLink = project.getProjectUrlLink();
+		this.urlVisibility = project.getUrlVisibility();
+		this.mostCommonTraits = "";
+		this.categories = project.getCategories().stream().map(c -> c.getCategory().getName()).collect(Collectors.toList());
+		this.skills = project.getSkills();
+		this.members = projectMemberInfos;
+		this.anonymousCount = anonymousCount;
+		this.createdBy = project.getCreatedBy();
+		this.memberCount = projectMemberInfos.size();
 	}
 
 	private String formatDate(Date date) {  // TODO Util로 빼서 공통으로 사용
