@@ -6,6 +6,7 @@ import java.util.Date;
 
 import org.springframework.stereotype.Component;
 
+import com.prismworks.prism.application.project.dto.param.UpdateProjectParam;
 import com.prismworks.prism.domain.project.dto.command.ProjectCategoryCommonCommand;
 import com.prismworks.prism.domain.project.dto.command.ProjectCommand;
 import com.prismworks.prism.domain.project.dto.command.CreateProjectCommand;
@@ -16,9 +17,31 @@ import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectInfoRequest;
 import com.prismworks.prism.interfaces.project.dto.request.ProjectRequest;
+import com.prismworks.prism.interfaces.project.dto.request.UpdateProjectRequest;
 
 @Component
 public class ProjectApiMapper {
+
+	public UpdateProjectParam fromUpdateProjectParam(
+		UpdateProjectRequest request,
+		int projectId,
+		String userEmail
+	) {
+		return UpdateProjectParam.builder()
+			.projectId(projectId)
+			.projectName(request.getProjectName())
+			.projectDescription(request.getProjectDescription())
+			.organizationName(request.getOrganizationName())
+			.skills(request.getSkills())
+			.projectUrlLink(request.getProjectUrlLink())
+			.urlVisibility(request.isUrlVisibility())
+			.startDate(request.getStartDate())
+			.endDate(request.getEndDate())
+			.createdBy(userEmail)
+			.categories(request.getCategories())
+			.members(request.getMembers())
+			.build();
+	}
 
 	public UpdateProjectCommand projectRequestToUpdateCommand(
 		ProjectRequest request,
@@ -44,7 +67,7 @@ public class ProjectApiMapper {
 		return builder.build();
 	}
 
-	public ProjectInfoQuery projectRequestToInfoQuery(ProjectInfoRequest request) {
+	public ProjectInfoQuery projectRequestToInfoQuery(ProjectInfoRequest request) { //TODO ProjectRequest로 대체, ProjectInfoRequest 제거
 		return ProjectInfoQuery.builder()
 			.projectName(request.getProjectName())
 			.memberName(request.getMemberName())

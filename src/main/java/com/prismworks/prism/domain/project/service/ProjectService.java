@@ -25,6 +25,7 @@ import com.prismworks.prism.domain.project.dto.command.UpdateProjectCommand;
 import com.prismworks.prism.domain.project.dto.query.ProjectInfoQuery;
 import com.prismworks.prism.domain.project.exception.ProjectErrorCode;
 import com.prismworks.prism.domain.project.exception.ProjectException;
+import com.prismworks.prism.domain.project.model.Category;
 import com.prismworks.prism.domain.project.model.Project;
 import com.prismworks.prism.domain.project.model.ProjectUserJoin;
 import com.prismworks.prism.domain.user.dto.UserDetailInfo;
@@ -46,17 +47,9 @@ public class ProjectService {
 
     @Transactional
     public ProjectDetailInfo createProject(CreateProjectCommand command) {
-        List<ProjectMemberCommonCommand> memberCommands = command.getMembers();// todo: facade로 빼기
-        memberCommands.forEach(memberCommand ->
-            userRepository.getUserByEmail(memberCommand.getEmail())
-                .ifPresent(memberCommand::setUser));
-
-        command.getCategories().forEach(
-            categoryCommand ->
-                projectRepository.getCategoryByName(categoryCommand.getCategoryName())
-                    .ifPresent(categoryCommand::setCategory));
 
         Project project = new Project(command);
+
         projectRepository.saveProject(project);
 
         return new ProjectDetailInfo(project);
@@ -353,5 +346,9 @@ public class ProjectService {
     private Project getProjectByIdAndCreator(int projectId, String email) {
         return projectRepository.getProjectByIdAndCreator(projectId, email)
             .orElseThrow(() -> ProjectException.PROJECT_NOT_FOUND);
+    }
+
+    public Optional<Category> getCategoryByName(String categoryName) {
+        return projectRepository.getCategoryByName(categoryName);
     }
 }
